@@ -3974,6 +3974,8 @@ cachePrune = env.Command(
 env.AlwaysBuild(cachePrune)
 env.Alias('cache-prune', cachePrune)
 
+env.FinalizeInstallDependencies()
+
 # Substitute environment variables in any build targets so that we can
 # say, for instance:
 #
