@@ -32,7 +32,6 @@
 
 #include "mongo/util/options_parser/options_parser.h"
 
-#include <stdio.h>
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
