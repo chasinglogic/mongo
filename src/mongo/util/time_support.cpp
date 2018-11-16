@@ -862,16 +862,15 @@ static unsigned long long resyncTime() {
 }
 
 
-static uint64_t file_time_to_microseconds(FILETIME const ft) {
+static uint64_t file_time_to_microseconds(FILETIME const filetime) {
     // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
     static const uint64_t EPOCH_DIFFERENCE_MICROS = 11644473600000000ull;
 
-    uint64_t total_us = (((uint64_t)filetime->dwHighDateTime << 32) | (uint64_t)filetime->dwLowDateTime) / 10;
+    uint64_t total_us = (((uint64_t)filetime.dwHighDateTime << 32) | (uint64_t)filetime.dwLowDateTime) / 10;
         total_us -= EPOCH_DIFFERENCE_MICROS; // filetime is now 100-nanos since 1970-Jan-01
 
     return total_us % 1000000;
 }
-
 
 unsigned long long curTimeMicros64() {
     // Windows 8/2012 & later support a <1us time function
