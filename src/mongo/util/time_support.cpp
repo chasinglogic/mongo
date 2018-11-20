@@ -862,11 +862,11 @@ static unsigned long long resyncTime() {
 }
 
 static uint64_t file_time_to_microseconds(FILETIME const ft) {
-   // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
+    // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
     static const uint64_t EPOCH_DIFFERENCE_MICROS = 11644473600000000ull;
 
     uint64_t total_us = (((uint64_t)ft.dwHighDateTime << 32) | (uint64_t)ft.dwLowDateTime) / 10;
-    total_us -= EPOCH_DIFFERENCE_MICROS; // filetime is now 100-nanos since 1970-Jan-01
+    total_us -= EPOCH_DIFFERENCE_MICROS;  // filetime is now 100-nanos since 1970-Jan-01
 
     return total_us;
 }
