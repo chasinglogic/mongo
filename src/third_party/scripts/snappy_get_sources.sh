@@ -41,13 +41,13 @@ mkdir $DEST_DIR || true
 
 cd $TEMP_DIR
 if [ $TARGET_UNAME != "windows" ]; then
-    cp -R $TEMP_DIR/* $DEST_DIR || true
+    cp $TEMP_DIR/* $DEST_DIR || true
     rm -f $DEST_DIR/Makefile* $DEST_DIR/config* $DEST_DIR/*sh
     rm -f $DEST_DIR/compile* $DEST_DIR/depcomp $DEST_DIR/libtool
     rm -f $DEST_DIR/test-driver $DEST_DIR/*.m4 $DEST_DIR/missing
 
     echo "Generating Config.h and other files"
-    ./configure
+    cmake $TEMP_DIR
 
     # Copy over the platform independent generated files
     cp $TEMP_DIR/snappy-stubs-public.h $DEST_DIR
