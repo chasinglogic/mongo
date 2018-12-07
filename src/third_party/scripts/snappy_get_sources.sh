@@ -10,7 +10,7 @@ set -o errexit
 # 1. Run on Darwin or Solaris
 # 2. Run on Linux
 
-VERSION=1.1.3
+VERSION=1.1.7
 NAME=snappy
 TARBALL=$NAME-$VERSION.tar.gz
 TARBALL_DIR=$NAME-$VERSION
@@ -29,7 +29,7 @@ echo TARGET_UNAME: $TARGET_UNAME
 
 if [ ! -f $TARBALL ]; then
     echo "Get tarball"
-    wget https://github.com/google/$NAME/releases/download/$VERSION/$NAME-$VERSION.tar.gz
+    wget -O $NAME-$VERSION.tar.gz https://github.com/google/$NAME/archive/$VERSION.tar.gz
 fi
 
 echo $TARBALL
@@ -41,8 +41,7 @@ mkdir $DEST_DIR || true
 
 cd $TEMP_DIR
 if [ $TARGET_UNAME != "windows" ]; then
-    # Do a shallow copy, it is all we need
-    cp $TEMP_DIR/* $DEST_DIR || true
+    cp -R $TEMP_DIR/* $DEST_DIR || true
     rm -f $DEST_DIR/Makefile* $DEST_DIR/config* $DEST_DIR/*sh
     rm -f $DEST_DIR/compile* $DEST_DIR/depcomp $DEST_DIR/libtool
     rm -f $DEST_DIR/test-driver $DEST_DIR/*.m4 $DEST_DIR/missing
