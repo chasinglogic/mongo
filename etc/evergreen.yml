@@ -15506,6 +15506,7 @@ buildvariants:
   expansions:
     compile_flags: >-
       --ssl MONGO_DISTMOD=ubuntu1804
+      --disable-warnings-as-errors
       -j$(grep -c ^processor /proc/cpuinfo)
       --variables-files=etc/scons/mongodbtoolchain_v3_clang.vars
       --dbg=on
