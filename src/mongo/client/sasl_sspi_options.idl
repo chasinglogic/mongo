@@ -44,7 +44,6 @@ configs:
     short_name: "sspiHostnamecanonicalization"
     description: "DNS resolution strategy to use for hostname canonicalization. May be one of: {none, forward, forwardAndReverse}"
     arg_vartype: String
-    cpp_varname: "saslSSPIGlobalParams.canonicalization"
     default: "none"
     condition:
       preprocessor: "defined(_WIN32)"
