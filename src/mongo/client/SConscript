@@ -86,7 +86,7 @@ if env['MONGO_BUILD_SASL_CLIENT']:
     saslClientSource.extend([
         'cyrus_sasl_client_session.cpp',
         'sasl_sspi.cpp',
-        'sasl_sspi_options.cpp',
+        env.Idlc('sasl_sspi_options.idl')[0],
     ])
 
     saslLibs.extend(['sasl2'])

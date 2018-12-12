@@ -52,6 +52,9 @@ extern "C" int plain_client_plug_init(const sasl_utils_t* utils,
                                       int* plugcount);
 
 namespace mongo {
+
+  SASLSSPIGlobalParams saslSSPIGlobalParams;
+
 namespace {
 /*
  * SSPI client plugin impl
