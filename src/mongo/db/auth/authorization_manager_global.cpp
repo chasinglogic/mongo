@@ -40,53 +40,23 @@
 #include "mongo/db/service_context.h"
 #include "mongo/stdx/memory.h"
 #include "mongo/util/assert_util.h"
+#include "mongo/db/auth/authorization_manager_global.h"
+#include "mongo/db/auth/authorization_manager_global_gen.h"
 
 namespace mongo {
-namespace {
 
-const std::string kAuthSchemaVersionServerParameter = "authSchemaVersion";
-
-class AuthzVersionParameter : public ServerParameter {
-    MONGO_DISALLOW_COPYING(AuthzVersionParameter);
-
-public:
-    AuthzVersionParameter(ServerParameterSet* sps, const std::string& name);
-    virtual void append(OperationContext* opCtx, BSONObjBuilder& b, const std::string& name);
-    virtual Status set(const BSONElement& newValueElement);
-    virtual Status setFromString(const std::string& str);
-};
-
-MONGO_INITIALIZER_GENERAL(AuthzSchemaParameter,
-                          MONGO_NO_PREREQUISITES,
-                          ("BeginStartupOptionParsing"))
-(InitializerContext*) {
-    new AuthzVersionParameter(ServerParameterSet::getGlobal(), kAuthSchemaVersionServerParameter);
-    return Status::OK();
-}
-
-AuthzVersionParameter::AuthzVersionParameter(ServerParameterSet* sps, const std::string& name)
-    : ServerParameter(sps, name, false, false) {}
-
-void AuthzVersionParameter::append(OperationContext* opCtx,
-                                   BSONObjBuilder& b,
-                                   const std::string& name) {
+void appendToAuthVersionParameter(OperationContext* opCtx,
+                                   BSONObjBuilder* b,
+                                   StringData name) {
     int authzVersion;
     uassertStatusOK(AuthorizationManager::get(opCtx->getServiceContext())
                         ->getAuthorizationVersion(opCtx, &authzVersion));
-    b.append(name, authzVersion);
+    b->append(name, authzVersion);
 }
 
-Status AuthzVersionParameter::set(const BSONElement& newValueElement) {
+Status setAuthVersionParameterFromString(StringData newValueString) {
     return Status(ErrorCodes::InternalError, "set called on unsettable server parameter");
 }
-
-Status AuthzVersionParameter::setFromString(const std::string& newValueString) {
-    return Status(ErrorCodes::InternalError, "set called on unsettable server parameter");
-}
-
-}  // namespace
-
-MONGO_EXPORT_STARTUP_SERVER_PARAMETER(startupAuthSchemaValidation, bool, true);
 
 ServiceContext::ConstructorActionRegisterer createAuthorizationManager(
     "CreateAuthorizationManager",

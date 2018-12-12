@@ -216,6 +216,7 @@ env.Library(
     target='authorization_manager_global',
     source=[
         'authorization_manager_global.cpp',
+        env.Idlc('authorization_manager_global.idl')[0],
     ],
     LIBDEPS=[
         'auth',
