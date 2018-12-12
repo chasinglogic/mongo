@@ -57,3 +57,4 @@ configs:
     hidden: true
     condition:
       preprocessor: "defined(_WIN32)"
+
