@@ -29,7 +29,7 @@ echo TARGET_UNAME: $TARGET_UNAME
 
 if [ ! -f $TARBALL ]; then
     echo "Get tarball"
-    wget -O $NAME-$VERSION.tar.gz https://github.com/google/$NAME/archive/$VERSION.tar.gz
+    curl -L -o $NAME-$VERSION.tar.gz https://github.com/google/$NAME/archive/$VERSION.tar.gz
 fi
 
 echo $TARBALL
