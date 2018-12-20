@@ -4537,18 +4537,18 @@ tasks:
 
     # If this is a patch build, blow away the file so our subsequent and optional s3.put
     # doesn't run. That way, we won't overwrite the latest part in our patches.
-    - command: shell.exec
-      params:
-        script: |
-          set -o errexit
-          set -o verbose
+    # - command: shell.exec
+    #   params:
+    #     script: |
+    #       set -o errexit
+    #       set -o verbose
 
-          if [ "${is_patch}" = "true" ]; then
-            rm -f mongo-embedded-sdk-${version}.tgz
-            rm -f mongo-embedded-sdk-${version}-mongo-c-driver.tgz
-            rm -f mongo-embedded-sdk-${version}-mongo-embedded.tgz
-            rm -f mongo-embedded-sdk-${version}-mongoc-embedded.tgz
-          fi
+    #       if [ "${is_patch}" = "true" ]; then
+    #         rm -f mongo-embedded-sdk-${version}.tgz
+    #         rm -f mongo-embedded-sdk-${version}-mongo-c-driver.tgz
+    #         rm -f mongo-embedded-sdk-${version}-mongo-embedded.tgz
+    #         rm -f mongo-embedded-sdk-${version}-mongoc-embedded.tgz
+    #       fi
 
     # A second put, this time to -latest, to give devs a reasonable
     # way to get the most recent build.
@@ -4606,12 +4606,33 @@ tasks:
           set -o errexit
           set -o verbose
 
-          sed s/@VERSION@/1.13.0/g src/src/mongo/embedded/mongoc_embedded/mongo-embedded-c-driver.podspec.in | tee mongo-embedded-c-driver.podspec
-          sed s/@VERSION@/${version}/g src/src/mongo/embedded/mongo_embedded/mongo_embedded.podspec.in | tee mongo_embedded.podspec
-          sed s/@VERSION@/${version}/g src/src/mongo/embedded/mongoc_embedded/mongoc_embedded.podspec.in | tee mongoc_embedded.podspec
+          echo "Releases disabled on master."
+          # exit 0
 
-          # conditional cocoapods deployment here, pending integration with release process
-          #sudo gem install cocoapods
+          ls -R
+
+          if [ "${is_release|false}" != "true" ];
+              echo "Not a release build"
+              # exit 0 
+          fi
+
+          sed s/@VERSION@/1.13.0/g src/src/mongo/embedded/mongoc_embedded/mongo-embedded-c-driver.podspec.in | tee mongo-embedded-c-driver.podspec
+          DRIVER_SHA=`shasum -a 256 mongo-embedded-sdk-${version}-mongo-c-driver.tgz  | awk '{ print $1 }'`
+          sed -i '' s/@SHA256@/$DRIVER_SHA/g mongo-embedded-c-driver.podspec
+
+          sed s/@VERSION@/${version}/g src/src/mongo/embedded/mongo_embedded/mongo_embedded.podspec.in | tee mongo_embedded.podspec
+          MONGO_SHA=`shasum -a 256 mongo-embedded-sdk-${version}-mongo-embedded.tgz  | awk '{ print $1 }'`
+          sed -i '' s/@SHA256@/$MONGO_SHA/g mongo_embedded.podspec
+
+          sed s/@VERSION@/${version}/g src/src/mongo/embedded/mongoc_embedded/mongoc_embedded.podspec.in | tee mongoc_embedded.podspec
+          MONGOC_SHA=`shasum -a 256 mongo-embedded-sdk-${version}-mongoc-embedded.tgz  | awk '{ print $1 }'`
+          sed -i '' s/@SHA256@/$MONGOC_SHA/g mongoc_embedded.podspec
+
+          pod trunk push mongo-embedded-c-driver.podspec
+          pod trunk push mongo_embedded.podspec
+          pod trunk push mongoc_embedded.podspec
+
+          cat *.podspec
 
 - name: compile_benchmarks
   depends_on: []
