@@ -1,7 +1,5 @@
 """Utility for parsing JS comments."""
 
-from __future__ import absolute_import
-
 import re
 
 import yaml
@@ -36,12 +34,12 @@ def get_tags(pathname):
                 # TODO: it might be worth supporting the block (indented) style of YAML lists in
                 #       addition to the flow (bracketed) style
                 tags = yaml.safe_load(_strip_jscomments(match.group(1)))
-                if not isinstance(tags, list) and all(isinstance(tag, basestring) for tag in tags):
+                if not isinstance(tags, list) and all(isinstance(tag, str) for tag in tags):
                     raise TypeError("Expected a list of string tags, but got '%s'" % (tags))
                 return tags
             except yaml.YAMLError as err:
-                raise ValueError("File '%s' contained invalid tags (expected YAML): %s" % (pathname,
-                                                                                           err))
+                raise ValueError(
+                    "File '%s' contained invalid tags (expected YAML): %s" % (pathname, err))
 
     return []
 

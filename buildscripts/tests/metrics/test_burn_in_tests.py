@@ -398,7 +398,7 @@ class TestWriteJsonFile(unittest.TestCase):
     def test_write_json_file(self):
         my_data = {"key1": "val1", "key_list": ["l1", "l2"]}
         path = "myfile"
-        with patch("__builtin__.open") as mock_file,\
+        with patch("builtins.open") as mock_file,\
              patch("json.dump") as mock_json_dump:
             burn_in.write_json_file(my_data, path)
             mock_file.assert_called_once_with("myfile", "w")
