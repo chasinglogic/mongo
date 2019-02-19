@@ -99,7 +99,7 @@ def generate(env):
     suffixes = _CSuffixes + _CXXSuffixes
     for object_builder in SCons.Tool.createObjBuilders(env):
         emitterdict = object_builder.builder.emitter
-        for suffix in emitterdict.iterkeys():
+        for suffix in emitterdict.keys():
             if not suffix in suffixes:
                 continue
             base = emitterdict[suffix]
@@ -135,10 +135,9 @@ def exists(env):
         return False
     icecc = env.WhereIs(icecc)
 
-    pipe = SCons.Action._subproc(env, SCons.Util.CLVar(icecc) + ['--version'],
-                                 stdin = 'devnull',
-                                 stderr = 'devnull',
-                                 stdout = subprocess.PIPE)
+    pipe = SCons.Action._subproc(env,
+                                 SCons.Util.CLVar(icecc) + ['--version'], stdin='devnull',
+                                 stderr='devnull', stdout=subprocess.PIPE, text=True)
 
     if pipe.wait() != 0:
         return False

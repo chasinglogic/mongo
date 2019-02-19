@@ -1,5 +1,5 @@
 """Unit tests for the resmokelib.testing.executor module."""
-from __future__ import division
+
 
 import logging
 import time

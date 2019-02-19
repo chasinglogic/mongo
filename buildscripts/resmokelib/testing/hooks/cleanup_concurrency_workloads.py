@@ -1,6 +1,6 @@
 """Test hook for dropping databases created by the fixture."""
 
-from __future__ import absolute_import
+
 
 import copy
 

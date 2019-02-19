@@ -1,5 +1,5 @@
 """Test hook that periodically makes the primary of a replica set step down."""
-from __future__ import absolute_import
+
 
 import collections
 import os.path

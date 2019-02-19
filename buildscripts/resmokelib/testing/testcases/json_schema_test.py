@@ -1,6 +1,6 @@
 """The unittest.TestCase for JSON Schema tests."""
 
-from __future__ import absolute_import
+
 
 from buildscripts.resmokelib import config
 from buildscripts.resmokelib import core

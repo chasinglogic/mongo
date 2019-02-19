@@ -132,14 +132,14 @@ class Adb(object):
 
     def systrace_stop(self, output_file=None):
         """Stop the systrace.py script."""
-        self._cmd.send_to_process("bye")
+        self._cmd.send_to_process(b"bye")
         with open(self._tempfile) as fh:
             buff = fh.read()
         os.remove(self._tempfile)
         self.logger.debug("systrace_stop: %s", buff)
         if "Wrote trace" not in buff:
             self.logger.error("CPU file not saved: %s", buff)
-            if os.path.isfile(output_file):
+            if output_file and os.path.isfile(output_file):
                 os.remove(output_file)
 
 

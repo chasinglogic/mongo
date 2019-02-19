@@ -1,6 +1,6 @@
 """Test hook for cleaning up data files created by the fixture."""
 
-from __future__ import absolute_import
+
 
 import os
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Remote access utilities, via ssh & scp."""
 
-from __future__ import print_function
+
 
 import optparse
 import os
@@ -10,20 +10,7 @@ import re
 import shlex
 import sys
 import time
-
-# The subprocess32 module is untested on Windows and thus isn't recommended for use, even when it's
-# installed. See https://github.com/google/python-subprocess32/blob/3.2.7/README.md#usage.
-if os.name == "posix" and sys.version_info[0] == 2:
-    try:
-        import subprocess32 as subprocess
-    except ImportError:
-        import warnings
-        warnings.warn(("Falling back to using the subprocess module because subprocess32 isn't"
-                       " available. When using the subprocess module, a child process may trigger"
-                       " an invalid free(). See SERVER-22219 for more details."), RuntimeWarning)
-        import subprocess  # type: ignore
-else:
-    import subprocess
+import subprocess
 
 # Get relative imports to work when the package is not installed on the PYTHONPATH.
 if __name__ == "__main__" and __package__ is None:

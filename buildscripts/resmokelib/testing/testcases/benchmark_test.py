@@ -1,6 +1,6 @@
 """The unittest.TestCase for tests using a MongoDB vendored version of Google Benchmark."""
 
-from __future__ import absolute_import
+
 
 from buildscripts.resmokelib import config as _config
 from buildscripts.resmokelib import core
@@ -52,7 +52,7 @@ class BenchmarkTestCase(interface.ProcessTestCase):
             "benchmark_repetitions": _config.BENCHMARK_REPETITIONS
         }
 
-        for key, value in resmoke_bm_options.items():
+        for key, value in list(resmoke_bm_options.items()):
             if value is not None:
                 # 4. sanitize options before passing them to Benchmark's command line.
                 if key == "benchmark_min_time":

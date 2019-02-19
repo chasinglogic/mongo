@@ -28,7 +28,7 @@
 # pylint: disable=too-many-lines
 """IDL C++ Code Generator."""
 
-from __future__ import absolute_import, print_function, unicode_literals
+
 
 from abc import ABCMeta, abstractmethod
 import copy
@@ -189,10 +189,8 @@ def _get_all_fields(struct):
     return sorted([field for field in all_fields], key=lambda f: f.cpp_name)
 
 
-class _FieldUsageCheckerBase(object):
+class _FieldUsageCheckerBase(object, metaclass=ABCMeta):
     """Check for duplicate fields, and required fields as needed."""
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, indented_writer):
         # type: (writer.IndentedTextWriter) -> None
@@ -2017,7 +2015,7 @@ class _CppSourceFileWriter(_CppFileWriterBase):
                     self._writer.write_line('%s %s%s;' % (param.cpp_vartype, param.cpp_varname,
                                                           init))
 
-        blockname = 'idl_' + hashlib.sha1(header_file_name).hexdigest()
+        blockname = 'idl_' + hashlib.sha1(header_file_name.encode()).hexdigest()
         with self._block('MONGO_SERVER_PARAMETER_REGISTER(%s)(InitializerContext*) {' % (blockname),
                          '}'):
             # ServerParameter instances.
@@ -2116,7 +2114,7 @@ class _CppSourceFileWriter(_CppFileWriterBase):
         for opt in root_opts:
             self.gen_config_option(opt, 'options')
 
-        for section_name, section_opts in sections.iteritems():
+        for section_name, section_opts in sections.items():
             with self._block('{', '}'):
                 self._writer.write_line('moe::OptionSection section(%s);' % (_encaps(section_name)))
                 self.write_empty_line()
@@ -2184,7 +2182,7 @@ class _CppSourceFileWriter(_CppFileWriterBase):
 
         # pylint: disable=consider-using-ternary
         blockname = (initializer
-                     and initializer.name) or ('idl_' + hashlib.sha1(header_file_name).hexdigest())
+                     and initializer.name) or ('idl_' + hashlib.sha1(header_file_name.encode()).hexdigest())
 
         if initializer and initializer.register:
             with self._block('Status %s(optionenvironment::OptionSection* options_ptr) {' %

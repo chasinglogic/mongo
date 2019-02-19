@@ -13,7 +13,7 @@ def generate(unicode_casefold_file, target):
     The case folding function contains a switch statement with cases for every
     Unicode codepoint that has a case folding mapping.
     """
-    out = open(target, "w")
+    out = open(target, "w", encoding='utf-8')
 
     out.write(getCopyrightNotice())
     out.write(include("mongo/db/fts/unicode/codepoints.h"))
@@ -22,9 +22,10 @@ def generate(unicode_casefold_file, target):
 
     case_mappings = {}
 
-    cf_file = open(unicode_casefold_file, 'rU')
+    cf_file = open(unicode_casefold_file, 'rb')
 
     for line in cf_file:
+        line = line.decode('utf-8')
         # Filter out blank lines and lines that start with #
         data = line[:line.find('#')]
         if(data == ""):

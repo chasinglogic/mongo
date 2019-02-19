@@ -4,8 +4,8 @@
 Update etc/test_lifecycle.yml to tag unreliable tests based on historic failure rates.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+
+
 
 import collections
 import datetime
@@ -39,11 +39,7 @@ from buildscripts.util import testname
 # pylint: disable=too-many-lines
 
 LOGGER = logging.getLogger(__name__)
-
-if sys.version_info[0] == 2:
-    _NUMBER_TYPES = (int, long, float)
-else:
-    _NUMBER_TYPES = (int, float)
+_NUMBER_TYPES = (int, float)
 
 Rates = collections.namedtuple("Rates", ["acceptable", "unacceptable"])
 
@@ -90,7 +86,7 @@ def get_test_tasks_membership(evg_conf):
     test_suites_membership = resmokelib.suitesconfig.create_test_membership_map(test_kind="js_test")
     suite_tasks_membership = get_suite_tasks_membership(evg_conf)
     test_tasks_membership = collections.defaultdict(list)
-    for test in test_suites_membership.keys():
+    for test in list(test_suites_membership.keys()):
         for suite in test_suites_membership[test]:
             test_tasks_membership[test].extend(suite_tasks_membership[suite])
     return test_tasks_membership
@@ -100,7 +96,7 @@ def get_tests_from_tasks(tasks, test_tasks_membership):
     """Return a list of tests from list of specified tasks."""
     tests = []
     tasks_set = set(tasks)
-    for test in test_tasks_membership.keys():
+    for test in list(test_tasks_membership.keys()):
         if not tasks_set.isdisjoint(test_tasks_membership[test]):
             tests.append(test)
     return tests

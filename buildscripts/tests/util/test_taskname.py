@@ -1,6 +1,6 @@
 """Unit tests for the util/taskname.py script."""
 
-from __future__ import absolute_import
+
 
 import unittest
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """AWS EC2 instance launcher and controller."""
 
-from __future__ import print_function
+
 
 import base64
 import collections

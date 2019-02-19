@@ -1,6 +1,6 @@
 """Parser for command line arguments."""
 
-from __future__ import absolute_import
+
 
 import collections
 import os
@@ -613,7 +613,7 @@ def _update_config_vars(values):  # pylint: disable=too-many-statements
         _config.SHELL_CONN_STRING = conn_string
 
     if config:
-        raise optparse.OptionValueError("Unknown option(s): %s" % (config.keys()))
+        raise optparse.OptionValueError("Unknown option(s): %s" % (list(config.keys())))
 
 
 def _get_logging_config(pathname):

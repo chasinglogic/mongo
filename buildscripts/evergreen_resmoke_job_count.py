@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Determine the number of resmoke jobs to run."""
 
-from __future__ import division
-from __future__ import print_function
+
+
 
 import argparse
 import platform

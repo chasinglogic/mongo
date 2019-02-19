@@ -5,7 +5,7 @@ Used to avoid deadlocks from the pipe buffer filling up and blocking the subproc
 being waited on.
 """
 
-from __future__ import absolute_import
+
 
 import threading
 

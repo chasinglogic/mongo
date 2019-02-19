@@ -27,7 +27,7 @@
 #
 """IDL C++ Code Generator."""
 
-from __future__ import absolute_import, print_function, unicode_literals
+
 
 from abc import ABCMeta, abstractmethod
 import string
@@ -97,10 +97,8 @@ def _optionally_make_call(method_name, param):
     return "%s(%s);" % (method_name, param)
 
 
-class CppTypeBase(object):
+class CppTypeBase(metaclass=ABCMeta):
     """Base type for C++ Type information."""
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, field):
         # type: (ast.Field) -> None
@@ -559,10 +557,8 @@ def get_cpp_type(field):
     return cpp_type_info
 
 
-class BsonCppTypeBase(object):
+class BsonCppTypeBase(object, metaclass=ABCMeta):
     """Base type for custom C++ support for BSON Types information."""
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, field):
         # type: (ast.Field) -> None

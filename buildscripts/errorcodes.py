@@ -5,14 +5,15 @@ Parses .cpp files for assertions and verifies assertion codes are distinct.
 Optionally replaces zero codes in source code with new distinct values.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import bisect
 import os.path
 import sys
 from collections import defaultdict, namedtuple
 from optparse import OptionParser
+from functools import reduce
 
 # Get relative imports to work when the package is not installed on the PYTHONPATH.
 if __name__ == "__main__" and __package__ is None:
@@ -168,7 +169,7 @@ def read_error_codes():
         print("EXCESSIVE SKIPPING OF ERROR CODES:")
         print("  %s:%d:%d:%s" % (loc.sourceFile, line, col, loc.lines))
 
-    for code, locations in dups.items():
+    for code, locations in list(dups.items()):
         print("DUPLICATE IDS: %s" % code)
         for loc in locations:
             line, col = get_line_and_column_for_position(loc)

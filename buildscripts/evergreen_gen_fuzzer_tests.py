@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Generate fuzzer tests to run in evergreen in parallel."""
 
-from __future__ import absolute_import
+
 
 import argparse
 import math

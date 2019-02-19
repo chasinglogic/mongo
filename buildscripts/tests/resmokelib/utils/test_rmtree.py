@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """ Unit tests for utils.rmtree. """
 
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import os
 import shutil
@@ -41,7 +41,7 @@ def string_for_ascii_filesystem_encoding(path):
 
     Some file system encodings are set to ASCII if LANG=C or LC_ALL=C is specified.
     """
-    if ascii_filesystemencoding() and isinstance(path, unicode):
+    if ascii_filesystemencoding() and isinstance(path, str):
         return path.encode("utf-8")
     return path
 
@@ -66,15 +66,15 @@ class RmtreeTestCase(unittest.TestCase):
 
     def test_unicode(self):
         # Unicode name
-        self.do_test(u"unicode")
+        self.do_test("unicode")
 
     def test_greek(self):
         # Name with Greek
-        self.do_test(string_for_ascii_filesystem_encoding(u"ελληνικά"))
+        self.do_test(string_for_ascii_filesystem_encoding("ελληνικά"))
 
     def test_japanese(self):
         # Name with Japanese
-        self.do_test(string_for_ascii_filesystem_encoding(u"会社案"))
+        self.do_test(string_for_ascii_filesystem_encoding("会社案"))
 
 
 class RmtreeFileTests(RmtreeTestCase):

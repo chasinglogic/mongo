@@ -1,6 +1,6 @@
 """Module for retrieving the configuration of resmoke.py test suites."""
 
-from __future__ import absolute_import
+
 
 import collections
 import optparse

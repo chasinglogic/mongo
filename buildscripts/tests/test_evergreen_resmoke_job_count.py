@@ -1,6 +1,6 @@
 """Unit tests for the evergreen_resomke_job_count script."""
 
-from __future__ import division
+
 
 import unittest
 

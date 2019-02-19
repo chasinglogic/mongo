@@ -1,6 +1,6 @@
 """Driver of the test execution framework."""
 
-from __future__ import absolute_import
+
 
 import threading
 import time
@@ -68,7 +68,7 @@ class TestSuiteExecutor(object):  # pylint: disable=too-many-instance-attributes
             jobs_to_start = self.num_tests
 
         # Must be done after getting buildlogger configuration.
-        self._jobs = [self._make_job(job_num) for job_num in xrange(jobs_to_start)]
+        self._jobs = [self._make_job(job_num) for job_num in range(jobs_to_start)]
 
     def run(self):
         """Execute the test suite.

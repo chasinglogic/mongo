@@ -45,30 +45,12 @@ import time
 import traceback
 import urlparse
 import zipfile
+import subprocess
 
 import psutil
 import pymongo
 import requests
 import yaml
-
-# The subprocess32 module is untested on Windows and thus isn't recommended for use, even when it's
-# installed. See https://github.com/google/python-subprocess32/blob/3.2.7/README.md#usage.
-if os.name == "posix" and sys.version_info[0] == 2:
-    try:
-        import subprocess32 as subprocess
-    except ImportError:
-        import warnings
-        warnings.warn(("Falling back to using the subprocess module because subprocess32 isn't"
-                       " available. When using the subprocess module, a child process may"
-                       " trigger an invalid free(). See SERVER-22219 for more details."),
-                      RuntimeWarning)
-        import subprocess  # type: ignore
-else:
-    import subprocess
-
-# We replace the subprocess module imported by the psutil package so we can safely use
-# psutil.Popen() in addition to subprocess.Popen().
-psutil.subprocess = subprocess
 
 # Get relative imports to work when the package is not installed on the PYTHONPATH.
 if __name__ == "__main__" and __package__ is None:

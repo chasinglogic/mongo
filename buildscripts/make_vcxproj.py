@@ -12,13 +12,13 @@ To build mongodb, you must use scons. You can use this project to navigate code 
 
   where FILE_NAME is the of the file to generate e.g., "mongod"
 """
-from __future__ import absolute_import, print_function
+
 
 import io
 import json
 import os
 import re
-import StringIO
+import io
 import sys
 import uuid
 import xml.etree.ElementTree as ET
@@ -111,7 +111,7 @@ def _replace_vcxproj(file_name, restore_elements):
                 saved_value = restore_elements[(parent.tag, child.tag, cond)]
                 child.text = saved_value
 
-    stream = StringIO.StringIO()
+    stream = io.StringIO()
 
     tree.write(stream)
 

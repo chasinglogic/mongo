@@ -3,7 +3,7 @@
 These instances are used to send logs to buildlogger.
 """
 
-from __future__ import absolute_import
+
 
 import logging
 import threading

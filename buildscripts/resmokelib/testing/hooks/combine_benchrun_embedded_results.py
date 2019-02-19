@@ -1,7 +1,7 @@
 """Module for generating the test results file fed into the perf plugin."""
 
-from __future__ import absolute_import
-from __future__ import division
+
+
 
 import collections
 import datetime
@@ -62,7 +62,7 @@ class CombineBenchrunEmbeddedResults(cbr.CombineBenchmarkResults):
             "results": []
         }
 
-        for name, report in self.benchmark_reports.items():
+        for name, report in list(self.benchmark_reports.items()):
             test_report = {"name": name, "results": report.generate_perf_plugin_dict()}
 
             perf_report["results"].append(test_report)
@@ -143,7 +143,7 @@ class _BenchrunEmbeddedThreadsReport(object):
         """
 
         res = {}
-        for thread_count, reports in self.thread_benchmark_map.items():
+        for thread_count, reports in list(self.thread_benchmark_map.items()):
             thread_report = {"error_values": [], "ops_per_sec_values": []}
 
             for report in reports:

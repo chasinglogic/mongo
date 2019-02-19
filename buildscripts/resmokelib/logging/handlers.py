@@ -1,6 +1,6 @@
 """Additional handlers that are used as the base classes of the buildlogger handler."""
 
-from __future__ import absolute_import
+
 
 import json
 import logging
@@ -200,11 +200,8 @@ class HTTPHandler(object):
 
         url = self._make_url(endpoint)
 
-        # Versions of Python earlier than 2.7.9 do not support certificate validation. So we
-        # disable certificate validation for older Python versions.
-        should_validate_certificates = sys.version_info >= (2, 7, 9)
         with warnings.catch_warnings():
-            if urllib3_exceptions is not None and not should_validate_certificates:
+            if urllib3_exceptions is not None:
                 try:
                     warnings.simplefilter("ignore", urllib3_exceptions.InsecurePlatformWarning)
                 except AttributeError:
@@ -223,7 +220,7 @@ class HTTPHandler(object):
 
             response = self.session.post(url, data=data, headers=headers, timeout=timeout_secs,
                                          auth=self.auth_handler,
-                                         verify=should_validate_certificates)
+                                         verify=True)
 
         response.raise_for_status()
 

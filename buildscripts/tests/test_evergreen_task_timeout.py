@@ -1,6 +1,6 @@
 """Unit tests for the evergreen_task_timeout script."""
 
-from __future__ import absolute_import
+
 
 import unittest
 

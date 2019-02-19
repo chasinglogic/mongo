@@ -63,7 +63,7 @@ def download_pkg(link, pkg_format=''):
             ' to download the compass installer for your platform.'
 
     try:
-        out = subprocess.check_output(['file', filename])
+        out = subprocess.check_output(['file', filename]).decode('utf-8')
     except subprocess.CalledProcessError as error:
         print 'Got an unexpected error checking file type %s' % error
         sys.exit(1)

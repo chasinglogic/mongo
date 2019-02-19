@@ -29,7 +29,7 @@
 #
 """IDL Compiler Driver Main Entry point."""
 
-from __future__ import absolute_import, print_function
+
 
 import argparse
 import logging

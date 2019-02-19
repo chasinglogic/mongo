@@ -1,6 +1,6 @@
 """Unit test for the util.time module."""
 
-from __future__ import absolute_import
+
 
 import unittest
 

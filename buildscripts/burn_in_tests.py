@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Command line utility for determining what jstests have been added or modified."""
 
-from __future__ import absolute_import
-from __future__ import print_function
 
 import collections
 import copy
@@ -13,7 +11,7 @@ import subprocess
 import re
 import shlex
 import sys
-import urlparse
+import urllib.parse
 
 import requests
 import yaml
@@ -154,7 +152,7 @@ def find_last_activated_task(revisions, variant, branch_name):
     evg_cfg = evergreen_client.read_evg_config()
     if evg_cfg is not None and "api_server_host" in evg_cfg:
         api_server = "{url.scheme}://{url.netloc}".format(
-            url=urlparse.urlparse(evg_cfg["api_server_host"]))
+            url=urllib.parse.urlparse(evg_cfg["api_server_host"]))
     else:
         api_server = API_SERVER_DEFAULT
 
@@ -195,6 +193,7 @@ def find_changed_tests(  # pylint: disable=too-many-locals
 
     if base_commit is None:
         base_commit = repo.get_merge_base([branch_name + "@{upstream}", "HEAD"])
+
     if check_evergreen:
         # We're going to check up to 200 commits in Evergreen for the last scheduled one.
         # The current commit will be activated in Evergreen; we use --skip to start at the
@@ -337,7 +336,7 @@ def create_task_list(  #pylint: disable=too-many-locals
 
     evg_buildvariant = evergreen_conf.get_variant(buildvariant)
     if not evg_buildvariant:
-        print("Buildvariant '{}' not found".format(buildvariant))
+        print("Buildvariant '{}' not found in {}".format(buildvariant, evergreen_conf.path))
         sys.exit(1)
 
     # Find all the buildvariant tasks.

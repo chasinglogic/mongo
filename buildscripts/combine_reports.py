@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Combine JSON report files used in Evergreen."""
 
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import errno
 import json

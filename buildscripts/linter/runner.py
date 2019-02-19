@@ -1,6 +1,6 @@
 """Class to support running various linters in a common framework."""
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import difflib
 import logging
@@ -175,7 +175,7 @@ class LintRunner(object):
                 with open(file_name, 'rb') as original_text:
                     original_file = original_text.read()
 
-                formatted_file = subprocess.check_output(cmd)
+                formatted_file = subprocess.check_output(cmd).decode('utf-8')
                 if original_file != formatted_file:
                     original_lines = original_file.splitlines()
                     formatted_lines = formatted_file.splitlines()
@@ -196,7 +196,7 @@ class LintRunner(object):
 
                     return False
             else:
-                output = subprocess.check_output(cmd)
+                output = subprocess.check_output(cmd).decode('utf-8')
 
                 # On Windows, mypy.bat returns 0 even if there are length failures so we need to
                 # check if there was any output
@@ -217,7 +217,7 @@ class LintRunner(object):
         logging.debug(str(cmd))
 
         try:
-            subprocess.check_output(cmd)
+            subprocess.check_output(cmd).decode('utf-8')
         except subprocess.CalledProcessError as cpe:
             self._safe_print("CMD [%s] failed:\n%s" % (cmd, cpe.output))
             return False

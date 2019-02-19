@@ -1,6 +1,6 @@
 """The unittest.TestCase for FSM workloads."""
 
-from __future__ import absolute_import
+
 
 import hashlib
 import threading

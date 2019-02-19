@@ -1,6 +1,6 @@
 """Fixture for executing JSTests against."""
 
-from __future__ import absolute_import
+
 
 from .external import ExternalFixture as _ExternalFixture
 from .interface import NoOpFixture as _NoOpFixture

@@ -1,6 +1,6 @@
 """unittest.TestCase for multi-statement transaction passthrough tests."""
 
-from __future__ import absolute_import
+
 
 from buildscripts.resmokelib import config
 from buildscripts.resmokelib import core

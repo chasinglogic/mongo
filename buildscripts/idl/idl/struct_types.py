@@ -27,7 +27,7 @@
 #
 """Provide code generation information for structs and commands in a polymorphic way."""
 
-from __future__ import absolute_import, print_function, unicode_literals
+
 
 from abc import ABCMeta, abstractmethod
 from typing import Optional, List
@@ -152,10 +152,8 @@ class MethodInfo(object):
                                     args=args)
 
 
-class StructTypeInfoBase(object):
+class StructTypeInfoBase(object, metaclass=ABCMeta):
     """Base class for struct and command code generation."""
-
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def get_constructor_method(self):
