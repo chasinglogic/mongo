@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Produce a report of all assertions in the MongoDB server codebase.
 
 Parses .cpp files for assertions and verifies assertion codes are distinct.
@@ -45,21 +45,21 @@ list_files = False  # pylint: disable=invalid-name
 def parse_source_files(callback):
     """Walk MongoDB sourcefiles and invoke a callback for each AssertLocation found."""
 
-    quick = ["assert", "Exception", "ErrorCodes::Error"]
+    quick = [b"assert", b"Exception", b"ErrorCodes::Error"]
 
     patterns = [
-        re.compile(r"(?:u|m(?:sg)?)asser(?:t|ted)(?:NoTrace)?\s*\(\s*(\d+)", re.MULTILINE),
-        re.compile(r"(?:DB|Assertion)Exception\s*[({]\s*(\d+)", re.MULTILINE),
-        re.compile(r"fassert(?:Failed)?(?:WithStatus)?(?:NoTrace)?(?:StatusOK)?\s*\(\s*(\d+)",
+        re.compile(br"(?:u|m(?:sg)?)asser(?:t|ted)(?:NoTrace)?\s*\(\s*(\d+)", re.MULTILINE),
+        re.compile(br"(?:DB|Assertion)Exception\s*[({]\s*(\d+)", re.MULTILINE),
+        re.compile(br"fassert(?:Failed)?(?:WithStatus)?(?:NoTrace)?(?:StatusOK)?\s*\(\s*(\d+)",
                    re.MULTILINE),
-        re.compile(r"ErrorCodes::Error\s*[({]\s*(\d+)", re.MULTILINE)
+        re.compile(br"ErrorCodes::Error\s*[({]\s*(\d+)", re.MULTILINE)
     ]
 
     for source_file in utils.get_all_source_files(prefix='src/mongo/'):
         if list_files:
             print('scanning file: ' + source_file)
 
-        with open(source_file) as fh:
+        with open(source_file, 'rb') as fh:
             text = fh.read()
 
             if not any([zz in text for zz in quick]):
