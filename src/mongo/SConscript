@@ -161,7 +161,7 @@ js_engine_ver = get_option("js-engine") if get_option("server-js") == "on" else 
 # so that windows paths look okay.
 cmd_line = " ".join(sys.argv).encode('unicode_escape')
 if env.TargetOSIs('windows'):
-    cmd_line = cmd_line.replace('\\', r'\\')
+    cmd_line = cmd_line.replace(b'\\', b'\\')
 
 module_list = '{ %s }' % ', '.join([ '"{0}"'.format(x) for x in env['MONGO_MODULES'] ])
 

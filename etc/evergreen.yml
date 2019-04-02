@@ -686,9 +686,9 @@ functions:
           chmod 0600 ${private_key_file|/dev/null}
         fi
 
-        if [ ! -d ~.aws ]; then
-          mkdir -p ~/.aws
-        fi
+        # Ensure a clean aws configuration state
+        rm -rf ~/.aws
+        mkdir -p ~/.aws
 
         # If ${aws_profile_remote} is not specified then the config & credentials are
         # stored in the 'default' profile.
@@ -957,7 +957,7 @@ functions:
                       ;;
             esac
 
-            sudo python3 buildscripts/scons_cache_prune.py --cache-dir /efs/$dir/scons-cache --cache-size $cache_size --prune-ratio 1.0
+            sudo python buildscripts/scons_cache_prune.py --cache-dir /efs/$dir/scons-cache --cache-size $cache_size --prune-ratio 1.0
             echo ""
           done
 
@@ -1059,7 +1059,7 @@ functions:
         set -o errexit
 
         ${activate_virtualenv}
-        python3 -m pip install -r etc/pip/evgtest-requirements.txt
+        python -m pip install -r etc/pip/evgtest-requirements.txt
 
   "determine resmoke jobs": &determine_resmoke_jobs
     command: shell.exec
@@ -1184,7 +1184,7 @@ functions:
 
           virtualenv_loc=$(which ${virtualenv|virtualenv})
 
-          python_loc=$(which ${python3|/opt/mongodbtoolchain/v3/bin/python3})
+          python_loc=$(which ${python|/opt/mongodbtoolchain/v3/bin/python3})
           venv_dir="${workdir}/venv"
           if command -V cygpath; then
             # Sad note: We have to use the Windows path instead of the posix path here.
@@ -1194,7 +1194,7 @@ functions:
           fi
 
           # Set up virtualenvs in ${workdir}
-          $python_loc -m venv --system-site-packages "$venv_dir"
+          "$virtualenv_loc" --python "$python_loc" --system-site-packages "$venv_dir"
 
           export VIRTUAL_ENV_DISABLE_PROMPT=yes
 
@@ -1490,7 +1490,7 @@ functions:
 
         ${activate_virtualenv}
 
-        python3 -m pip install -r ./etc/pip/compile-requirements.txt
+        python -m pip install -r ./etc/pip/compile-requirements.txt
         ${compile_env|} $python ./buildscripts/scons.py                                     \
             ${compile_flags|} ${task_compile_flags|} ${task_compile_flags_extra|}           \
             ${scons_cache_args|} $extra_args                                                \
@@ -2146,7 +2146,7 @@ functions:
 
           set -o errexit
           ${activate_virtualenv}
-          python3 -m pip install -r etc/pip/powercycle-requirements.txt
+          python -m pip install -r etc/pip/powercycle-requirements.txt
 
           if [ ! -z "${subnet_id}" ]; then
             subnet_id="-n ${subnet_id}"
@@ -2759,10 +2759,17 @@ functions:
             if [ $? -ne 0 ]; then
               echo "Failed to activate virtualenv: $(cat /tmp/activate_error.log)"
             fi
-            python=python3
+            python=python
           else
             python=${python|/opt/mongodbtoolchain/v3/bin/python3}
           fi
+
+          if [ "Windows_NT" = "$OS" ]; then
+            export PYTHONPATH="$PYTHONPATH;$(cygpath -w ${workdir}/src)"
+          else
+            export PYTHONPATH="$PYTHONPATH:${workdir}/src"
+          fi
+
           echo "python set to $(which $python)"
       - key: posix_workdir
         value: eval 'if [ "Windows_NT" = "$OS" ]; then echo $(cygpath -u "${workdir}"); else echo ${workdir}; fi'
@@ -4560,7 +4567,7 @@ tasks:
           set -o verbose
 
           ${activate_virtualenv}
-          python3 -m pip install -I -r etc/pip/lint-requirements.txt
+          python -m pip install -I -r etc/pip/lint-requirements.txt
           export MYPY="$(
             if command -V cygpath 2>/dev/null; then
                 PATH+=":$(cypath "${workdir}")/venv_3/Scripts"
@@ -4611,14 +4618,14 @@ tasks:
         ${activate_virtualenv}
         # This installs the explicit project versions which would be installed in the toolchain
         # from this patch
-        python3 -m pip install -I -r etc/pip/constraints.txt
+        python -m pip install -I -r etc/pip/constraints.txt
 
-        python3 -m pip freeze >requirements.txt.python3.old
+        python -m pip freeze >requirements.txt.python3.old
 
         # This installs any requirements which are unsatisfied by the constraints.txt above
-        python3 -m pip install -r etc/pip/toolchain-requirements.txt
+        python -m pip install -r etc/pip/toolchain-requirements.txt
 
-        python3 -m pip freeze >requirements.txt.python3.new
+        python -m pip freeze >requirements.txt.python3.new
 
         # Compare the old freezes to the new freezes.
         # They should be the same if our constraints satisfy our toolchain requirements
@@ -7552,7 +7559,7 @@ tasks:
         set -o verbose
 
         ${activate_virtualenv}
-        python3 -m pip install -r etc/pip/jira-requirements.txt
+        python -m pip install -r etc/pip/jira-requirements.txt
 
         # We use a small batch size to avoid hitting the load balancer timeout if the Evergreen
         # API query is not fast enough.
