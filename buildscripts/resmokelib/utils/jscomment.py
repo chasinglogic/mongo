@@ -5,7 +5,7 @@ import re
 import yaml
 
 # TODO: use a more robust regular expression for matching tags
-_JSTEST_TAGS_RE = re.compile(r".*@tags\s*:\s*(\[[^\]]*\])", re.DOTALL)
+_JSTEST_TAGS_RE = re.compile(b".*@tags\s*:\s*(\[[^\]]*\])", re.DOTALL)
 
 
 def get_tags(pathname):
@@ -27,7 +27,7 @@ def get_tags(pathname):
       */
     """
 
-    with open(pathname) as fp:
+    with open(pathname, 'rb') as fp:
         match = _JSTEST_TAGS_RE.match(fp.read())
         if match:
             try:
