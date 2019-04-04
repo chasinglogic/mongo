@@ -101,23 +101,3 @@ class RmtreeDirectoryWithNonAsciiTests(RmtreeTestCase):
         create_file(name)
         os.chdir(self.temp_dir_root)
         self.assertTrue(rmtree(name))
-
-
-class ShutilWindowsRmtreeFileTests(RmtreeFileTests):
-    def do_test(self, file_name):
-        """Execute file test that are known to fail in shutil.rmtree."""
-        if not utils.is_windows():
-            print("Skipping ShutilWindowsRmtreeFileTests on non-Windows platforms")
-            return
-        temp_dir = tempfile.mkdtemp(dir=self.temp_dir_root)
-        os.chdir(temp_dir)
-        create_file(file_name)
-        os.chdir(self.temp_dir_root)
-        with self.assertRaises(WindowsError):  # pylint: disable=undefined-variable
-            shutil.rmtree(temp_dir)
-
-    def test_ascii(self):
-        pass
-
-    def test_unicode(self):
-        pass
