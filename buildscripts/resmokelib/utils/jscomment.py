@@ -66,6 +66,9 @@ def _strip_jscomments(string):
 
     yaml_lines = []
 
+    if isinstance(string, bytes):
+        string = string.decode("utf-8")
+        
     for line in string.splitlines():
         # Remove leading whitespace and symbols that commonly appear in JS comments.
         line = line.lstrip("\t ").lstrip("*/")
