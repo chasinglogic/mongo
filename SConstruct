@@ -930,7 +930,7 @@ if installDir[0] not in ['$', '#']:
         Exit(1)
 
 sconsDataDir = Dir(buildDir).Dir('scons')
-SConsignFile(str(sconsDataDir.File('sconsign')))
+SConsignFile(str(sconsDataDir.File('sconsign.py3')))
 
 def printLocalInfo():
     import sys, SCons
