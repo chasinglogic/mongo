@@ -7649,9 +7649,9 @@ task_groups:
 # be sure to add the module to git.get_project revisions parameter
 modules:
 - name: enterprise
-  repo: git@github.com:10gen/mongo-enterprise-modules.git
+  repo: git@github.com:chasinglogic/mongo-enterprise-modules.git
   prefix: src/mongo/db/modules
-  branch: master
+  branch: python3-migration
 
 - name: wtdevelop
   repo: git@github.com:wiredtiger/wiredtiger.git

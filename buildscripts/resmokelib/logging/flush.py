@@ -75,7 +75,7 @@ def cancel(event):
 class _FlushThread(threading.Thread):
     """Asynchronously flush and close logging handlers."""
 
-    _TIMEOUT = 24 * 60 * 60  # =1 day (a long time to have tests run)
+    _TIMEOUT = 10  # 10 seconds because we need to spam signal_shutdown() in await_shutdown()
 
     def __init__(self):
         """Initialize the flush thread."""
@@ -137,6 +137,7 @@ class _FlushThread(threading.Thread):
         """Wait for the flush thread to finish processing its current queue of logging handlers."""
 
         while not self.__terminated.is_set():
+            self.signal_shutdown()
             # Need to pass a timeout to wait() so that KeyboardInterrupt exceptions are propagated.
             self.__terminated.wait(_FlushThread._TIMEOUT)
 
