@@ -39,6 +39,13 @@ SuffixMap = namedtuple(
     ],
 )
 
+def generate_alias(component, role, target="install"):
+    return "{target}-{component}{role}"\
+        .format(
+            target=target,
+            component=component,
+            role="" if role == "runtime" else "-" + role,
+        )
 
 
 def exists(_env):
@@ -50,7 +57,7 @@ def generate(env):  # pylint: disable=too-many-statements
     """Generate the auto install builders."""
 
 
-    bld = SCons.Builder(action = 'tar -rf $TARGET $SOURCES')
+    bld = SCons.Builder.Builder(action = 'tar -rf $TARGET $SOURCE')
     env.Append(BUILDERS = {'TarBall': bld})
 
     env["INSTALLDIR_BINDIR"] = "$INSTALL_DIR/bin"
@@ -203,13 +210,8 @@ def generate(env):  # pylint: disable=too-many-statements
         target.attributes.roles = roles
 
         for component_tag, role_tag in itertools.product(components, roles):
-            alias_name = "install-" + component_tag
-            alias_name = alias_name + ("" if role_tag == "runtime" else "-" + role_tag)
+            alias_name = generate_alias(component_tag, role_tag)
             alias = env.Alias(alias_name, actions)
-            tarpkg = env.TarBall(sources = actions)
-            env.Alias("tar-{}-{}".format(
-                
-            ))
             alias_map[component_tag][role_tag] = RoleInfo(
                 alias_name=alias_name,
                 alias=alias,
@@ -240,6 +242,16 @@ def generate(env):  # pylint: disable=too-many-statements
 
         installedFiles = env.FindInstalledFiles()
         env.NoCache(installedFiles)
+
+        for component, rolemap in alias_map.items():
+            for role, info in rolemap.items():
+                tar_alias = generate_alias(component, role, target="tar")
+                tar = env.TarBall(
+                    "{}.tar".format(tar_alias),
+                    source=installedFiles,
+                )
+                env.Alias(tar_alias, tar)
+                env.Depends(tar, info.alias)
 
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
 
