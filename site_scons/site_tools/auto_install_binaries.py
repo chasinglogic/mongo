@@ -28,10 +28,17 @@ RoleInfo = namedtuple(
     [
         'alias_name',
         'alias',
-        'prealias_name',
-        'prealias',
     ],
 )
+
+SuffixMap = namedtuple(
+    'SuffixMap',
+    [
+        'directory',
+        'default_roles',
+    ],
+)
+
 
 
 def exists(_env):
@@ -41,6 +48,10 @@ def exists(_env):
 
 def generate(env):  # pylint: disable=too-many-statements
     """Generate the auto install builders."""
+
+
+    bld = SCons.Builder(action = 'tar -rf $TARGET $SOURCES')
+    env.Append(BUILDERS = {'TarBall': bld})
 
     env["INSTALLDIR_BINDIR"] = "$INSTALL_DIR/bin"
     env["INSTALLDIR_LIBDIR"] = "$INSTALL_DIR/lib"
@@ -70,52 +81,60 @@ def generate(env):  # pylint: disable=too-many-statements
     # TODO: These probably need to be patterns of some sort, not just suffixes.
     # TODO: The runtime libs should be in runtime, the dev symlinks in dev
     suffix_map = {
-        env.subst("$PROGSUFFIX"): (
-            "$INSTALLDIR_BINDIR", [
+        env.subst("$PROGSUFFIX"): SuffixMap(
+            directory="$INSTALLDIR_BINDIR",
+            default_roles=[
                 "runtime",
             ]
         ),
 
-        env.subst("$LIBSUFFIX"): (
-            "$INSTALLDIR_LIBDIR", [
+        env.subst("$LIBSUFFIX"): SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
                 "dev",
             ]
         ),
 
-        ".dll": (
-            "$INSTALLDIR_BINDIR", [
+        ".dll": SuffixMap(
+            directory="$INSTALLDIR_BINDIR",
+            default_roles=[
                 "runtime",
             ]
         ),
 
-        ".dylib": (
-            "$INSTALLDIR_LIBDIR", [
-                "runtime",
-                "dev",
-            ]
-        ),
-
-        ".so": (
-            "$INSTALLDIR_LIBDIR", [
+        ".dylib": SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
                 "runtime",
                 "dev",
             ]
         ),
 
-        ".debug": (
-            "$INSTALLDIR_DEBUGDIR", [
+        ".so": SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "runtime",
+                "dev",
+            ]
+        ),
+
+        ".debug": SuffixMap(
+            directory="$INSTALLDIR_DEBUGDIR",
+            default_roles=[
                 "debug",
             ]
         ),
 
-        ".dSYM": (
-            "$INSTALLDIR_LIBDIR", [
+        ".dSYM": SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
                 "runtime"
             ]
         ),
 
-        ".lib": (
-            "$INSTALLDIR_LIBDIR", [
+        ".lib": SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
                 "runtime"
             ]
         ),
@@ -156,7 +175,10 @@ def generate(env):  # pylint: disable=too-many-statements
             "meta",
         }
 
-        component_tag = env.get("COMPONENT_TAG")
+        if kwargs.get("ADDITIONAL_ROLES") is not None:
+            roles = roles.union(set(kwargs["ADDITIONAL_ROLES"]))
+
+        component_tag = kwargs.get("COMPONENT_TAG")
         if (
                 component_tag is not None
                 and (not isinstance(component_tag, str) or " " in component_tag)
@@ -171,30 +193,26 @@ def generate(env):  # pylint: disable=too-many-statements
         }
         # Some tools will need to create multiple components so we add
         # this "hidden" argument that accepts a set.
-        if "ADDITIONAL_COMPONENTS" in kwargs:
-            components += kwargs["ADDITIONAL_COMPONENTS"]
+        if kwargs.get("ADDITIONAL_COMPONENTS") is not None:
+            components.union(set(kwargs["ADDITIONAL_COMPONENTS"]))
 
         # Remove false values such as None
         roles = {role for role in roles if role}
         components = {component for component in components if component}
-        # MAT TODO: I don't think we ever consume these should we even
-        # store them?
         target.attributes.components = components
         target.attributes.roles = roles
 
         for component_tag, role_tag in itertools.product(components, roles):
-            if component_tag != "all":
-                print(component_tag)
             alias_name = "install-" + component_tag
             alias_name = alias_name + ("" if role_tag == "runtime" else "-" + role_tag)
-            prealias_name = "pre" + alias_name
             alias = env.Alias(alias_name, actions)
-            prealias = env.Alias(prealias_name, source)
+            tarpkg = env.TarBall(sources = actions)
+            env.Alias("tar-{}-{}".format(
+                
+            ))
             alias_map[component_tag][role_tag] = RoleInfo(
                 alias_name=alias_name,
                 alias=alias,
-                prealias_name=prealias_name,
-                prealias=prealias,
             )
 
         return actions
@@ -214,13 +232,11 @@ def generate(env):  # pylint: disable=too-many-statements
 
                 if common_rolemap and component != "common" and role in common_rolemap:
                     env.Depends(info.alias, common_rolemap[role].alias)
-                    env.Depends(info.prealias, common_rolemap[role].prealias)
 
                 for dependency in role_dependencies.get(role, []):
                     dependency_info = rolemap.get(dependency, [])
                     if dependency_info:
                         env.Depends(info.alias, dependency_info.alias)
-                        env.Depends(info.prealias, dependency_info.prealias)
 
         installedFiles = env.FindInstalledFiles()
         env.NoCache(installedFiles)
@@ -229,11 +245,18 @@ def generate(env):  # pylint: disable=too-many-statements
 
     def auto_install_emitter(target, source, env):
         for t in target:
-            tentry = env.Entry(t)
-            tsuf = tentry.get_suffix()
-            auto_install_location = suffix_map.get(tsuf)
-            if auto_install_location:
-                env.AutoInstall(auto_install_location[0], tentry)
+            entry = env.Entry(t)
+            suffix = entry.get_suffix()
+            auto_install_mapping = suffix_map.get(suffix)
+            if auto_install_mapping is not None:
+                env.AutoInstall(
+                    auto_install_mapping.directory,
+                    entry,
+                    COMPONENT_TAG=env.get("COMPONENT_TAG"),
+                    ROLE_TAG=env.get("ROLE_TAG"),
+                    ADDITIONAL_ROLES=auto_install_mapping.default_roles,
+                    ADDITIONAL_COMPONENTS=env.get("ADDITIONAL_COMPONENTS"),
+                )
         return (target, source)
 
     def add_emitter(builder):

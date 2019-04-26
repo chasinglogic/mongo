@@ -32,6 +32,9 @@ def build_cpp_unit_test(env, target, source, **kwargs):
     ):
         kwargs["COMPONENT_TAG"] += "-test"
 
+    if "ROLE_TAG" not in kwargs:
+        kwargs["ROLE_TAG"] = "runtime"
+
     result = env.Program(target, source, **kwargs)
     env.RegisterUnitTest(result[0])
     hygienic = env.GetOption('install-mode') == 'hygienic'
