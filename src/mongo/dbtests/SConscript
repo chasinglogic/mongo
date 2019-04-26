@@ -168,8 +168,9 @@ if not has_option('noshell') and usemozjs:
             "mocklib",
             "testframework",
         ],
-        INSTALL_ALIAS=[
-            'tests'
+        COMPONENT_TAG="dbtests",
+        ADDITIONAL_COMPONENTS=[
+            "test",
         ],
     )
     hygienic = get_option('install-mode') == 'hygienic'

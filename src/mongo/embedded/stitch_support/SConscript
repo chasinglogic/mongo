@@ -15,10 +15,7 @@ if get_option('install-mode') == 'hygienic':
             '#/LICENSE-Community.txt',
             '#/distsrc/THIRD-PARTY-NOTICES',
         ],
-        INSTALL_ALIAS=[
-            'stitch-support',
-            'common',
-        ],
+        COMPONENT_TAG='stitch-support',
     )
 
 stitchSupportEnv = env.Clone()
@@ -60,19 +57,15 @@ stitchSupportTargets = stitchSupportEnv.Library(
         '$BUILD_DIR/mongo/db/query/collation/collator_factory_icu',
         '$BUILD_DIR/mongo/db/query/collation/collator_factory_interface',
     ],
-    INSTALL_ALIAS=[
-        'stitch-support',
-    ],
+    COMPONENT_TAG='stitch-support',
 )
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
         '$INSTALL_DIR/include/stitch_support/v1/stitch_support',
         source=['stitch_support.h'],
-        INSTALL_ALIAS=[
-            'stitch-support',
-            'dev',
-        ],
+        COMPONENT_TAG='stitch-support',
+        ROLE_TAG='dev',
     )
 
 if get_option('link-model') != 'dynamic-sdk':
@@ -86,8 +79,10 @@ if get_option('link-model') != 'dynamic-sdk':
             '$BUILD_DIR/mongo/unittest/unittest',
             'stitch_support',
         ],
-        INSTALL_ALIAS=[
-            ('stitch-support', 'test'),
+        COMPONENT_TAG='stitch-support',
+        ADDITIONAL_COMPONENTS=[
+            'test',
+            'unittests',
         ],
     )
 
