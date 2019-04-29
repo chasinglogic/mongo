@@ -101,11 +101,7 @@ add_option('prefix',
 )
 
 add_option('dest-dir',
-    # TODO
-    # For now this works I need to find a way to put prefix
-    # under here when it's relative using the SCons # symbol.
-    # SCons does not expand the # when it is not the first letter.
-    default='$BUILD_ROOT/install',
+    default=None,
     help='root of installation as a subdirectory of $BUILD_DIR'
 )
 
@@ -956,12 +952,6 @@ if cacheDir[0] not in ['$', '#']:
         print("Do not use relative paths with --cache-dir")
         Exit(1)
 
-installDir = get_option('dest-dir').rstrip('/')
-if installDir[0] not in ['$', '#']:
-    if not os.path.isabs(installDir):
-        print("Do not use relative paths with --dest-dir")
-        Exit(1)
-
 prefix = get_option('prefix').rstrip('/')
 if prefix[0] not in ['$', '#']:
     if not os.path.isabs(prefix):
@@ -1044,13 +1034,32 @@ envDict = dict(BUILD_ROOT=buildDir,
                BENCHMARK_LIST='$BUILD_ROOT/benchmarks.txt',
                CONFIGUREDIR='$BUILD_ROOT/scons/$VARIANT_DIR/sconf_temp',
                CONFIGURELOG='$BUILD_ROOT/scons/config.log',
-               INSTALL_DIR=installDir,
+               INSTALL_DIR=None,
                PREFIX=get_option('prefix'),
                CONFIG_HEADER_DEFINES={},
                LIBDEPS_TAG_EXPANSIONS=[],
                )
 
 env = Environment(variables=env_vars, **envDict)
+
+if get_option('dest-dir') is None:
+    destDir = env.Dir('$BUILD_ROOT/install')
+    prefix = env.Dir(get_option('prefix'))
+    if destDir != prefix:
+        installDir = destDir.Dir(get_option('prefix')[1:])
+    else:
+        installDir = destDir
+else:
+    destDir = get_option('dest-dir')
+    if destDir[0] not in ['$', '#']:
+        if not os.path.isabs(installDir):
+            print("Do not use relative paths with --dest-dir")
+            Exit(1)
+    installDir = destDir
+
+env['INSTALL_DIR'] = installDir
+env['DEST_DIR'] = destDir
+
 del envDict
 
 for var in ['CC', 'CXX']:

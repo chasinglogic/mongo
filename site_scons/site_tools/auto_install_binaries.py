@@ -56,7 +56,7 @@ def tarball_builder(target, source, env):
         source = [source]
     if not source:
         return
-    common_ancestor = env.Dir("$INSTALL_DIR").get_abspath()
+    common_ancestor = env.Dir("$DEST_DIR").get_abspath()
     paths = [file.get_abspath() for file in source]
     relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
     SCons.Action._subproc(
