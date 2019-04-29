@@ -256,11 +256,11 @@ def generate(env):  # pylint: disable=too-many-statements
         actions = env.Install(
             target=target,
             source=source,
-            AIB_COMPONENTS=components,
-            AIB_ROLES=roles,
         )
         for s in source:
             s.attributes.aib_install_actions = actions
+            s.attributes.aib_components = components
+            s.attributes.aib_roles = roles
 
         for component_tag, role_tag in itertools.product(components, roles):
             alias_name = generate_alias(component_tag, role_tag)
@@ -293,28 +293,7 @@ def generate(env):  # pylint: disable=too-many-statements
                     if dependency_info:
                         env.Depends(info.alias, dependency_info.alias)
 
-        installedFiles = env.FindInstalledFiles()
-        env.NoCache(installedFiles)
-
-        for component, rolemap in alias_map.items():
-            for role, info in rolemap.items():
-                tar_alias = generate_alias(component, role, target="tar")
-                tar_files = [
-                    file for file in installedFiles
-                    if (
-                            component in file.env.get('AIB_COMPONENTS', [])
-                            and role in file.env.get('AIB_ROLES', [])
-                    )
-                ]
-
-                tar = env.TarBall(
-                    "{}.tar".format(tar_alias),
-                    source=tar_files,
-                    COMPONENT_TAG=component,
-                    ROLE_TAG=role,
-                )
-                env.Alias(tar_alias, tar)
-                env.Depends(tar, info.alias)
+        generate_packages(env)
 
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
 
@@ -345,6 +324,42 @@ def generate(env):  # pylint: disable=too-many-statements
     for builder in ["Program", "SharedLibrary", "LoadableModule", "StaticLibrary"]:
         builder = env["BUILDERS"][builder]
         add_emitter(builder)
+
+    def generate_packages(env):
+        installedFiles = env.FindInstalledFiles()
+        env.NoCache(installedFiles)
+        for component, rolemap in alias_map.items():
+            for role, info in rolemap.items():
+                if component == "all":
+                    # All means everything in a given role,
+                    # No need to scan transitively since it is slow
+                    installed_component_files = [
+                        file for file in installedFiles
+                        if role in getattr(file.sources[0].attributes, 'aib_roles', [])
+                    ]
+                else:
+                    component_files = [
+                        file for file in installedFiles
+                        if (
+                                component in getattr(file.sources[0].attributes, 'aib_components', [])
+                                and role in getattr(file.sources[0].attributes, 'aib_roles', [])
+                        )
+                    ]
+
+                    installed_component_files = []
+                    for file in component_files:
+                        installed_component_files.append(file)
+                        installed_component_files += scan_for_transitive_install(file, env)
+
+                tar_alias = generate_alias(component, role, target="tar")
+                tar = env.TarBall(
+                    "{}.tar".format(tar_alias),
+                    source=installed_component_files,
+                    COMPONENT_TAG=component,
+                    ROLE_TAG=role,
+                )
+                env.Alias(tar_alias, tar)
+                env.Depends(tar, info.alias)
 
     def scan_for_transitive_install(node, env, path=()):
         results = []
