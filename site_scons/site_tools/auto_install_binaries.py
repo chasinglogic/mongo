@@ -62,12 +62,13 @@ def tarball_builder(target, source, env):
     relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
     SCons.Action._subproc(
         env,
-        shlex.split('tar -cvf {tarball} -C {ancestor} {files}'
-                    .format(
-                        tarball=target[0],
-                        ancestor=common_ancestor,
-                        files=" ".join(relative_files),
-                    )
+        shlex.split(
+            'tar -cvf {tarball} -C {ancestor} {files}'
+            .format(
+                tarball=target[0],
+                ancestor=common_ancestor,
+                files=" ".join(relative_files),
+            )
         ),
     )
 
