@@ -101,7 +101,11 @@ add_option('prefix',
 )
 
 add_option('dest-dir',
-    default='$BUILD_ROOT/dest$PREFIX',
+    # TODO
+    # For now this works I need to find a way to put prefix
+    # under here when it's relative using the SCons # symbol.
+    # SCons does not expand the # when it is not the first letter.
+    default='$BUILD_ROOT/install',
     help='root of installation as a subdirectory of $BUILD_DIR'
 )
 

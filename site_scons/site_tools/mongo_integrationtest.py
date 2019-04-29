@@ -5,20 +5,20 @@ from SCons.Script import Action
 def exists(env):
     return True
 
-_integration_tests = []
-def register_integration_test(env, test):
-    installed_test = env.Install("#/build/integration_tests/", test)
-    _integration_tests.append(installed_test[0].path)
-    env.Alias('$INTEGRATION_TEST_ALIAS', installed_test)
+# _integration_tests = []
+# def register_integration_test(env, test):
+#     installed_test = env.Install("#/build/integration_tests/", test)
+#     _integration_tests.append(installed_test[0].path)
+#     env.Alias('$INTEGRATION_TEST_ALIAS', installed_test)
 
-def integration_test_list_builder_action(env, target, source):
-    ofile = open(str(target[0]), 'w')
-    try:
-        for s in _integration_tests:
-            print('\t' + str(s))
-            ofile.write('%s\n' % s)
-    finally:
-        ofile.close()
+# def integration_test_list_builder_action(env, target, source):
+#     ofile = open(str(target[0]), 'w')
+#     try:
+#         for s in _integration_tests:
+#             print('\t' + str(s))
+#             ofile.write('%s\n' % s)
+#     finally:
+#         ofile.close()
 
 def build_cpp_integration_test(env, target, source, **kwargs):
     libdeps = kwargs.get('LIBDEPS', [])
@@ -26,15 +26,24 @@ def build_cpp_integration_test(env, target, source, **kwargs):
 
     kwargs['LIBDEPS'] = libdeps
     kwargs['INSTALL_ALIAS'] = ['tests']
+    kwargs['ADDITIONAL_COMPONENTS'] = {'tests', 'integrationtest'}
+    if (
+            "COMPONENT_TAG" in kwargs
+            and not kwargs["COMPONENT_TAG"].endswith("-test")
+    ):
+        kwargs["COMPONENT_TAG"] += "-test"
+
+    if "ROLE_TAG" not in kwargs:
+        kwargs["ROLE_TAG"] = "runtime"
 
     result = env.Program(target, source, **kwargs)
-    env.RegisterIntegrationTest(result[0])
+    # env.RegisterIntegrationTest(result[0])
     return result
 
 
 def generate(env):
-    env.Command('$INTEGRATION_TEST_LIST', env.Value(_integration_tests),
-                Action(integration_test_list_builder_action, "Generating $TARGET"))
-    env.AddMethod(register_integration_test, 'RegisterIntegrationTest')
+    # env.Command('$INTEGRATION_TEST_LIST', env.Value(_integration_tests),
+    #             Action(integration_test_list_builder_action, "Generating $TARGET"))
+    # env.AddMethod(register_integration_test, 'RegisterIntegrationTest')
     env.AddMethod(build_cpp_integration_test, 'CppIntegrationTest')
     env.Alias('$INTEGRATION_TEST_ALIAS', '$INTEGRATION_TEST_LIST')

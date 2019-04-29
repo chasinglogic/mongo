@@ -16,6 +16,8 @@
 # TODO: implement sdk_headers
 # TODO: Namedtuple for alias_map
 
+import os
+import shlex
 import itertools
 from collections import defaultdict, namedtuple
 
@@ -48,6 +50,28 @@ def generate_alias(component, role, target="install"):
         )
 
 
+def tarball_builder(target, source, env):
+    """Build a tarball using the lowest shared directory of sources as the root."""
+    if not isinstance(source, list):
+        source = [source]
+    if not source:
+        return
+    paths = [file.get_abspath() for file in source]
+    common_ancestor = os.path.commonprefix(paths)
+    print("ancestor", common_ancestor)
+    relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
+    SCons.Action._subproc(
+        env,
+        shlex.split('tar -cvf {tarball} -C {ancestor} {files}'
+                    .format(
+                        tarball=target[0],
+                        ancestor=common_ancestor,
+                        files=" ".join(relative_files),
+                    )
+        ),
+    )
+
+
 def exists(_env):
     """Always activate this tool."""
     return True
@@ -57,9 +81,9 @@ def generate(env):  # pylint: disable=too-many-statements
     """Generate the auto install builders."""
 
 
-    bld = SCons.Builder.Builder(action = 'tar -rf $TARGET $SOURCE')
+    bld = SCons.Builder.Builder(action = tarball_builder)
     env.Append(BUILDERS = {'TarBall': bld})
-
+    
     env["INSTALLDIR_BINDIR"] = "$INSTALL_DIR/bin"
     env["INSTALLDIR_LIBDIR"] = "$INSTALL_DIR/lib"
     env["INSTALLDIR_INCLUDEDIR"] = "$INSTALL_DIR/include"
@@ -145,6 +169,38 @@ def generate(env):  # pylint: disable=too-many-statements
                 "runtime"
             ]
         ),
+
+        ".txt": SuffixMap(
+            directory="$INSTALL_DIR",
+            default_roles=[
+                "runtime",
+                "dev",
+            ]
+        ),
+
+        ".h": SuffixMap(
+            directory="$INSTALLDIR_INCLUDEDIR",
+            default_roles=[
+                "dev",
+            ]
+        ),
+
+        # TODO: these are most assuredly wrong
+        ".in": SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "runtime",
+                "dev",
+            ]
+        ),
+
+        "THIR-PARTY-NOTICES": SuffixMap(
+            directory="$INSTALL_DIR",
+            default_roles=[
+                "runtime",
+                "dev",
+            ]
+        ),
     }
 
     def _aib_debugdir(source, target, env, for_signature):
@@ -168,13 +224,6 @@ def generate(env):  # pylint: disable=too-many-statements
         # persisted for this node after it is built so that we can
         # access it in our install emitter below.
         source = list(map(env.Entry, env.Flatten([source])))
-        for s in source:
-            s.attributes.keep_targetinfo = 1
-
-        actions = SCons.Script.Install(target=target, source=source)
-
-        for s in source:
-            s.attributes.aib_install_actions = actions
 
         roles = {
             kwargs.get("ROLE_TAG"),
@@ -206,8 +255,22 @@ def generate(env):  # pylint: disable=too-many-statements
         # Remove false values such as None
         roles = {role for role in roles if role}
         components = {component for component in components if component}
-        target.attributes.components = components
-        target.attributes.roles = roles
+        for s in source:
+            s.attributes.keep_targetinfo = 1
+            if getattr(s.attributes, "components", False):
+                s.attributes.components = s.attributes.components.union(components)
+            else:
+                s.attributes.components = components
+
+            if getattr(s.attributes, "roles", False):
+                s.attributes.roles = s.attributes.roles.union(roles)
+            else:
+                s.attributes.roles = roles
+
+        actions = SCons.Script.Install(target=target, source=source)
+        for s in source:
+            print(s.attributes.__dict__)
+            s.attributes.aib_install_actions = actions
 
         for component_tag, role_tag in itertools.product(components, roles):
             alias_name = generate_alias(component_tag, role_tag)
@@ -246,9 +309,20 @@ def generate(env):  # pylint: disable=too-many-statements
         for component, rolemap in alias_map.items():
             for role, info in rolemap.items():
                 tar_alias = generate_alias(component, role, target="tar")
+                tar_files = [
+                    file for file in installedFiles
+                    if component in getattr(file.attributes, "components", [])
+                ]
+
+                for file in installedFiles:
+                    print(file)
+                    print("attrs", file.attributes.__dict__)
+                print("tar alias", tar_alias)
                 tar = env.TarBall(
                     "{}.tar".format(tar_alias),
-                    source=installedFiles,
+                    source=tar_files,
+                    COMPONENT_TAG=component,
+                    ROLE_TAG=role,
                 )
                 env.Alias(tar_alias, tar)
                 env.Depends(tar, info.alias)
@@ -259,6 +333,9 @@ def generate(env):  # pylint: disable=too-many-statements
         for t in target:
             entry = env.Entry(t)
             suffix = entry.get_suffix()
+            if not suffix:
+                # If not suffix check the suffix_map for the filename
+                suffix = entry.name
             auto_install_mapping = suffix_map.get(suffix)
             if auto_install_mapping is not None:
                 env.AutoInstall(
