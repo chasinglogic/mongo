@@ -56,9 +56,8 @@ def tarball_builder(target, source, env):
         source = [source]
     if not source:
         return
+    common_ancestor = env.Dir("$INSTALL_DIR").get_abspath()
     paths = [file.get_abspath() for file in source]
-    common_ancestor = os.path.commonprefix(paths)
-    print("ancestor", common_ancestor)
     relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
     SCons.Action._subproc(
         env,
@@ -71,6 +70,14 @@ def tarball_builder(target, source, env):
             )
         ),
     )
+
+
+def extend_attr(node, attr, value):
+    """Set attr to value or extend the set if it exists."""
+    existing = getattr(node.attributes, attr, False)
+    if existing:
+        value = existing.union(value)
+    setattr(node.attributes, attr, value)
 
 
 def exists(_env):
@@ -194,14 +201,6 @@ def generate(env):  # pylint: disable=too-many-statements
                 "dev",
             ]
         ),
-
-        "THIR-PARTY-NOTICES": SuffixMap(
-            directory="$INSTALL_DIR",
-            default_roles=[
-                "runtime",
-                "dev",
-            ]
-        ),
     }
 
     def _aib_debugdir(source, target, env, for_signature):
@@ -225,6 +224,8 @@ def generate(env):  # pylint: disable=too-many-statements
         # persisted for this node after it is built so that we can
         # access it in our install emitter below.
         source = list(map(env.Entry, env.Flatten([source])))
+        for s in source:
+            s.attributes.keep_targetinfo = 1
 
         roles = {
             kwargs.get("ROLE_TAG"),
@@ -238,7 +239,8 @@ def generate(env):  # pylint: disable=too-many-statements
         component_tag = kwargs.get("COMPONENT_TAG")
         if (
                 component_tag is not None
-                and (not isinstance(component_tag, str) or " " in component_tag)
+                and (not isinstance(component_tag, str)
+                     or " " in component_tag)
         ):
             raise Exception(
                 "COMPONENT_TAG must be a string and contain no whitespace."
@@ -256,21 +258,14 @@ def generate(env):  # pylint: disable=too-many-statements
         # Remove false values such as None
         roles = {role for role in roles if role}
         components = {component for component in components if component}
-        for s in source:
-            s.attributes.keep_targetinfo = 1
-            if getattr(s.attributes, "components", False):
-                s.attributes.components = s.attributes.components.union(components)
-            else:
-                s.attributes.components = components
 
-            if getattr(s.attributes, "roles", False):
-                s.attributes.roles = s.attributes.roles.union(roles)
-            else:
-                s.attributes.roles = roles
-
-        actions = SCons.Script.Install(target=target, source=source)
+        actions = env.Install(
+            target=target,
+            source=source,
+            AIB_COMPONENTS=components,
+            AIB_ROLES=roles,
+        )
         for s in source:
-            print(s.attributes.__dict__)
             s.attributes.aib_install_actions = actions
 
         for component_tag, role_tag in itertools.product(components, roles):
@@ -312,13 +307,12 @@ def generate(env):  # pylint: disable=too-many-statements
                 tar_alias = generate_alias(component, role, target="tar")
                 tar_files = [
                     file for file in installedFiles
-                    if component in getattr(file.attributes, "components", [])
+                    if (
+                            component in file.env.get('AIB_COMPONENTS', [])
+                            and role in file.env.get('AIB_ROLES', [])
+                    )
                 ]
 
-                for file in installedFiles:
-                    print(file)
-                    print("attrs", file.attributes.__dict__)
-                print("tar alias", tar_alias)
                 tar = env.TarBall(
                     "{}.tar".format(tar_alias),
                     source=tar_files,
@@ -334,9 +328,6 @@ def generate(env):  # pylint: disable=too-many-statements
         for t in target:
             entry = env.Entry(t)
             suffix = entry.get_suffix()
-            if not suffix:
-                # If not suffix check the suffix_map for the filename
-                suffix = entry.name
             auto_install_mapping = suffix_map.get(suffix)
             if auto_install_mapping is not None:
                 env.AutoInstall(
