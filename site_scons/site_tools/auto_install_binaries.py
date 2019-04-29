@@ -219,13 +219,7 @@ def generate(env):  # pylint: disable=too-many-statements
     def auto_install(env, target, source, **kwargs):
 
         target = env.Dir(env.subst(target, source=source))
-
-        # We want to make sure that the executor information stays
-        # persisted for this node after it is built so that we can
-        # access it in our install emitter below.
         source = list(map(env.Entry, env.Flatten([source])))
-        for s in source:
-            s.attributes.keep_targetinfo = 1
 
         roles = {
             kwargs.get("ROLE_TAG"),
