@@ -544,6 +544,9 @@ mongos = env.Program(
         'util/options_parser/options_parser',
     ],
     COMPONENT_TAG="servers",
+    ADDITIONAL_COMPONENTS=[
+        "default",
+    ],
 )
 
 if not hygienic:
@@ -635,7 +638,10 @@ if not has_option('noshell') and usemozjs:
             '$BUILD_DIR/mongo/util/net/ssl_options_client' if get_option('ssl') == 'on' else '',
         ],
         COMPONENT_TAG="shell",
-        ADDITIONAL_COMPONENTS=["core"],
+        ADDITIONAL_COMPONENTS=[
+            "core",
+            "default",
+        ],
     )
 
     if not hygienic:
@@ -708,13 +714,22 @@ def installBinary( e, name ):
         e.AddPostAction( inst, 'chmod 755 $TARGET' )
 
 def installExternalBinary( e, name_str ):
-
-    if hygienic:
-        return
-
     name = env.File("#/%s" % add_exe(name_str))
     if not name.isfile():
         env.FatalError("ERROR: external binary not found: {0}", name)
+
+    if hygienic:
+        env.AutoInstall(
+            '$INSTALLDIR_BINDIR',
+            source=[
+                name
+            ],
+            COMPONENT_TAG='tools',
+            ADDITIONAL_COMPONENTS=[
+                'default',
+            ],
+        )
+        return
 
     distBinaries.append(name)
 
@@ -815,6 +830,9 @@ else:
             compass_installer,
         ],
         COMPONENT_TAG='tools',
+        ADDITIONAL_COMPONENTS=[
+            'default',
+        ],
     )
 
 if env.TargetOSIs('posix'):
