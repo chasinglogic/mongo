@@ -841,7 +841,7 @@ if env.TargetOSIs('posix'):
 
 # "dist" target is valid only when --use-new-tools is specified
 # Attempts to build release artifacts without tools must fail
-if has_option("use-new-tools"):
+if has_option("use-new-tools") and not hygienic:
     server_archive = env.Command(
         target='#/${SERVER_ARCHIVE}',
         source=['#buildscripts/make_archive.py'] + env["MODULE_BANNERS"] + env["ARCHIVE_ADDITIONS"] + distBinaries,
@@ -870,6 +870,15 @@ else:
         env.FatalError("ERROR: 'dist' target only valid with --use-new-tools.")
     env.Alias("dist", [], [ failDist ] )
     env.AlwaysBuild("dist")
+
+if hygienic:
+    for banner in env["MODULE_BANNERS"]:
+        env.AutoInstall(
+            "$INSTALL_DIR",
+            source=[banner],
+            COMPONENT_TAG="default",
+            ROLE_TAG="runtime",
+        )
 
 debug_symbols_dist = env.Command(
     target='#/${SERVER_DIST_BASENAME}-debugsymbols${DIST_ARCHIVE_SUFFIX}',

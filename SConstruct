@@ -3658,6 +3658,87 @@ if get_option('install-mode') == 'hygienic':
         env.Tool('separate_debug')
 
     env.Tool('auto_install_binaries')
+    env.AddSuffixMapping({
+        "$PROGSUFFIX": env.SuffixMap(
+            directory="$INSTALLDIR_BINDIR",
+            default_roles=[
+                "runtime",
+            ]
+        ),
+        
+        "$LIBSUFFIX": env.SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "dev",
+            ]
+        ),
+        
+        ".dll": env.SuffixMap(
+            directory="$INSTALLDIR_BINDIR",
+            default_roles=[
+                "runtime",
+            ]
+        ),
+        
+        ".dylib": env.SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "runtime",
+            ]
+        ),
+        
+        ".so": env.SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "runtime",
+            ] if link_model == "dynamic" else []
+        ),
+        
+        ".debug": env.SuffixMap(
+            directory="$INSTALLDIR_DEBUGDIR",
+            default_roles=[
+                "debug",
+            ]
+        ),
+        
+        ".dSYM": env.SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "debug"
+            ]
+        ),
+        
+        ".lib": env.SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "dev"
+            ]
+        ),
+        
+        ".txt": env.SuffixMap(
+            directory="$INSTALL_DIR",
+            default_roles=[
+                "runtime",
+            ]
+        ),
+        
+        ".h": env.SuffixMap(
+            directory="$INSTALLDIR_INCLUDEDIR",
+            default_roles=[
+                "dev",
+            ]
+        ),
+        
+        # TODO: these are most assuredly wrong
+        ".in": env.SuffixMap(
+            directory="$INSTALLDIR_LIBDIR",
+            default_roles=[
+                "runtime",
+                "dev",
+            ]
+        ),
+    })
+
     if env['PLATFORM'] == 'posix':
         env.AppendUnique(
             RPATH=[
