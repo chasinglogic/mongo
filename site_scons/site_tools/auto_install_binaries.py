@@ -50,15 +50,76 @@ def generate_alias(component, role, target="install"):
         )
 
 
+def scan_for_transitive_install(node, env, path=()):
+    """Walk the children of node finding all installed dependencies of it."""
+    results = []
+    install_sources = node.sources
+    print("scanning...")
+    roles = getattr(node.sources[0].attributes, "aib_roles", [])
+    is_runtime = "runtime" in roles
+    for install_source in install_sources:
+        install_executor = install_source.get_executor()
+        if not install_executor:
+            continue
+        install_targets = install_executor.get_all_targets()
+        if not install_targets:
+            continue
+        for install_target in install_targets:
+            grandchildren = install_target.children()
+            for grandchild in grandchildren:
+                grandroles = getattr(grandchild.attributes, "aib_roles", [])
+                print(grandchild.get_abspath(), grandroles)
+                if is_runtime and "runtime" not in grandroles:
+                    print("Crossed boundary skipping..")
+                    continue
+                actions = getattr(
+                    grandchild.attributes, "aib_install_actions", None
+                )
+                if actions:
+                    results.extend(actions)
+    # TODO why is this sorted?
+    results = sorted(results, key=str)
+    return results
+
+
+def collect_transitive_files(sources, env):
+    """Collect all transitive files for node."""
+    scanned_components = set()
+    files = []
+    print("collecting")
+    for s in sources:
+        print(s.get_abspath())
+        component = getattr(s.attributes, "aib_components", set())
+        if not component:
+            print("no component")
+            continue
+
+        diff = component.diff(scanned_components)
+        if not diff:
+            print("no diff")
+            continue
+
+        print("new component")
+        components = scanned_components.union(component)
+        files += scan_for_transitive_install(s, env)
+
+    return files + sources
+
 def tarball_builder(target, source, env):
-    """Build a tarball using the lowest shared directory of sources as the root."""
+    """Build a tarball of the AutoInstall'd sources."""
     if not isinstance(source, list):
         source = [source]
     if not source:
         return
+    files = collect_transitive_files(source, env)
     common_ancestor = env.Dir("$DEST_DIR").get_abspath()
-    paths = [file.get_abspath() for file in source]
+    paths = [file.get_abspath() for file in files]
     relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
+    # if env.get('STATIC_PACKAGES', False):
+    #     relative_files = [
+    #         path for path in relative_files
+    #         if 'lib' not in path
+    #     ]
     SCons.Action._subproc(
         env,
         shlex.split(
@@ -87,8 +148,6 @@ def exists(_env):
 
 def generate(env):  # pylint: disable=too-many-statements
     """Generate the auto install builders."""
-
-
     bld = SCons.Builder.Builder(action = tarball_builder)
     env.Append(BUILDERS = {'TarBall': bld})
     
@@ -145,7 +204,6 @@ def generate(env):  # pylint: disable=too-many-statements
             directory="$INSTALLDIR_LIBDIR",
             default_roles=[
                 "runtime",
-                "dev",
             ]
         ),
 
@@ -153,7 +211,6 @@ def generate(env):  # pylint: disable=too-many-statements
             directory="$INSTALLDIR_LIBDIR",
             default_roles=[
                 "runtime",
-                "dev",
             ]
         ),
 
@@ -167,14 +224,14 @@ def generate(env):  # pylint: disable=too-many-statements
         ".dSYM": SuffixMap(
             directory="$INSTALLDIR_LIBDIR",
             default_roles=[
-                "runtime"
+                "debug"
             ]
         ),
 
         ".lib": SuffixMap(
             directory="$INSTALLDIR_LIBDIR",
             default_roles=[
-                "runtime"
+                "dev"
             ]
         ),
 
@@ -182,7 +239,6 @@ def generate(env):  # pylint: disable=too-many-statements
             directory="$INSTALL_DIR",
             default_roles=[
                 "runtime",
-                "dev",
             ]
         ),
 
@@ -247,7 +303,7 @@ def generate(env):  # pylint: disable=too-many-statements
         # Some tools will need to create multiple components so we add
         # this "hidden" argument that accepts a set.
         if kwargs.get("ADDITIONAL_COMPONENTS") is not None:
-            components.union(set(kwargs["ADDITIONAL_COMPONENTS"]))
+            components = components.union(set(kwargs["ADDITIONAL_COMPONENTS"]))
 
         # Remove false values such as None
         roles = {role for role in roles if role}
@@ -282,6 +338,9 @@ def generate(env):  # pylint: disable=too-many-statements
             env.Alias("install", "install-default")
             env.Default("install")
 
+        installedFiles = env.FindInstalledFiles()
+        env.NoCache(installedFiles)
+
         for component, rolemap in alias_map.items():
             for role, info in rolemap.items():
 
@@ -293,7 +352,23 @@ def generate(env):  # pylint: disable=too-many-statements
                     if dependency_info:
                         env.Depends(info.alias, dependency_info.alias)
 
-        generate_packages(env)
+                installed_component_files = [
+                    file for file in installedFiles
+                    if (
+                            component in getattr(file.sources[0].attributes, 'aib_components', [])
+                            and role in getattr(file.sources[0].attributes, 'aib_roles', [])
+                    )
+                ]
+
+                tar_alias = generate_alias(component, role, target="tar")
+                tar = env.TarBall(
+                    "{}-{}.tar".format(component, role),
+                    source=installed_component_files,
+                    COMPONENT_TAG=component,
+                    ROLE_TAG=role,
+                )
+                env.Alias(tar_alias, tar)
+                env.Depends(tar, info.alias)
 
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
 
@@ -324,63 +399,6 @@ def generate(env):  # pylint: disable=too-many-statements
     for builder in ["Program", "SharedLibrary", "LoadableModule", "StaticLibrary"]:
         builder = env["BUILDERS"][builder]
         add_emitter(builder)
-
-    def generate_packages(env):
-        installedFiles = env.FindInstalledFiles()
-        env.NoCache(installedFiles)
-        for component, rolemap in alias_map.items():
-            for role, info in rolemap.items():
-                if component == "all":
-                    # All means everything in a given role,
-                    # No need to scan transitively since it is slow
-                    installed_component_files = [
-                        file for file in installedFiles
-                        if role in getattr(file.sources[0].attributes, 'aib_roles', [])
-                    ]
-                else:
-                    component_files = [
-                        file for file in installedFiles
-                        if (
-                                component in getattr(file.sources[0].attributes, 'aib_components', [])
-                                and role in getattr(file.sources[0].attributes, 'aib_roles', [])
-                        )
-                    ]
-
-                    installed_component_files = []
-                    for file in component_files:
-                        installed_component_files.append(file)
-                        installed_component_files += scan_for_transitive_install(file, env)
-
-                tar_alias = generate_alias(component, role, target="tar")
-                tar = env.TarBall(
-                    "{}.tar".format(tar_alias),
-                    source=installed_component_files,
-                    COMPONENT_TAG=component,
-                    ROLE_TAG=role,
-                )
-                env.Alias(tar_alias, tar)
-                env.Depends(tar, info.alias)
-
-    def scan_for_transitive_install(node, env, path=()):
-        results = []
-        install_sources = node.sources
-        for install_source in install_sources:
-            install_executor = install_source.get_executor()
-            if not install_executor:
-                continue
-            install_targets = install_executor.get_all_targets()
-            if not install_targets:
-                continue
-            for install_target in install_targets:
-                grandchildren = install_target.children()
-                for grandchild in grandchildren:
-                    actions = getattr(
-                        grandchild.attributes, "aib_install_actions", None
-                    )
-                    if actions:
-                        results.extend(actions)
-        results = sorted(results, key=str)
-        return results
 
     base_install_builder = install.BaseInstallBuilder
     assert base_install_builder.target_scanner is None
