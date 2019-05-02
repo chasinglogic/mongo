@@ -105,6 +105,15 @@ add_option('dest-dir',
     help='root of installation as a subdirectory of $BUILD_DIR'
 )
 
+add_option('legacy-tarball',
+    choices=['true', 'false'],
+    default='false',
+    const='false',
+    nargs='?',
+    type='choice',
+    help='Build a tarball matching the old MongoDB dist targets',
+)
+
 add_option('install-mode',
     choices=['legacy', 'hygienic'],
     default='legacy',
@@ -1059,6 +1068,8 @@ else:
 
 env['INSTALL_DIR'] = installDir
 env['DEST_DIR'] = destDir
+if get_option('legacy-tarball') == 'true':
+    env['INSTALL_DIR'] = env.Dir('$INSTALL_DIR').Dir('$SERVER_DIST_BASENAME')
 
 del envDict
 
