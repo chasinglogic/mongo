@@ -18,6 +18,7 @@ if get_option('install-mode') == 'hygienic':
             '../LICENSE-Embedded.txt',
         ],
         COMPONENT_TAG='embedded',
+        ROLE_TAG='common',
     )
 
 def create_mongoc_env(env):
@@ -78,6 +79,7 @@ if get_option('install-mode') == 'hygienic':
         '$INSTALL_DIR/include/mongoc_embedded/v1/mongoc_embedded',
         source=['mongoc_embedded.h'],
         COMPONENT_TAG='embedded',
+        ROLE_TAG='dev'
     )
 
 yamlEnv = env.Clone()

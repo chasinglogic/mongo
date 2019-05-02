@@ -720,11 +720,12 @@ def installExternalBinary( e, name_str ):
 
     if hygienic:
         env.AutoInstall(
-            '$INSTALLDIR_BINDIR',
+            target='$INSTALLDIR_BINDIR',
             source=[
                 name
             ],
             COMPONENT_TAG='tools',
+            ROLE_TAG='runtime',
             ADDITIONAL_COMPONENTS=[
                 'default',
             ],
@@ -742,7 +743,18 @@ def installExternalBinary( e, name_str ):
 # It is required for "dist" but optional for "install"
 if has_option("use-new-tools"):
 
-    env.Append(MODULE_BANNERS=[env.File('#/src/mongo-tools/distsrc/THIRD-PARTY-NOTICES.gotools')])
+    if hygienic:
+        env.AutoInstall(
+            target='$INSTALL_DIR',
+            source=env.File('#/src/mongo-tools/distsrc/THIRD-PARTY-NOTICES.gotools'),
+            COMPONENT_TAG='tools',
+            ROLE_TAG='runtime',
+            ADDITIONAL_COMPONENTS=[
+                'default',
+            ],
+        )
+    else:
+        env.Append(MODULE_BANNERS=[env.File('#/src/mongo-tools/distsrc/THIRD-PARTY-NOTICES.gotools')])
 
     toolsRoot = "src/mongo-tools"
 
@@ -768,14 +780,47 @@ if not hygienic:
 
 # Stage the top-level mongodb banners
 distsrc = env.Dir('#distsrc')
-env.Append(MODULE_BANNERS = [distsrc.File('README'),
-                             distsrc.File('THIRD-PARTY-NOTICES'),
-                             distsrc.File('MPL-2')])
+if hygienic:
+    print("Installing license files")
+    env.AutoInstall(
+        target='$INSTALL_DIR',
+        source=[
+            distsrc.File('README'),
+            # TODO: we need figure out what to do when we use a different
+            # THIRD-PARTY-NOTICES for example, with Embedded
+            distsrc.File('THIRD-PARTY-NOTICES'),
+            distsrc.File('MPL-2'),
+        ],
+        COMPONENT_TAG='common',
+        ROLE_TAG='common',
+        ADDITIONAL_COMPONENTS=[
+            'default',
+        ],
+    )
+else:
+    env.Append(MODULE_BANNERS = [distsrc.File('README'),
+                                 distsrc.File('THIRD-PARTY-NOTICES'),
+                                 distsrc.File('MPL-2')])
 
+enterprise_license = [banner for banner in env["MODULE_BANNERS"] if banner.name ==  "LICENSE-Enterprise.txt"]
+if hygienic:
+    env.AutoInstall(
+        target='$INSTALL_DIR',
+        source=[
+            enterprise_license[0]
+            if enterprise_license else distsrc.File('LICENSE-Community.txt'),
+        ],
+        COMPONENT_TAG='common',
+        ROLE_TAG='common',
+        ADDITIONAL_COMPONENTS=[
+            'default',
+        ],
+    )
 # If no module has introduced a file named LICENSE-Enterprise.txt then this
 # is a Community build, so inject the AGPL and the Community license
-if sum(map(lambda x: x.name == "LICENSE-Enterprise.txt", env['MODULE_BANNERS'])) == 0:
+elif not enterprise_license:
     env.Append(MODULE_BANNERS = [distsrc.File('LICENSE-Community.txt')])
+    
 
 # All module banners get staged to the top level of the tarfile, so we
 # need to fail if we are going to have a name collision.
@@ -825,11 +870,12 @@ if not hygienic:
     compass_script_installer = env.Install("$INSTALL_DIR/bin", compass_installer)
 else:
     compass_script_installer = env.AutoInstall(
-        '$INSTALLDIR_BINDIR',
+        target='$INSTALLDIR_BINDIR',
         source=[
             compass_installer,
         ],
         COMPONENT_TAG='tools',
+        ROLE_TAG='runtime',
         ADDITIONAL_COMPONENTS=[
             'default',
         ],
@@ -870,15 +916,6 @@ else:
         env.FatalError("ERROR: 'dist' target only valid with --use-new-tools.")
     env.Alias("dist", [], [ failDist ] )
     env.AlwaysBuild("dist")
-
-if hygienic:
-    for banner in env["MODULE_BANNERS"]:
-        env.AutoInstall(
-            "$INSTALL_DIR",
-            source=[banner],
-            COMPONENT_TAG="default",
-            ROLE_TAG="runtime",
-        )
 
 debug_symbols_dist = env.Command(
     target='#/${SERVER_DIST_BASENAME}-debugsymbols${DIST_ARCHIVE_SUFFIX}',

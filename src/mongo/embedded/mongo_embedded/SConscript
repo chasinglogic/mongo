@@ -13,10 +13,10 @@ if get_option('install-mode') == 'hygienic':
         '$INSTALL_DIR/share/doc/mongo_embedded',
         source=[
             '#/LICENSE-Community.txt',
-            '#/distsrc/THIRD-PARTY-NOTICES',
             '../LICENSE-Embedded.txt',
         ],
         COMPONENT_TAG="embedded",
+        ROLE_TAG="common",
     )
 
 mongoEmbeddedEnv = env.Clone()
@@ -129,17 +129,20 @@ resourceDir = frameworkDir
 if env.TargetOSIs('macOS'):
     resourceDir = resourceDir.Dir('Resources')
 
-env.Install(
-    target=resourceDir,
-    source=env.File(
-        name=[
-            'LICENSE-Community.txt',
-            'LICENSE-Embedded.txt',
-            'THIRD-PARTY-NOTICES',
-        ],
-        directory=env.Dir('$INSTALL_DIR/share/doc/mongo_embedded'),
-    ),
-)
+# TODO: this causes problems for dist builds, idk what it should be
+# because only THIRD-PARTY-NOTICES gets pulled in. Perhaps it's to do
+# with the BANNER FILES?
+# env.Install(
+#     target=resourceDir,
+#     source=env.File(
+#         name=[
+#             'LICENSE-Community.txt',
+#             'LICENSE-Embedded.txt',
+#             'THIRD-PARTY-NOTICES',
+#         ],
+#         directory=env.Dir('$INSTALL_DIR/share/doc/mongo_embedded'),
+#     ),
+# )
 
 env.Install(
     target=frameworkDir.Dir('Headers'),

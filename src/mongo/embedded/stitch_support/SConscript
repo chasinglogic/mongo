@@ -9,10 +9,8 @@ env = env.Clone()
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
-        # TODO: Fixme
-        '.',
+        '$INSTALL_DIR',
         source=[
-            '#/LICENSE-Community.txt',
             '#/distsrc/THIRD-PARTY-NOTICES',
         ],
         COMPONENT_TAG='stitch-support',
