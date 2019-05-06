@@ -1,20 +1,11 @@
-# TODO: Filter child chains by role (install bin/foo should not install lib/dep.debug)
-# TODO: Add test tag automatically for unit tests, etc.
-# TODO: Test tag still leaves things in the runtime component
-# TODO: But meta doesn't depend on test! Should it though?
-# TODO: How should debug info work for tests?
-# TODO: destdir vs prefix (what about --install-sandbox?)
 # TODO: Versioned libraries
 # TODO: library dependency chaining for windows dynamic builds, static dev packages
 # TODO: Injectible component dependencies (jscore -> resmoke, etc.)
-# TODO: Distfiles and equivalent for the dist target
 # TODO: Handle chmod state
-# TODO: tarfile generation
 # TODO: Installing resmoke and configurations
 # TODO: package decomposition
 # TODO: Install/package target help text
 # TODO: implement sdk_headers
-# TODO: Namedtuple for alias_map
 
 import os
 import shlex
