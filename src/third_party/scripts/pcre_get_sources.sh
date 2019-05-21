@@ -17,7 +17,7 @@ if [ "$#" -ne 0 ]; then
 fi
 
 
-VERSION=8.42
+VERSION=8.43
 NAME=pcre
 TARBALL=$NAME-$VERSION.tar.gz
 TARBALL_DIR=$NAME-$VERSION
