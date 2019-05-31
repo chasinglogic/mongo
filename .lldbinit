@@ -1,0 +1,9 @@
+type summary add --summary-string "${var._data}" "mongo::StringData"
+type summary add --summary-string "${var.m_pathname}" "boost::filesystem::path"
+
+def function(valobj, internal_dict):
+    ptr = valobj.GetChildMemberWithName('_data').GetValueAsUnsigned();
+    print(ptr)
+    size1 = valobj.GetChildMemberWithName('_size').GetValueAsUnsigned(0); 
+    print(size1)
+    return "\"%s\"" % (valobj.GetProcess().ReadMemory(ptr, size1, lldb.SBError()).encode('utf-8'))
