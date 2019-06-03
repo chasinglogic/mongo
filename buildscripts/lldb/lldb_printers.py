@@ -36,11 +36,10 @@ except ImportError as err:
 
 def __lldb_init_module(debugger, dict):
     debugger.HandleCommand("type summary add -F lldb_printers.StringDataSummary mongo::StringData")
-    debugger.HandleCommand("type summary add -F lldb_printers.BSONObjSummary mongo::BSONObj")
     debugger.HandleCommand("type summary add -s 'A${*var.__ptr_.__value_}' -x '^std::__1::unique_ptr<.+>$'")
-    debugger.HandleCommand("type synthetic add --python-class lldb_printers.UniquePtrSynth -x '^std::__1::unique_ptr<.+>$'")
-    debugger.HandleCommand("type synthetic add --python-class lldb_printers.OptionalSynth -x '^boost::optional<.+>$'")
-    # debugger.HandleCommand("type synthetic add mongo::BSONObj --python-class lldb_printers.BSONObjSynth")
+    debugger.HandleCommand("type summary add mongo::BSONObj --python-class lldb_printers.BSONObjPrinter")
+    debugger.HandleCommand("type synthetic add -x '^std::__1::unique_ptr<.+>$' --python-class lldb_printers.UniquePtrPrinter")
+    debugger.HandleCommand("type synthetic add -x '^boost::optional<.+>$' --python-class lldb_printers.OptionalPrinter")
     # debugger.HandleCommand("type summary add -F lldb_printers.StringDataSummary mongo::Status")
     # debugger.HandleCommand("type summary add -F lldb_printers.StringDataSummary mongo::StatusWith")
 
@@ -51,19 +50,17 @@ def StringDataSummary(valobj, *args):
     return '"{}"'.format(valobj.GetProcess().ReadMemory(ptr, size1, lldb.SBError()).encode("utf-8"))
 
 
-def BSONObjSummary(valobj, *args):
+def BSONObjPrinter(valobj, *args):
     ptr = valobj.GetChildMemberWithName("_objdata").GetValueAsUnsigned()
+    print("ptr", ptr)
     size = struct.unpack("<I", valobj.GetProcess().ReadMemory(ptr, 4, lldb.SBError()))[0]
+    print("size", size)
     if size < 5 or size > 17 * 1024 * 1024:
         return
     buf = bson.BSON(bytes(valobj.GetProcess().ReadMemory(ptr, size, lldb.SBError())))
     return json_util.dumps(buf.decode())
 
-
-# def UniquePtrSummary(valobj, dict);
-#         ptr = valobj.GetChildMemberWithName("_objdata").GetValueAsUnsigned()
-
-class UniquePtrSynth:
+class UniquePtrPrinter:
     def __init__(self, valobj, dict):
         print("init caled");
         self.valobj = valobj
@@ -95,7 +92,7 @@ class UniquePtrSynth:
         pass
 
 
-class OptionalSynth:
+class OptionalPrinter:
     def __init__(self, valobj, dict):
         print("init caled");
         self.valobj = valobj
@@ -130,34 +127,4 @@ class OptionalSynth:
             temp_type = self.valobj.GetType().GetTemplateArgumentType(0)
             storage = self.GetChildMemberWithName("m_storage")
             self.value = storage.Cast(temp_type)
-
-print( "done")
-
-#    return "unknown"
-
-# class BSONObjSynth:
-#     def __init__(self, valobj, dict):
-#         self.valobj = valobj;
-#         self.update()
-
-#     def num_children(self):
-
-#     def get_child_index(self, name):
-
-#     def get_child_at_index(self, index):
-#         return self.begin.CreateChildAtOffset("["+str(index)+"]",
-#                                               offset, self.data_type)
-
-#     def update(self):
-#         self.begin = self.valobj.GetChildMemberWithName("BeginX")
-#         self.size = self.valobj.GetChildMemberWithName("Size")
-#         the_type = self.valobj.GetType()
-#         # If this is a reference type we have to dereference it to get to the
-#         # template parameter.
-#         if the_type.IsReferenceType():
-#             the_type = the_type.GetDereferencedType()
-
-#         self.data_type = the_type.GetTemplateArgumentType(0)
-#         self.type_size = self.data_type.GetByteSize()
-#         assert self.type_size != 0
 

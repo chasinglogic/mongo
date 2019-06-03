@@ -1,5 +1,6 @@
 type summary add --summary-string "${var._data}" "mongo::StringData"
 type summary add --summary-string "${var.m_pathname}" "boost::filesystem::path"
+command script import buildscripts/lldb/lldb_printers.py
 
 def function(valobj, internal_dict):
     ptr = valobj.GetChildMemberWithName('_data').GetValueAsUnsigned();
