@@ -10,13 +10,13 @@ env = env.Clone()
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
-        '$INSTALL_DIR/share/doc/mongo_embedded',
+        '$INSTALLDIR_DOCDIR/mongo_embedded',
         source=[
             '#/LICENSE-Community.txt',
             '../LICENSE-Embedded.txt',
         ],
-        COMPONENT_TAG="embedded",
-        ROLE_TAG="common",
+        COMPONENT_TAG='embedded',
+        ROLE_TAG='common',
     )
 
 mongoEmbeddedEnv = env.Clone()

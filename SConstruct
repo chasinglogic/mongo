@@ -1043,7 +1043,6 @@ envDict = dict(BUILD_ROOT=buildDir,
                BENCHMARK_LIST='$BUILD_ROOT/benchmarks.txt',
                CONFIGUREDIR='$BUILD_ROOT/scons/$VARIANT_DIR/sconf_temp',
                CONFIGURELOG='$BUILD_ROOT/scons/config.log',
-               INSTALL_DIR=None,
                PREFIX=get_option('prefix'),
                CONFIG_HEADER_DEFINES={},
                LIBDEPS_TAG_EXPANSIONS=[],
@@ -3753,7 +3752,9 @@ if get_option('install-mode') == 'hygienic':
     if env['PLATFORM'] == 'posix':
         env.AppendUnique(
             RPATH=[
-                '$PREFIX'
+                # In the future when we want to improve dynamic builds
+                # we should set this to $PREFIX ideally
+                 env.Literal('\\$$ORIGIN/../lib'),
             ],
             LINKFLAGS=[
                 # Most systems *require* -z,origin to make origin work, but android
@@ -4089,6 +4090,10 @@ env.Alias('cache-prune', cachePrune)
 
 if get_option('install-mode') == 'hygienic':
     env.FinalizeInstallDependencies()
+
+# We don't want installing files to cause them to flow into the cache,	
+# since presumably we can re-install them from the origin if needed.	
+env.NoCache(env.FindInstalledFiles())
 
 # Substitute environment variables in any build targets so that we can
 # say, for instance:

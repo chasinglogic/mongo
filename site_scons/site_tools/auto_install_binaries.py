@@ -304,7 +304,6 @@ def finalize_install_dependencies(env):
         env.Default("install")
 
     installed_files = env.FindInstalledFiles()
-    env.NoCache(installed_files)
 
     for component, rolemap in env[ALIAS_MAP].items():
         for role, info in rolemap.items():
@@ -417,6 +416,7 @@ def generate(env):  # pylint: disable=too-many-statements
 
     env["INSTALLDIR_BINDIR"] = "$INSTALL_DIR/bin"
     env["INSTALLDIR_LIBDIR"] = "$INSTALL_DIR/lib"
+    env["INSTALLDIR_DOCDIR"] = "$INSTALL_DIR/share/doc"
     env["INSTALLDIR_INCLUDEDIR"] = "$INSTALL_DIR/include"
     env["INSTALLDIR_DEBUGDIR"] = _aib_debugdir
     env[SUFFIX_MAP] = {}

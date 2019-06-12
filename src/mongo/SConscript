@@ -439,10 +439,10 @@ mongod = env.Program(
         'util/version_impl',
         'watchdog/watchdog_mongod',
     ],
-    COMPONENT_TAG="core",
+    COMPONENT_TAG="servers",
     ADDITIONAL_COMPONENTS=[
         "default",
-        "servers",
+        "core",
     ],
 )
 
@@ -545,8 +545,8 @@ mongos = env.Program(
     ],
     COMPONENT_TAG="servers",
     ADDITIONAL_COMPONENTS=[
-        "default",
-    ],
+        "core",
+    ]
 )
 
 if not hygienic:
@@ -640,7 +640,6 @@ if not has_option('noshell') and usemozjs:
         COMPONENT_TAG="shell",
         ADDITIONAL_COMPONENTS=[
             "core",
-            "default",
         ],
     )
 
@@ -727,7 +726,7 @@ def installExternalBinary( e, name_str ):
             COMPONENT_TAG='tools',
             ROLE_TAG='runtime',
             ADDITIONAL_COMPONENTS=[
-                'default',
+                'core',
             ],
         )
         return
@@ -747,10 +746,10 @@ if has_option("use-new-tools"):
         env.AutoInstall(
             target='$INSTALL_DIR',
             source=env.File('#/src/mongo-tools/distsrc/THIRD-PARTY-NOTICES.gotools'),
-            COMPONENT_TAG='tools',
             ROLE_TAG='runtime',
+            COMPONENT_TAG='tools',
             ADDITIONAL_COMPONENTS=[
-                'default',
+                'core',
             ],
         )
     else:
@@ -794,7 +793,7 @@ if hygienic:
         COMPONENT_TAG='common',
         ROLE_TAG='common',
         ADDITIONAL_COMPONENTS=[
-            'default',
+            'core',
         ],
     )
 else:
@@ -813,7 +812,7 @@ if hygienic:
         COMPONENT_TAG='common',
         ROLE_TAG='common',
         ADDITIONAL_COMPONENTS=[
-            'default',
+            'core',
         ],
     )
 # If no module has introduced a file named LICENSE-Enterprise.txt then this
@@ -877,7 +876,7 @@ else:
         COMPONENT_TAG='tools',
         ROLE_TAG='runtime',
         ADDITIONAL_COMPONENTS=[
-            'default',
+            'core',
         ],
     )
 
