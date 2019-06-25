@@ -3844,7 +3844,7 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: install-embedded-dev
+        targets: install-embedded-dev install-embedded-test
         task_compile_flags: &embedded_sdk_compile_flags >-
           --allocator=system
           --dbg=off
