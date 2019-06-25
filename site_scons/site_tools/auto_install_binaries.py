@@ -403,7 +403,7 @@ def _aib_debugdir(source, target, env, for_signature):
         origin = getattr(s.attributes, "debug_file_for", None)
         oentry = env.Entry(origin)
         osuf = oentry.get_suffix()
-        return env["SUFFIX_MAP"].get(osuf)[0]
+        return env[SUFFIX_MAP].get(osuf)[0]
 
 def exists(_env):
     """Always activate this tool."""
