@@ -104,8 +104,9 @@ if get_option('link-model') != 'dynamic-sdk':
             'mongo_embedded',
         ],
         COMPONENT_TAG='embedded',
+        ROLE_TAG='test',
         ADDITIONAL_COMPONENTS=[
-            'test',
+            'tests',
         ],
     )
 
