@@ -1060,7 +1060,7 @@ if get_option('dest-dir') is None:
 else:
     destDir = get_option('dest-dir')
     if destDir[0] not in ['$', '#']:
-        if not os.path.isabs(installDir):
+        if not os.path.isabs(destDir):
             print("Do not use relative paths with --dest-dir")
             Exit(1)
     installDir = destDir
