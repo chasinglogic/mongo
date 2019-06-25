@@ -3853,7 +3853,7 @@ tasks:
           --install-mode=hygienic
           --js-engine=none
           --opt=size
-          --dest-dir="$BUILD_ROOT/mongo-embedded-sdk-$MONGO_VERSION"
+          --dest-dir='$BUILD_ROOT/mongo-embedded-sdk-$MONGO_VERSION'
           --separate-debug
           --ssl=off
           --use-system-mongo-c=on
