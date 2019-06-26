@@ -3701,7 +3701,7 @@ if get_option('install-mode') == 'hygienic':
             directory="$INSTALLDIR_LIBDIR",
             default_roles=[
                 "runtime",
-            ] if link_model == "dynamic" else []
+            ] if link_model.startswith("dynamic") else []
         ),
         
         ".debug": env.SuffixMap(

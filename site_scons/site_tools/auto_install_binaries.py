@@ -15,8 +15,6 @@ from collections import defaultdict, namedtuple
 import SCons
 from SCons.Tool import install
 
-
-
 ALIAS_MAP = 'AIB_ALIAS_MAP'
 SUFFIX_MAP = 'AIB_SUFFIX_MAP'
 ROLE_DEPENDENCIES = 'AIB_ROLE_DEPENDENCIES'
@@ -26,7 +24,6 @@ ROLES = [
     "meta",
     "runtime",
 ]
-
 
 RoleInfo = namedtuple(
     'RoleInfo',
