@@ -30,7 +30,7 @@ def build_cpp_unit_test(env, target, source, **kwargs):
             "COMPONENT_TAG" in kwargs
             and not kwargs["COMPONENT_TAG"].endswith("-test")
     ):
-        kwargs["COMPONENT_TAG"] += "-tests"
+        kwargs["COMPONENT_TAG"] += "-test"
 
     if "ROLE_TAG" not in kwargs:
         kwargs["ROLE_TAG"] = "runtime"

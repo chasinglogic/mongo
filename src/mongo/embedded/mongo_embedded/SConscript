@@ -103,8 +103,7 @@ if get_option('link-model') != 'dynamic-sdk':
             '$BUILD_DIR/mongo/util/options_parser/options_parser',
             'mongo_embedded',
         ],
-        COMPONENT_TAG='embedded',
-        ROLE_TAG='test',
+        COMPONENT_TAG='embedded-test',
         ADDITIONAL_COMPONENTS=[
             'tests',
         ],
