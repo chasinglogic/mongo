@@ -99,7 +99,7 @@ env.CppUnitTest(
         'transaction_error_test.cpp',
         'uuid_test.cpp',
     ],
-    COMPONENT_TAG='base',
+    AIB_COMPONENT='base',
     LIBDEPS=[
         'secure_allocator',
         'system_error',

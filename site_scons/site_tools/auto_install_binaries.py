@@ -18,7 +18,13 @@ from SCons.Tool import install
 ALIAS_MAP = 'AIB_ALIAS_MAP'
 SUFFIX_MAP = 'AIB_SUFFIX_MAP'
 ROLE_DEPENDENCIES = 'AIB_ROLE_DEPENDENCIES'
-ROLES = [
+COMPONENTS = 'AIB_COMPONENTS'
+ROLES = 'AIB_ROLES'
+
+PRIMARY_COMPONENT = 'AIB_COMPONENT'
+PRIMARY_ROLE = 'AIB_ROLE'
+
+AVAILABLE_ROLES = [
     "debug",
     "dev",
     "meta",
@@ -238,34 +244,39 @@ def auto_install(env, target, source, **kwargs):
     target = env.Dir(env.subst(target, source=source))
     source = list(map(env.Entry, env.Flatten([source])))
     roles = {
-        kwargs.get("ROLE_TAG"),
+        kwargs.get(PRIMARY_ROLE),
         # The 'meta' tag is implicitly attached as a role.
         "meta",
     }
 
-    if kwargs.get("ADDITIONAL_ROLES") is not None:
-        roles = roles.union(set(kwargs["ADDITIONAL_ROLES"]))
+    if kwargs.get(ROLES) is not None:
+        roles = roles.union(set(kwargs[ROLES]))
 
-    component_tag = kwargs.get("COMPONENT_TAG")
+    component = kwargs.get(PRIMARY_COMPONENT)
     if (
-            component_tag is not None
-            and (not isinstance(component_tag, str)
-                 or " " in component_tag)
+            component is not None
+            and (not isinstance(component, str)
+                 or " " in component)
     ):
         raise Exception(
-            "COMPONENT_TAG must be a string and contain no whitespace."
+            "AIB_COMPONENT must be a string and contain no whitespace."
         )
+
     components = {
-        component_tag,
+        component,
         # The 'all' tag is implicitly attached as a component
         "all",
     }
     # Some tools will need to create multiple components so we add
-    # this "hidden" argument that accepts a set.
-    if kwargs.get("ADDITIONAL_COMPONENTS") is not None:
-        components = components.union(set(kwargs["ADDITIONAL_COMPONENTS"]))
+    # this "hidden" argument that accepts a set or list.
+    #
+    # Use get here to check for existence because it is rarely
+    # ommitted as a kwarg (because it is set by the default emitter
+    # for all common builders), but is often set to None.
+    if kwargs.get(COMPONENTS) is not None:
+        components = components.union(set(kwargs[COMPONENTS]))
 
-    # Remove false values such as None
+    # Remove false values such as None or ""
     roles = {role for role in roles if role}
     components = {component for component in components if component}
 
@@ -279,10 +290,14 @@ def auto_install(env, target, source, **kwargs):
         s.attributes.aib_components = components
         s.attributes.aib_roles = roles
 
-    for component_tag, role_tag in itertools.product(components, roles):
-        alias_name = generate_alias(component_tag, role_tag)
+    for component, role in itertools.product(components, roles):
+        alias_name = generate_alias(component, role)
         alias = env.Alias(alias_name, actions)
-        env[ALIAS_MAP][component_tag][role_tag] = RoleInfo(
+        if role != "base":
+            env.Depends(alias, env.Alias(generate_alias(component, "base")))
+        if not (component == "common" and role == "base"):
+            env.Depends(alias, env.Alias("install-common-base"))
+        env[ALIAS_MAP][component][role] = RoleInfo(
             alias_name=alias_name,
             alias=alias,
         )
@@ -316,11 +331,11 @@ def finalize_install_dependencies(env):
             installed_component_files = [
                 file for file in installed_files
                 if (
-                        component in getattr(file.sources[0].attributes, 'aib_components', [])
+                        component in getattr(file.sources[0].attributes, COMPONENTS, [])
                         and (
-                            role in getattr(file.sources[0].attributes, 'aib_roles', [])
+                            role in getattr(file.sources[0].attributes, ROLES, [])
                             # TODO: make configurable
-                            or "common" in getattr(file.sources[0].attributes, 'aib_roles', [])
+                            or "common" in getattr(file.sources[0].attributes, ROLES, [])
                         )
                 )
             ]
@@ -329,8 +344,8 @@ def finalize_install_dependencies(env):
             tar = env.TarBall(
                 "{}-{}.tar".format(component, role),
                 source=installed_component_files,
-                COMPONENT_TAG=component,
-                ROLE_TAG=role,
+                AIB_COMPONENT=component,
+                AIB_ROLE=role,
             )
             env.NoCache(tar)
             env.Alias(tar_alias, tar)
@@ -347,10 +362,10 @@ def auto_install_emitter(target, source, env):
             env.AutoInstall(
                 auto_install_mapping.directory,
                 entry,
-                COMPONENT_TAG=env.get("COMPONENT_TAG"),
-                ROLE_TAG=env.get("ROLE_TAG"),
-                ADDITIONAL_ROLES=auto_install_mapping.default_roles,
-                ADDITIONAL_COMPONENTS=env.get("ADDITIONAL_COMPONENTS"),
+                AIB_COMPONENT=env.get(PRIMARY_COMPONENT),
+                AIB_ROLE=env.get(PRIMARY_ROLE),
+                AIB_ROLES=auto_install_mapping.default_roles,
+                AIB_COMPONENTS=env.get(COMPONENTS),
             )
     return (target, source)
 
@@ -366,10 +381,10 @@ def extend_attr(node, attr, value):
 def add_suffix_mapping(env, source, target=None):
     """Map the suffix source to target"""
     if isinstance(source, str):
-        if target not in ROLES:
+        if target not in AVAILABLE_ROLES:
             raise Exception(
                 "target {} is not a known role. Available roles are {}"
-                .format(target, ROLES)
+                .format(target, AVAILABLE_ROLES)
             )
         env[SUFFIX_MAP][env.subst(source)] = target
 
@@ -378,10 +393,10 @@ def add_suffix_mapping(env, source, target=None):
 
     for _, mapping in source.items():
         for role in mapping.default_roles:
-            if role not in ROLES:
+            if role not in AVAILABLE_ROLES:
                 raise Exception(
                     "target {} is not a known role. Available roles are {}"
-                    .format(target, ROLES)
+                    .format(target, AVAILABLE_ROLES)
                 )
 
     env[SUFFIX_MAP].update({env.subst(key): value for key, value in source.items()})
@@ -411,11 +426,11 @@ def generate(env):  # pylint: disable=too-many-statements
     bld = SCons.Builder.Builder(action = tarball_builder)
     env.Append(BUILDERS = {'TarBall': bld})
 
-    env["INSTALLDIR_BINDIR"] = "$INSTALL_DIR/bin"
-    env["INSTALLDIR_LIBDIR"] = "$INSTALL_DIR/lib"
-    env["INSTALLDIR_DOCDIR"] = "$INSTALL_DIR/share/doc"
-    env["INSTALLDIR_INCLUDEDIR"] = "$INSTALL_DIR/include"
-    env["INSTALLDIR_DEBUGDIR"] = _aib_debugdir
+    env["PREFIX_BIN_DIR"] = "$INSTALL_DIR/bin"
+    env["PREFIX_LIB_DIR"] = "$INSTALL_DIR/lib"
+    env["PREFIX_DOC_DIR"] = "$INSTALL_DIR/share/doc"
+    env["PREFIX_INCLUDE_DIR"] = "$INSTALL_DIR/include"
+    env["PREFIX_DEBUG_DIR"] = _aib_debugdir
     env[SUFFIX_MAP] = {}
     env[ALIAS_MAP] = defaultdict(dict)
     env[ROLE_DEPENDENCIES] = {

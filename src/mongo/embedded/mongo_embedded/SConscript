@@ -10,13 +10,13 @@ env = env.Clone()
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
-        '$INSTALLDIR_DOCDIR/mongo_embedded',
+        '$PREFIX_DOC_DIR/mongo_embedded',
         source=[
             '#/LICENSE-Community.txt',
             '../LICENSE-Embedded.txt',
         ],
-        COMPONENT_TAG='embedded',
-        ROLE_TAG='common',
+        AIB_COMPONENT='embedded',
+        AIB_ROLE='common',
     )
 
 mongoEmbeddedEnv = env.Clone()
@@ -71,15 +71,15 @@ mongoEmbeddedTargets = mongoEmbeddedEnv.Library(
         '$BUILD_DIR/mongo/transport/transport_layer_mock',
         '$BUILD_DIR/mongo/embedded/embedded',
     ],
-    COMPONENT_TAG='embedded',
+    AIB_COMPONENT='embedded',
 )
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
         '$INSTALL_DIR/include/mongo_embedded/v1/mongo_embedded',
         source=['mongo_embedded.h'],
-        COMPONENT_TAG='embedded',
-        ROLE_TAG='dev',
+        AIB_COMPONENT='embedded',
+        AIB_ROLE='dev',
     )
 
 yamlEnv = env.Clone()
@@ -103,8 +103,8 @@ if get_option('link-model') != 'dynamic-sdk':
             '$BUILD_DIR/mongo/util/options_parser/options_parser',
             'mongo_embedded',
         ],
-        COMPONENT_TAG='embedded-test',
-        ADDITIONAL_COMPONENTS=[
+        AIB_COMPONENT='embedded-test',
+        AIB_COMPONENTS=[
             'tests',
         ],
     )

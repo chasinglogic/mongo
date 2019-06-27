@@ -17,8 +17,8 @@ if get_option('install-mode') == 'hygienic':
             '#/LICENSE-Community.txt',
             '../LICENSE-Embedded.txt',
         ],
-        COMPONENT_TAG='embedded',
-        ROLE_TAG='common',
+        AIB_COMPONENT='embedded',
+        AIB_ROLE='common',
     )
 
 def create_mongoc_env(env):
@@ -71,15 +71,15 @@ mongocEmbeddedTargets = mongocEmbeddedEnv.Library(
         # No LIBDEPS or LIBDEPS_PRIVATE to mongo libraries are allowed in this library. They would get duplicated in mongo_embedded_capi.
         '$BUILD_DIR/mongo/embedded/mongo_embedded/mongo_embedded',
     ],
-    COMPONENT_TAG='embedded',
+    AIB_COMPONENT='embedded',
 )
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
         '$INSTALL_DIR/include/mongoc_embedded/v1/mongoc_embedded',
         source=['mongoc_embedded.h'],
-        COMPONENT_TAG='embedded',
-        ROLE_TAG='dev'
+        AIB_COMPONENT='embedded',
+        AIB_ROLE='dev'
     )
 
 yamlEnv = env.Clone()
@@ -100,8 +100,8 @@ if get_option('link-model') != 'dynamic-sdk':
             '$BUILD_DIR/mongo/util/options_parser/options_parser',
             'mongoc_embedded',
         ],
-        COMPONENT_TAG='embedded-test',
-        ADDITIONAL_COMPONENTS=[
+        AIB_COMPONENT='embedded-test',
+        AIB_COMPONENTS=[
             'tests',
         ],
     )

@@ -168,8 +168,8 @@ if not has_option('noshell') and usemozjs:
             "mocklib",
             "testframework",
         ],
-        COMPONENT_TAG="dbtests",
-        ADDITIONAL_COMPONENTS=[
+        AIB_COMPONENT="dbtests",
+        AIB_COMPONENTS=[
             "tests",
         ],
     )

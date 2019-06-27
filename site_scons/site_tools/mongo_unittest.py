@@ -1,4 +1,4 @@
-"""Pseudo-builders for building and registering unit tests."""
+'''Pseudo-builders for building and registering unit tests.'''
 from SCons.Script import Action
 
 
@@ -25,27 +25,29 @@ def build_cpp_unit_test(env, target, source, **kwargs):
     libdeps.append( '$BUILD_DIR/mongo/unittest/unittest_main' )
 
     kwargs['LIBDEPS'] = libdeps
-    kwargs['ADDITIONAL_COMPONENTS'] = {'tests', 'unittests'}
+    unit_test_components = {'tests', 'unittests'}
     if (
-            "COMPONENT_TAG" in kwargs
-            and not kwargs["COMPONENT_TAG"].endswith("-test")
+            'AIB_COMPONENT' in kwargs
+            and not kwargs['AIB_COMPONENT'].endswith('-test')
     ):
-        kwargs["COMPONENT_TAG"] += "-test"
+        kwargs['AIB_COMPONENT'] += '-test'
 
-    if "ROLE_TAG" not in kwargs:
-        kwargs["ROLE_TAG"] = "runtime"
+    if 'AIB_COMPONENTS' in kwargs:
+        kwargs['AIB_COMPONENTS'] = set(kwargs['AIB_COMPONENTS']).union(unit_test_components)
+    else:
+        kwargs['AIB_COMPONENTS'] = unit_test_components
 
     result = env.Program(target, source, **kwargs)
     env.RegisterUnitTest(result[0])
     hygienic = env.GetOption('install-mode') == 'hygienic'
     if not hygienic:
-        env.Install("#/build/unittests/", result[0])
+        env.Install('#/build/unittests/', result[0])
     return result
 
 
 def generate(env):
     env.Command('$UNITTEST_LIST', env.Value(_unittests),
-                Action(unit_test_list_builder_action, "Generating $TARGET"))
+                Action(unit_test_list_builder_action, 'Generating $TARGET'))
     env.AddMethod(register_unit_test, 'RegisterUnitTest')
     env.AddMethod(build_cpp_unit_test, 'CppUnitTest')
     env.Alias('$UNITTEST_ALIAS', '$UNITTEST_LIST')

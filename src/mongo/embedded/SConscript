@@ -80,7 +80,7 @@ env.Library(
         'transaction_coordinator_factory_embedded.cpp',
         env.Idlc('embedded_options.idl')[0],
     ],
-    COMPONENT_TAG='embedded',
+    AIB_COMPONENT='embedded',
     LIBDEPS=[
         '$BUILD_DIR/mongo/base',
     ],
@@ -153,7 +153,7 @@ if get_option('link-model') != 'dynamic-sdk':
             '$BUILD_DIR/mongo/transport/transport_layer_manager',
             '$BUILD_DIR/mongo/util/signal_handlers',
         ],
-        COMPONENT_TAG='embedded-test',
+        AIB_COMPONENT='embedded-test',
     )
 
     env.Alias('all', mongoed) # This ensures it compiles and links, but doesn't copy it anywhere.
