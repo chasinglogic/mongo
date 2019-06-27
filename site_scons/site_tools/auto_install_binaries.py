@@ -25,6 +25,7 @@ PRIMARY_COMPONENT = 'AIB_COMPONENT'
 PRIMARY_ROLE = 'AIB_ROLE'
 
 AVAILABLE_ROLES = [
+    "base",
     "debug",
     "dev",
     "meta",
