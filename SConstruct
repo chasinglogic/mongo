@@ -3670,80 +3670,52 @@ if get_option('install-mode') == 'hygienic':
     env.Tool('auto_install_binaries')
     env.AddSuffixMapping({
         "$PROGSUFFIX": env.SuffixMap(
-            directory="$INSTALLDIR_BINDIR",
+            directory="$PREFIX_BIN_DIR",
             default_roles=[
                 "runtime",
             ]
         ),
         
         "$LIBSUFFIX": env.SuffixMap(
-            directory="$INSTALLDIR_LIBDIR",
+            directory="$PREFIX_LIB_DIR",
             default_roles=[
                 "dev",
             ]
         ),
-        
-        ".dll": env.SuffixMap(
-            directory="$INSTALLDIR_BINDIR",
+
+        "$SHLIBSUFFIX": env.SuffixMap(
+            directory="$PREFIX_BIN_DIR" \
+            if mongo_platform.get_running_os_name() == "windows" \
+            else "$PREFIX_LIB_DIR",
             default_roles=[
                 "runtime",
             ]
         ),
-        
-        ".dylib": env.SuffixMap(
-            directory="$INSTALLDIR_LIBDIR",
-            default_roles=[
-                "runtime",
-            ]
-        ),
-        
-        ".so": env.SuffixMap(
-            directory="$INSTALLDIR_LIBDIR",
-            default_roles=[
-                "runtime",
-            ] if link_model.startswith("dynamic") else []
-        ),
-        
+
         ".debug": env.SuffixMap(
-            directory="$INSTALLDIR_DEBUGDIR",
+            directory="$PREFIX_DEBUG_DIR",
             default_roles=[
                 "debug",
             ]
         ),
         
         ".dSYM": env.SuffixMap(
-            directory="$INSTALLDIR_LIBDIR",
+            directory="$PREFIX_DEBUG_DIR",
             default_roles=[
                 "debug"
             ]
         ),
         
         ".lib": env.SuffixMap(
-            directory="$INSTALLDIR_LIBDIR",
+            directory="$PREFIX_LIB_DIR",
             default_roles=[
                 "dev"
             ]
         ),
         
-        ".txt": env.SuffixMap(
-            directory="$INSTALL_DIR",
-            default_roles=[
-                "runtime",
-            ]
-        ),
-        
         ".h": env.SuffixMap(
-            directory="$INSTALLDIR_INCLUDEDIR",
+            directory="$PREFIX_INCLUDE_DIR",
             default_roles=[
-                "dev",
-            ]
-        ),
-        
-        # TODO: these are most assuredly wrong
-        ".in": env.SuffixMap(
-            directory="$INSTALLDIR_LIBDIR",
-            default_roles=[
-                "runtime",
                 "dev",
             ]
         ),
