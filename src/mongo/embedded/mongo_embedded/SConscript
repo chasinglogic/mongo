@@ -129,21 +129,6 @@ resourceDir = frameworkDir
 if env.TargetOSIs('macOS'):
     resourceDir = resourceDir.Dir('Resources')
 
-# TODO: this causes problems for dist builds, idk what it should be
-# because only THIRD-PARTY-NOTICES gets pulled in. Perhaps it's to do
-# with the BANNER FILES?
-# env.Install(
-#     target=resourceDir,
-#     source=env.File(
-#         name=[
-#             'LICENSE-Community.txt',
-#             'LICENSE-Embedded.txt',
-#             'THIRD-PARTY-NOTICES',
-#         ],
-#         directory=env.Dir('$INSTALL_DIR/share/doc/mongo_embedded'),
-#     ),
-# )
-
 env.Install(
     target=frameworkDir.Dir('Headers'),
     source=env.File('mongo_embedded.h')

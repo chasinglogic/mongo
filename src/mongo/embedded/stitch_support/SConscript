@@ -7,15 +7,6 @@ Import("get_option")
 
 env = env.Clone()
 
-if get_option('install-mode') == 'hygienic':
-    env.AutoInstall(
-        '$INSTALL_DIR',
-        source=[
-            '#/distsrc/THIRD-PARTY-NOTICES',
-        ],
-        AIB_COMPONENT='stitch-support',
-    )
-
 stitchSupportEnv = env.Clone()
 stitchSupportEnv.AppendUnique(
     CPPDEFINES=[
