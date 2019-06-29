@@ -169,7 +169,7 @@ if not has_option('noshell') and usemozjs:
             "testframework",
         ],
         AIB_COMPONENT="dbtests",
-        AIB_COMPONENTS=[
+        AIB_COMPONENTS_EXTRA=[
             "tests",
         ],
     )

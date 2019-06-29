@@ -440,7 +440,7 @@ mongod = env.Program(
         'watchdog/watchdog_mongod',
     ],
     AIB_COMPONENT="servers",
-    AIB_COMPONENTS=[
+    AIB_COMPONENTS_EXTRA=[
         "default",
         "core",
     ],
@@ -544,7 +544,7 @@ mongos = env.Program(
         'util/options_parser/options_parser',
     ],
     AIB_COMPONENT="servers",
-    AIB_COMPONENTS=[
+    AIB_COMPONENTS_EXTRA=[
         "core",
     ]
 )
@@ -638,7 +638,7 @@ if not has_option('noshell') and usemozjs:
             '$BUILD_DIR/mongo/util/net/ssl_options_client' if get_option('ssl') == 'on' else '',
         ],
         AIB_COMPONENT="shell",
-        AIB_COMPONENTS=[
+        AIB_COMPONENTS_EXTRA=[
             "core",
         ],
     )

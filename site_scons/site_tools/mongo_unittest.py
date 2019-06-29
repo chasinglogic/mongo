@@ -32,10 +32,10 @@ def build_cpp_unit_test(env, target, source, **kwargs):
     ):
         kwargs['AIB_COMPONENT'] += '-test'
 
-    if 'AIB_COMPONENTS' in kwargs:
-        kwargs['AIB_COMPONENTS'] = set(kwargs['AIB_COMPONENTS']).union(unit_test_components)
+    if 'AIB_COMPONENTS_EXTRA' in kwargs:
+        kwargs['AIB_COMPONENTS_EXTRA'] = set(kwargs['AIB_COMPONENTS_EXTRA']).union(unit_test_components)
     else:
-        kwargs['AIB_COMPONENTS'] = unit_test_components
+        kwargs['AIB_COMPONENTS_EXTRA'] = unit_test_components
 
     result = env.Program(target, source, **kwargs)
     env.RegisterUnitTest(result[0])

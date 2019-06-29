@@ -69,7 +69,7 @@ if get_option('link-model') != 'dynamic-sdk':
             'stitch_support',
         ],
         AIB_COMPONENT='stitch-support',
-        AIB_COMPONENTS=[
+        AIB_COMPONENTS_EXTRA=[
             'test',
             'unittests',
         ],

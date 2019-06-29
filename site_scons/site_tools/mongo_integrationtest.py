@@ -33,13 +33,10 @@ def build_cpp_integration_test(env, target, source, **kwargs):
     ):
         kwargs['AIB_COMPONENT'] += '-test'
 
-    if 'AIB_COMPONENTS' in kwargs:
-        kwargs['AIB_COMPONENTS'] = set(kwargs['AIB_COMPONENTS']).union(integration_test_components)
+    if 'AIB_COMPONENTS_EXTRA' in kwargs:
+        kwargs['AIB_COMPONENTS_EXTRA'] = set(kwargs['AIB_COMPONENTS_EXTRA']).union(integration_test_components)
     else:
-        kwargs['AIB_COMPONENTS'] = integration_test_components
-
-    if 'AIB_ROLE' not in kwargs:
-        kwargs['AIB_ROLE'] = 'runtime'
+        kwargs['AIB_COMPONENTS_EXTRA'] = integration_test_components
 
     result = env.Program(target, source, **kwargs)
     env.RegisterIntegrationTest(result[0])

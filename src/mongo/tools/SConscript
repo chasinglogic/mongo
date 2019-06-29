@@ -50,7 +50,7 @@ mongoebench = yamlEnv.Program(
         '$BUILD_DIR/mongo/util/signal_handlers',
     ],
     AIB_COMPONENT="embedded-test",
-    AIB_COMPONENTS=[
+    AIB_COMPONENTS_EXTRA=[
         "tests",
         "benchmarks",
     ],

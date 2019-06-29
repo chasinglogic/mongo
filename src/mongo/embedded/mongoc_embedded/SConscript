@@ -101,7 +101,7 @@ if get_option('link-model') != 'dynamic-sdk':
             'mongoc_embedded',
         ],
         AIB_COMPONENT='embedded-test',
-        AIB_COMPONENTS=[
+        AIB_COMPONENTS_EXTRA=[
             'tests',
         ],
     )

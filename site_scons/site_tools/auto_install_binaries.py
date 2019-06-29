@@ -18,7 +18,7 @@ from SCons.Tool import install
 ALIAS_MAP = 'AIB_ALIAS_MAP'
 SUFFIX_MAP = 'AIB_SUFFIX_MAP'
 ROLE_DEPENDENCIES = 'AIB_ROLE_DEPENDENCIES'
-COMPONENTS = 'AIB_COMPONENTS'
+COMPONENTS = 'AIB_COMPONENTS_EXTRA'
 ROLES = 'AIB_ROLES'
 
 PRIMARY_COMPONENT = 'AIB_COMPONENT'
@@ -358,6 +358,8 @@ def auto_install_emitter(target, source, env):
     for t in target:
         entry = env.Entry(t)
         suffix = entry.get_suffix()
+        if env.get('AIB_IGNORE', False):
+            continue
         auto_install_mapping = env[SUFFIX_MAP].get(suffix)
         if auto_install_mapping is not None:
             env.AutoInstall(
@@ -366,7 +368,7 @@ def auto_install_emitter(target, source, env):
                 AIB_COMPONENT=env.get(PRIMARY_COMPONENT),
                 AIB_ROLE=env.get(PRIMARY_ROLE),
                 AIB_ROLES=auto_install_mapping.default_roles,
-                AIB_COMPONENTS=env.get(COMPONENTS),
+                AIB_COMPONENTS_EXTRA=env.get(COMPONENTS),
             )
     return (target, source)
 
