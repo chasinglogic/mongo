@@ -74,7 +74,7 @@ def make_variant_dir_generator():
     memoized_variant_dir = [False]
     def generate_variant_dir(target, source, env, for_signature):
         if not memoized_variant_dir[0]:
-            memoized_variant_dir[0] = env.subst('$BUILD_DIR/$VARIANT')
+            memoized_variant_dir[0] = env.Dir('$BUILD_DIR/$VARIANT').abspath
         return memoized_variant_dir[0]
     return generate_variant_dir
 
@@ -4014,7 +4014,6 @@ if has_option("cache"):
         addNoCacheEmitter(env['BUILDERS']['SharedLibrary'])
         addNoCacheEmitter(env['BUILDERS']['LoadableModule'])
 
-import pdb; pdb.set_trace()
 env.SConscript(
     dirs=[
         'src',
