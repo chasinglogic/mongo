@@ -25,8 +25,8 @@ TEMP_DIR=$(mktemp -d /tmp/pcre.XXXXXX)
 trap "rm -rf $TEMP_DIR" EXIT
 OLD_DIR=$(find $(git rev-parse --show-toplevel)/src/third_party -name 'pcre-*' -type d)
 OLD_PATCH_DIR="$OLD_DIR/patches"
-DEST_DIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
-PATCH_DIR="$DEST_DIR/patches"
+DESTDIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
+PATCH_DIR="$DESTDIR/patches"
 UNAME=$(uname | tr A-Z a-z)
 
 if [ $UNAME == "sunos" ]; then
@@ -47,20 +47,20 @@ tar -zxvf $TARBALL
 
 rm -rf $TEMP_DIR
 mv $TARBALL_DIR $TEMP_DIR
-mkdir $DEST_DIR || true
+mkdir $DESTDIR || true
 
 cd $TEMP_DIR
 if [ $TARGET_UNAME != "windows" ]; then
 
     # Do a shallow copy, it is all we need
     for file_copy in $(find $TEMP_DIR -maxdepth 1 -type f); do
-        echo copying $file_copy $DEST_DIR
-        cp $file_copy $DEST_DIR
+        echo copying $file_copy $DESTDIR
+        cp $file_copy $DESTDIR
     done
 
-    rm -f $DEST_DIR/Makefile* $DEST_DIR/config* $DEST_DIR/*sh
-    rm -f $DEST_DIR/compile* $DEST_DIR/depcomp $DEST_DIR/libtool
-    rm -f $DEST_DIR/test-driver $DEST_DIR/*.m4 $DEST_DIR/missing
+    rm -f $DESTDIR/Makefile* $DESTDIR/config* $DESTDIR/*sh
+    rm -f $DESTDIR/compile* $DESTDIR/depcomp $DESTDIR/libtool
+    rm -f $DESTDIR/test-driver $DESTDIR/*.m4 $DESTDIR/missing
 
     echo "Generating Config.h and other files"
     ./configure \
@@ -80,10 +80,10 @@ if [ $TARGET_UNAME != "windows" ]; then
     make
 
     # Copy over the platform independent generated files
-    cp $TEMP_DIR/pcre.h $DEST_DIR
-    cp $TEMP_DIR/pcre_chartables.c $DEST_DIR
-    cp $TEMP_DIR/pcre_stringpiece.h $DEST_DIR
-    cp $TEMP_DIR/pcrecpparg.h $DEST_DIR
+    cp $TEMP_DIR/pcre.h $DESTDIR
+    cp $TEMP_DIR/pcre_chartables.c $DESTDIR
+    cp $TEMP_DIR/pcre_stringpiece.h $DESTDIR
+    cp $TEMP_DIR/pcrecpparg.h $DESTDIR
 else
     /cygdrive/c/cmake/bin/cmake.exe \
         -DPCRE_SUPPORT_PCREGREP_JIT:BOOL="0" \
@@ -100,11 +100,11 @@ else
 fi
 
 # Copy over config.h
-mkdir $DEST_DIR/build_$TARGET_UNAME || true
-cp $TEMP_DIR/config.h $DEST_DIR/build_$TARGET_UNAME
+mkdir $DESTDIR/build_$TARGET_UNAME || true
+cp $TEMP_DIR/config.h $DESTDIR/build_$TARGET_UNAME
 cp -R $OLD_PATCH_DIR $PATCH_DIR
 
-cd $DEST_DIR
+cd $DESTDIR
 for patchfile in $PATCH_DIR/*; do
     patch -p4 < $patchfile
 done

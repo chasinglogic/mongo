@@ -19,7 +19,7 @@ SRC_ROOT=$(mktemp -d /tmp/boost.XXXXXX)
 trap "rm -rf $SRC_ROOT" EXIT
 TARBALL=${NAME}_${VERSION_UNDERSCORE}.tar.gz
 SRC=${SRC_ROOT}/${NAME}_${VERSION_UNDERSCORE}
-DEST_DIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
+DESTDIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
 
 cd $SRC_ROOT
 
@@ -42,11 +42,11 @@ cd $SRC
 
 ./b2 tools/bcp
 
-test -d $DEST_DIR || mkdir $DEST_DIR
-$SRC/dist/bin/bcp --boost=$SRC/ algorithm align array asio bind iostreams config container date_time filesystem function integer intrusive log multi_index noncopyable optional program_options random smart_ptr static_assert unordered utility $DEST_DIR
+test -d $DESTDIR || mkdir $DESTDIR
+$SRC/dist/bin/bcp --boost=$SRC/ algorithm align array asio bind iostreams config container date_time filesystem function integer intrusive log multi_index noncopyable optional program_options random smart_ptr static_assert unordered utility $DESTDIR
 
 # Trim files
-cd $DEST_DIR
+cd $DESTDIR
 
 rm -f Jamroot boost.png
 rm -rf doc

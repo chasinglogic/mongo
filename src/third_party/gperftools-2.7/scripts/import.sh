@@ -33,7 +33,7 @@ fi
 REPO=$(mktemp -d $TEMP_ROOT/$NAME.XXXXXX)
 trap "rm -rf $REPO" EXIT
 
-DEST_DIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
+DESTDIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
 UNAME=$(uname | tr A-Z a-z)
 UNAME_PROCESSOR=$(uname -m)
 
@@ -56,11 +56,11 @@ DIST_DIR=$NAME-$VERSION
 make distdir
 make distclean
 
-if [[ -d $DEST_DIR/dist ]]; then
-    echo "You should 'rm -r $DEST_DIR/dist' before running import.sh" >&2
+if [[ -d $DESTDIR/dist ]]; then
+    echo "You should 'rm -r $DESTDIR/dist' before running import.sh" >&2
     exit 1
 fi
 
 rm $DIST_DIR/libtool
-mv $DIST_DIR $DEST_DIR/dist
+mv $DIST_DIR $DESTDIR/dist
 popd

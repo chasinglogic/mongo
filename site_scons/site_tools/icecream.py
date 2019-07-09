@@ -53,7 +53,7 @@ def generate(env):
         #
         # If ICECC_VERSION is a file, we are done. If it is a file
         # URL, resolve it to a filesystem path. If it is a remote UTL,
-        # then fetch it to somewhere under $BUILD_ROOT/scons/icecc
+        # then fetch it to somewhere under $BUILD_DIR/scons/icecc
         # with its "correct" name (i.e. the md5 hash), and symlink it
         # to some other deterministic name to use as icecc_version.
 
@@ -61,7 +61,7 @@ def generate(env):
     else:
         # Make a predictable name for the toolchain
         icecc_version_target_filename = env.subst('$CC$CXX').replace('/', '_')
-        icecc_version = env.Dir('$BUILD_ROOT/scons/icecc').File(icecc_version_target_filename)
+        icecc_version = env.Dir('$BUILD_DIR/scons/icecc').File(icecc_version_target_filename)
 
         # Make an isolated environment so that our setting of ICECC_VERSION in the environment
         # doesn't appear when executing icecc_create_env

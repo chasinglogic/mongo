@@ -74,7 +74,7 @@ def make_variant_dir_generator():
     memoized_variant_dir = [False]
     def generate_variant_dir(target, source, env, for_signature):
         if not memoized_variant_dir[0]:
-            memoized_variant_dir[0] = env.subst('$BUILD_ROOT/$VARIANT_DIR')
+            memoized_variant_dir[0] = env.subst('$BUILD_DIR/$VARIANT')
         return memoized_variant_dir[0]
     return generate_variant_dir
 
@@ -96,13 +96,13 @@ SetOption('random', 1)
 #
 
 add_option('prefix',
-    default='$BUILD_ROOT/install',
+    default='$BUILD_DIR/install',
     help='installation prefix',
 )
 
 add_option('dest-dir',
     default=None,
-    help='root of installation as a subdirectory of $BUILD_DIR'
+    help='root of installation as a subdirectory of $VARIANT_DIR'
 )
 
 add_option('legacy-tarball',
@@ -497,7 +497,7 @@ add_option('cache',
 )
 
 add_option('cache-dir',
-    default='$BUILD_ROOT/scons/cache',
+    default='$BUILD_DIR/scons/cache',
     help='Specify the directory to use for caching objects if --cache is in use',
 )
 
@@ -896,7 +896,7 @@ env_vars.Add('TOOLS',
     converter=variable_tools_converter,
     default=decide_platform_tools())
 
-env_vars.Add('VARIANT_DIR',
+env_vars.Add('VARIANT',
     help='Sets the name (or generator function) for the variant directory',
     default=mongo_generators.default_variant_dir_generator,
 )
@@ -1015,14 +1015,8 @@ if not serverJs and not usemozjs:
 # We defer building the env until we have determined whether we want certain values. Some values
 # in the env actually have semantics for 'None' that differ from being absent, so it is better
 # to build it up via a dict, and then construct the Environment in one shot with kwargs.
-#
-# Yes, BUILD_ROOT vs BUILD_DIR is confusing. Ideally, BUILD_DIR would actually be called
-# VARIANT_DIR, and at some point we should probably do that renaming. Until we do though, we
-# also need an Environment variable for the argument to --build-dir, which is the parent of all
-# variant dirs. For now, we call that BUILD_ROOT. If and when we s/BUILD_DIR/VARIANT_DIR/g,
-# then also s/BUILD_ROOT/BUILD_DIR/g.
-envDict = dict(BUILD_ROOT=buildDir,
-               BUILD_DIR=make_variant_dir_generator(),
+envDict = dict(BUILD_DIR=buildDir,
+               VARIANT_DIR=make_variant_dir_generator(),
                DIST_ARCHIVE_SUFFIX='.tgz',
                DIST_BINARIES=[],
                MODULE_BANNERS=[],
@@ -1032,17 +1026,17 @@ envDict = dict(BUILD_ROOT=buildDir,
                PYTHON=utils.find_python(),
                SERVER_ARCHIVE='${SERVER_DIST_BASENAME}${DIST_ARCHIVE_SUFFIX}',
                UNITTEST_ALIAS='unittests',
-               # TODO: Move unittests.txt to $BUILD_DIR, but that requires
+               # TODO: Move unittests.txt to $VARIANT_DIR, but that requires
                # changes to MCI.
-               UNITTEST_LIST='$BUILD_ROOT/unittests.txt',
+               UNITTEST_LIST='$BUILD_DIR/unittests.txt',
                LIBFUZZER_TEST_ALIAS='libfuzzer_tests',
-               LIBFUZZER_TEST_LIST='$BUILD_ROOT/libfuzzer_tests.txt',
+               LIBFUZZER_TEST_LIST='$BUILD_DIR/libfuzzer_tests.txt',
                INTEGRATION_TEST_ALIAS='integration_tests',
-               INTEGRATION_TEST_LIST='$BUILD_ROOT/integration_tests.txt',
+               INTEGRATION_TEST_LIST='$BUILD_DIR/integration_tests.txt',
                BENCHMARK_ALIAS='benchmarks',
-               BENCHMARK_LIST='$BUILD_ROOT/benchmarks.txt',
-               CONFIGUREDIR='$BUILD_ROOT/scons/$VARIANT_DIR/sconf_temp',
-               CONFIGURELOG='$BUILD_ROOT/scons/config.log',
+               BENCHMARK_LIST='$BUILD_DIR/benchmarks.txt',
+               CONFIGUREDIR='$BUILD_DIR/scons/$VARIANT_DIR/sconf_temp',
+               CONFIGURELOG='$BUILD_DIR/scons/config.log',
                PREFIX=get_option('prefix'),
                CONFIG_HEADER_DEFINES={},
                LIBDEPS_TAG_EXPANSIONS=[],
@@ -1051,24 +1045,20 @@ envDict = dict(BUILD_ROOT=buildDir,
 env = Environment(variables=env_vars, **envDict)
 
 if get_option('dest-dir') is None:
-    destDir = env.Dir('$BUILD_ROOT/install')
-    prefix = env.Dir(get_option('prefix'))
-    if destDir != prefix:
-        installDir = destDir.Dir(get_option('prefix')[1:])
-    else:
-        installDir = destDir
+    destDir = env.Dir('$BUILD_DIR/install')
+    if str(destDir) != env.subst(get_option('prefix')):
+        destDir = destDir.Dir(get_option('prefix')[1:])
 else:
     destDir = get_option('dest-dir')
     if destDir[0] not in ['$', '#']:
         if not os.path.isabs(destDir):
             print("Do not use relative paths with --dest-dir")
             Exit(1)
-    installDir = destDir
+    
 
-env['INSTALL_DIR'] = installDir
-env['DEST_DIR'] = destDir
+env['DESTDIR'] = destDir
 if get_option('legacy-tarball') == 'true':
-    env['INSTALL_DIR'] = env.Dir('$INSTALL_DIR').Dir('$SERVER_DIST_BASENAME')
+    env['DESTDIR'] = env.Dir('$DESTDIR').Dir('$SERVER_DIST_BASENAME')
 
 del envDict
 
@@ -3894,7 +3884,7 @@ Export("free_monitoring")
 Export("http_client")
 
 def injectMongoIncludePaths(thisEnv):
-    thisEnv.AppendUnique(CPPPATH=['$BUILD_DIR'])
+    thisEnv.AppendUnique(CPPPATH=['$VARIANT_DIR'])
 env.AddMethod(injectMongoIncludePaths, 'InjectMongoIncludePaths')
 
 def injectModule(env, module, **kwargs):
@@ -4024,6 +4014,7 @@ if has_option("cache"):
         addNoCacheEmitter(env['BUILDERS']['SharedLibrary'])
         addNoCacheEmitter(env['BUILDERS']['LoadableModule'])
 
+import pdb; pdb.set_trace()
 env.SConscript(
     dirs=[
         'src',
@@ -4032,7 +4023,6 @@ env.SConscript(
     exports=[
         'env',
     ],
-    variant_dir='$BUILD_DIR',
 )
 
 allTargets = ['core', 'tools', 'unittests', 'integration_tests', 'benchmarks']
@@ -4071,9 +4061,9 @@ env.NoCache(env.FindInstalledFiles())
 # Substitute environment variables in any build targets so that we can
 # say, for instance:
 #
-# > scons --prefix=/foo/bar '$INSTALL_DIR'
+# > scons --prefix=/foo/bar '$DESTDIR'
 # or
-# > scons \$BUILD_DIR/mongo/base
+# > scons \$VARIANT_DIR/mongo/base
 #
 # That way, you can reference targets under the variant dir or install
 # path via an invariant name.

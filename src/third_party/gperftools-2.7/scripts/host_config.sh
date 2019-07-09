@@ -26,7 +26,7 @@ VERSION=2.7
 REVISION=$VERSION-mongodb
 MACOSX_VERSION_MIN=10.12
 
-DEST_DIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
+DESTDIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
 
 UNAME=$(uname | tr A-Z a-z)
 UNAME_PROCESSOR=$(uname -m)
@@ -62,7 +62,7 @@ fi
 ENV_CFLAGS="CFLAGS=$COMMON_FLAGS"
 ENV_CXXFLAGS="CXXFLAGS=$COMMON_FLAGS -std=c++17"
 
-PLATFORM_DIR="$DEST_DIR/platform"
+PLATFORM_DIR="$DESTDIR/platform"
 HOST_CONFIG="$PLATFORM_DIR/$TARGET_UNAME"
 
 mkdir -p $HOST_CONFIG/internal
@@ -73,7 +73,7 @@ env \
     ${ENV_CPPFLAGS:-} \
     ${ENV_CFLAGS:-} \
     ${ENV_CXXFLAGS:-} \
-    $DEST_DIR/dist/configure \
+    $DESTDIR/dist/configure \
         --prefix=$HOST_CONFIG/junk \
         --includedir=$HOST_CONFIG/include \
         --enable-frame-pointers=yes \
@@ -114,7 +114,7 @@ function configure_windows() {
     $(set_define TCMALLOC_TARGET_TRANSFER_KB ${WINDOWS_TARGET_TRANSFER_KB})
     $(set_define TCMALLOC_USE_UNCLAMPED_TRANSFER_SIZES 1)
     " \
-    < "$DEST_DIR/dist/src/windows/config.h" \
+    < "$DESTDIR/dist/src/windows/config.h" \
     > "$WINDOWS_CONFIG_H"
 
     # gperftools ships with a src/windows/gperftools/tcmalloc.h as well the tcmalloc.h.in file
@@ -122,7 +122,7 @@ function configure_windows() {
     # This means a non-overwriting configure will generate a competing tcmalloc.h file to the
     # one gperftools provides. We should make sure our system include path has exactly one
     # <gperftools/tcmalloc.h> when building on Windows.
-    local WINDOWS_TCMALLOC_H_RELEASED="$DEST_DIR/dist/src/windows/gperftools/tcmalloc.h"
+    local WINDOWS_TCMALLOC_H_RELEASED="$DESTDIR/dist/src/windows/gperftools/tcmalloc.h"
     local WINDOWS_TCMALLOC_H="$WINDOWS_CONFIG_DIR/internal/src/gperftools/tcmalloc.h"
     mkdir -p "$(dirname "$WINDOWS_TCMALLOC_H")"
     cp "$WINDOWS_TCMALLOC_H_RELEASED" "$WINDOWS_TCMALLOC_H"

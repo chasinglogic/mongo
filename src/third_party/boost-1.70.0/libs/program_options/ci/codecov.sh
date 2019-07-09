@@ -21,7 +21,7 @@ B2_VARIANT=debug
 ci/build.sh cxxflags=-fprofile-arcs cxxflags=-ftest-coverage linkflags=-fprofile-arcs linkflags=-ftest-coverage
 
 # switch back to the original source code directory
-cd $TRAVIS_BUILD_DIR
+cd $TRAVIS_VARIANT_DIR
 
 # get the version of lcov
 lcov --version

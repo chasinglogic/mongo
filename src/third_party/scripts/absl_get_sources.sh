@@ -32,14 +32,14 @@ CLONE_DEST=$SRC
 if grep -q Microsoft /proc/version; then
     CLONE_DEST=$(wslpath -m $SRC)
 fi
-DEST_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME-master
+DESTDIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME-master
 PATCH_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME-master/patches
 if grep -q Microsoft /proc/version; then
-    DEST_DIR=$(wslpath -u "$DEST_DIR")
+    DESTDIR=$(wslpath -u "$DESTDIR")
     PATCH_DIR=$(wslpath -w $(wslpath -u "$PATCH_DIR"))
 fi
 
-echo "dest: $DEST_DIR"
+echo "dest: $DESTDIR"
 echo "patch: $PATCH_DIR"
 
 if [ ! -d $SRC ]; then
@@ -54,6 +54,6 @@ if [ ! -d $SRC ]; then
     popd
 fi
 
-test -d $DEST_DIR/abseil-cpp && rm -r $DEST_DIR/abseil-cpp
-mkdir -p $DEST_DIR/abseil-cpp
-mv $SRC/* $DEST_DIR/abseil-cpp
+test -d $DESTDIR/abseil-cpp && rm -r $DESTDIR/abseil-cpp
+mkdir -p $DESTDIR/abseil-cpp
+mv $SRC/* $DESTDIR/abseil-cpp

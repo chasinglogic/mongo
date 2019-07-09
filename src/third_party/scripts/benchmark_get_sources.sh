@@ -32,14 +32,14 @@ CLONE_DEST=$SRC
 if grep -q Microsoft /proc/version; then
     CLONE_DEST=$(wslpath -m $SRC)
 fi
-DEST_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
+DESTDIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION
 PATCH_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME-$VERSION/patches
 if grep -q Microsoft /proc/version; then
-    DEST_DIR=$(wslpath -u "$DEST_DIR")
+    DESTDIR=$(wslpath -u "$DESTDIR")
     PATCH_DIR=$(wslpath -w $(wslpath -u "$PATCH_DIR"))
 fi
 
-echo "dest: $DEST_DIR"
+echo "dest: $DESTDIR"
 echo "patch: $PATCH_DIR"
 
 if [ ! -d $SRC ]; then
@@ -53,11 +53,11 @@ if [ ! -d $SRC ]; then
     popd
 fi
 
-test -d $DEST_DIR/benchmark && rm -r $DEST_DIR/benchmark
-mkdir -p $DEST_DIR/benchmark
+test -d $DESTDIR/benchmark && rm -r $DESTDIR/benchmark
+mkdir -p $DESTDIR/benchmark
 
-mv $SRC/.gitignore $DEST_DIR/benchmark/
-mv $SRC/include $DEST_DIR/benchmark/
-mv $SRC/src $DEST_DIR/benchmark/
-mv $SRC/LICENSE $DEST_DIR/benchmark/
-mv $SRC/README.md $DEST_DIR/benchmark/
+mv $SRC/.gitignore $DESTDIR/benchmark/
+mv $SRC/include $DESTDIR/benchmark/
+mv $SRC/src $DESTDIR/benchmark/
+mv $SRC/LICENSE $DESTDIR/benchmark/
+mv $SRC/README.md $DESTDIR/benchmark/

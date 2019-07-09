@@ -22,7 +22,7 @@ def integration_test_list_builder_action(env, target, source):
 
 def build_cpp_integration_test(env, target, source, **kwargs):
     libdeps = kwargs.get('LIBDEPS', [])
-    libdeps.append( '$BUILD_DIR/mongo/unittest/integration_test_main' )
+    libdeps.append( '$VARIANT_DIR/mongo/unittest/integration_test_main' )
 
     kwargs['LIBDEPS'] = libdeps
     integration_test_components = {'tests', 'integration-tests'}

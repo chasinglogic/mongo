@@ -201,10 +201,10 @@ wtlib = env.Library(
     source=wtsources,
     LIBDEPS=[
         'wiredtiger_checksum',
-        '$BUILD_DIR/third_party/shim_allocator',
-        '$BUILD_DIR/third_party/shim_snappy',
-        '$BUILD_DIR/third_party/shim_zlib',
-        '$BUILD_DIR/third_party/shim_zstd',
+        '$VARIANT_DIR/third_party/shim_allocator',
+        '$VARIANT_DIR/third_party/shim_snappy',
+        '$VARIANT_DIR/third_party/shim_zlib',
+        '$VARIANT_DIR/third_party/shim_zstd',
     ],
     LIBDEPS_TAGS=[
         'init-no-global-side-effects',

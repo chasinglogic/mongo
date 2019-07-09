@@ -223,7 +223,17 @@ def tarball_builder(target, source, env):
         env,
         ignore_component_boundries=True
     )
-    common_ancestor = env.Dir("$DEST_DIR").get_abspath()
+    common_ancestor = None
+    if str(env.subst("$DESTDIR")) != str(env.subst("$PREFIX")):
+        dest_dir_elems = env.Dir("$DESTDIR").get_path_elements()
+        prefix_elems = env.Dir("$PREFIX").get_path_elements()
+        # Strip off the prefix from the DESTDIR since we want to
+        # preserve PREFIX in the tarball
+        ancestor_elems = dest_dir_elems[:-len(prefix_elems)]
+        import pdb; pdb.set_trace()
+        common_ancestor = os.path.sep.join(ancestor_elems)
+    else:
+        common_ancestor = env.Dir("$DESTDIR").get_abspath()
     paths = [file.get_abspath() for file in transitive_files["files"]]
     relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
     tar_cmd = SCons.Action._subproc(
@@ -404,12 +414,14 @@ def add_suffix_mapping(env, source, target=None):
 
     env[SUFFIX_MAP].update({env.subst(key): value for key, value in source.items()})
 
+
 def suffix_mapping(env, source=False, target=False, **kwargs):
     """Generate a SuffixMap object from source and target."""
     return SuffixMap(
         directory=source if source else kwargs.get("directory"),
         default_roles=target if target else kwargs.get("default_roles"),
     )
+
 
 def _aib_debugdir(source, target, env, for_signature):
     for s in source:
@@ -420,19 +432,21 @@ def _aib_debugdir(source, target, env, for_signature):
         osuf = oentry.get_suffix()
         return env[SUFFIX_MAP].get(osuf)[0]
 
+
 def exists(_env):
     """Always activate this tool."""
     return True
+
 
 def generate(env):  # pylint: disable=too-many-statements
     """Generate the auto install builders."""
     bld = SCons.Builder.Builder(action = tarball_builder)
     env.Append(BUILDERS = {'TarBall': bld})
 
-    env["PREFIX_BIN_DIR"] = "$INSTALL_DIR/bin"
-    env["PREFIX_LIB_DIR"] = "$INSTALL_DIR/lib"
-    env["PREFIX_DOC_DIR"] = "$INSTALL_DIR/share/doc"
-    env["PREFIX_INCLUDE_DIR"] = "$INSTALL_DIR/include"
+    env["PREFIX_BIN_DIR"] = "$DESTDIR/bin"
+    env["PREFIX_LIB_DIR"] = "$DESTDIR/lib"
+    env["PREFIX_DOC_DIR"] = "$DESTDIR/share/doc"
+    env["PREFIX_INCLUDE_DIR"] = "$DESTDIR/include"
     env["PREFIX_DEBUG_DIR"] = _aib_debugdir
     env[SUFFIX_MAP] = {}
     env[ALIAS_MAP] = defaultdict(dict)

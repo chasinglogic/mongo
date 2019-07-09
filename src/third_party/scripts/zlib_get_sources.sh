@@ -11,12 +11,12 @@ set -o errexit
 VERSION=1.2.11
 NAME=zlib
 TARBALL=${NAME}-${VERSION}.tar.gz
-TARBALL_DEST_DIR=${NAME}-${VERSION}
-DEST_DIR=$(git rev-parse --show-toplevel)/src/third_party/${NAME}-${VERSION}
+TARBALL_DESTDIR=${NAME}-${VERSION}
+DESTDIR=$(git rev-parse --show-toplevel)/src/third_party/${NAME}-${VERSION}
 
-echo ${DEST_DIR}
+echo ${DESTDIR}
 
-rm -fr ${TARBALL_DEST_DIR}
+rm -fr ${TARBALL_DESTDIR}
 rm -f ${TARBALL}
 
 if [ ! -f ${TARBALL} ]; then
@@ -26,20 +26,20 @@ fi
 
 tar -zxvf ${TARBALL}
 
-rm -rf ${DEST_DIR}
-mkdir ${DEST_DIR}
+rm -rf ${DESTDIR}
+mkdir ${DESTDIR}
 
 # Just move the sources
-mv ${TARBALL_DEST_DIR}/*.{h,c} ${DEST_DIR}
+mv ${TARBALL_DESTDIR}/*.{h,c} ${DESTDIR}
 
 # Move the readme and such.
-mv ${TARBALL_DEST_DIR}/{README,FAQ,INDEX} ${DEST_DIR}
+mv ${TARBALL_DESTDIR}/{README,FAQ,INDEX} ${DESTDIR}
 
-rm -fR ${TARBALL_DEST_DIR}
+rm -fR ${TARBALL_DESTDIR}
 
 
 # Generate the SConscript
-( cat > ${DEST_DIR}/SConscript ) << ___EOF___
+( cat > ${DESTDIR}/SConscript ) << ___EOF___
 # -*- mode: python; -*-
 Import("env")
 

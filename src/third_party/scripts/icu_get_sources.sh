@@ -66,9 +66,9 @@ TEMP_DIR="$(mktemp -d /tmp/icu.XXXXXX)"
 trap "rm -rf $TEMP_DIR" EXIT
 
 TARBALL_DIR="${TEMP_DIR}/tarball"
-INSTALL_DIR="${TEMP_DIR}/install"
+DESTDIR="${TEMP_DIR}/install"
 DATA_DIR="${TEMP_DIR}/data"
-mkdir "$TARBALL_DIR" "$INSTALL_DIR" "$DATA_DIR"
+mkdir "$TARBALL_DIR" "$DESTDIR" "$DATA_DIR"
 
 #
 # Download and extract tarball into temp directory.
@@ -99,7 +99,7 @@ fi
 ORIGINAL_DATA_LIST="${DATA_DIR}/icudt${MAJOR_VERSION}l.lst.orig"
 NEW_DATA_LIST="${DATA_DIR}/icudt${MAJOR_VERSION}l.lst"
 
-LD_LIBRARY_PATH= eval $("${INSTALL_DIR}/bin/icu-config" --invoke=icupkg) -l "$ORIGINAL_DATA_FILE" \
+LD_LIBRARY_PATH= eval $("${DESTDIR}/bin/icu-config" --invoke=icupkg) -l "$ORIGINAL_DATA_FILE" \
     > "$ORIGINAL_DATA_LIST"
 
 # Collation data sets
@@ -129,11 +129,11 @@ grep -E "^nfkc.nrm$" "$ORIGINAL_DATA_LIST" >> "$NEW_DATA_LIST"
 # Extract desired data, and use it to build custom data files.
 #
 
-LD_LIBRARY_PATH= eval $("${INSTALL_DIR}/bin/icu-config" --invoke=icupkg) -d "$DATA_DIR" \
+LD_LIBRARY_PATH= eval $("${DESTDIR}/bin/icu-config" --invoke=icupkg) -d "$DATA_DIR" \
     -x "$NEW_DATA_LIST" "$ORIGINAL_DATA_FILE"
-LD_LIBRARY_PATH= eval $("${INSTALL_DIR}/bin/icu-config" --invoke=icupkg) -s "$DATA_DIR" \
+LD_LIBRARY_PATH= eval $("${DESTDIR}/bin/icu-config" --invoke=icupkg) -s "$DATA_DIR" \
     -a "$NEW_DATA_LIST" -tl new "$ICU_DATA_FILE_LITTLE_ENDIAN_OUT"
-LD_LIBRARY_PATH= eval $("${INSTALL_DIR}/bin/icu-config" --invoke=icupkg) -s "$DATA_DIR" \
+LD_LIBRARY_PATH= eval $("${DESTDIR}/bin/icu-config" --invoke=icupkg) -s "$DATA_DIR" \
     -a "$NEW_DATA_LIST" -tb new "$ICU_DATA_FILE_BIG_ENDIAN_OUT"
 
 #

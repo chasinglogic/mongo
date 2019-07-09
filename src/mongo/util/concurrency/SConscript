@@ -10,7 +10,7 @@ env.Library(
         'thread_pool.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ],
 )
 
@@ -21,16 +21,16 @@ env.Library(
         'thread_pool_test_fixture.cpp'
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/unittest/unittest',
+        '$VARIANT_DIR/mongo/unittest/unittest',
     ]
 )
 
 env.Library('ticketholder',
             ['ticketholder.cpp'],
             LIBDEPS=[
-                '$BUILD_DIR/mongo/base',
-                '$BUILD_DIR/mongo/db/service_context',
-                '$BUILD_DIR/third_party/shim_boost',
+                '$VARIANT_DIR/mongo/base',
+                '$VARIANT_DIR/mongo/db/service_context',
+                '$VARIANT_DIR/third_party/shim_boost',
             ])
 
 env.Library(

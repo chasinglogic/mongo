@@ -14,17 +14,17 @@ env.Library(
         'biggie_visibility_manager.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/concurrency/write_conflict_exception',
-        '$BUILD_DIR/mongo/db/storage/index_entry_comparison',
-        '$BUILD_DIR/mongo/db/storage/kv/kv_prefix',
-        '$BUILD_DIR/mongo/db/storage/recovery_unit_base',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/concurrency/write_conflict_exception',
+        '$VARIANT_DIR/mongo/db/storage/index_entry_comparison',
+        '$VARIANT_DIR/mongo/db/storage/kv/kv_prefix',
+        '$VARIANT_DIR/mongo/db/storage/recovery_unit_base',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/db/storage/key_string',
-        '$BUILD_DIR/mongo/db/snapshot_window_options',
-        '$BUILD_DIR/mongo/db/storage/oplog_hack',
-        '$BUILD_DIR/mongo/db/storage/write_unit_of_work',
+        '$VARIANT_DIR/mongo/db/storage/key_string',
+        '$VARIANT_DIR/mongo/db/snapshot_window_options',
+        '$VARIANT_DIR/mongo/db/storage/oplog_hack',
+        '$VARIANT_DIR/mongo/db/storage/write_unit_of_work',
     ],
 )
 
@@ -34,12 +34,12 @@ env.Library(
         'biggie_init.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/storage/durable_catalog_impl',
-        '$BUILD_DIR/mongo/db/storage/storage_engine_impl',
+        '$VARIANT_DIR/mongo/db/storage/durable_catalog_impl',
+        '$VARIANT_DIR/mongo/db/storage/storage_engine_impl',
         'storage_biggie_core',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/db/storage/storage_engine_common',
+        '$VARIANT_DIR/mongo/db/storage/storage_engine_common',
     ],
 )
 
@@ -57,8 +57,8 @@ env.CppUnitTest(
             ],
     LIBDEPS=[
         'storage_biggie_core',
-        '$BUILD_DIR/mongo/db/storage/key_string',
-        '$BUILD_DIR/mongo/db/storage/record_store_test_harness'
+        '$VARIANT_DIR/mongo/db/storage/key_string',
+        '$VARIANT_DIR/mongo/db/storage/record_store_test_harness'
         ],
 )
 
@@ -68,10 +68,10 @@ env.CppUnitTest(
            ],
    LIBDEPS=[
         'storage_biggie_core', 
-        '$BUILD_DIR/mongo/db/common',
-        '$BUILD_DIR/mongo/db/index/index_descriptor',
-        '$BUILD_DIR/mongo/db/storage/key_string',
-        '$BUILD_DIR/mongo/db/storage/sorted_data_interface_test_harness'
+        '$VARIANT_DIR/mongo/db/common',
+        '$VARIANT_DIR/mongo/db/index/index_descriptor',
+        '$VARIANT_DIR/mongo/db/storage/key_string',
+        '$VARIANT_DIR/mongo/db/storage/sorted_data_interface_test_harness'
         ],
 )
 
@@ -81,7 +81,7 @@ env.CppUnitTest(
            ],
    LIBDEPS=[
         'storage_biggie_core',
-        '$BUILD_DIR/mongo/db/storage/recovery_unit_test_harness'
+        '$VARIANT_DIR/mongo/db/storage/recovery_unit_test_harness'
         ],
 )
 
@@ -91,6 +91,6 @@ env.CppUnitTest(
            ],
    LIBDEPS=[
         'storage_biggie_core',
-        '$BUILD_DIR/mongo/db/storage/kv/kv_engine_test_harness'
+        '$VARIANT_DIR/mongo/db/storage/kv/kv_engine_test_harness'
         ],
 )

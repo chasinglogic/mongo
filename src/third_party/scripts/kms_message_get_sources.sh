@@ -35,9 +35,9 @@ CLONE_DEST=$SRC
 if grep -q Microsoft /proc/version; then
     CLONE_DEST=$(wslpath -m $SRC)
 fi
-DEST_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME
+DESTDIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$NAME
 
-echo "dest: $DEST_DIR"
+echo "dest: $DESTDIR"
 
 if [ ! -d $SRC ]; then
     $GIT_EXE clone https://github.com/mongodb-labs/kms-message $CLONE_DEST
@@ -47,8 +47,8 @@ if [ ! -d $SRC ]; then
     popd
 fi
 
-test -d $DEST_DIR/$NAME && rm -r $DEST_DIR/$NAME
-mkdir -p $DEST_DIR/$NAME
+test -d $DESTDIR/$NAME && rm -r $DESTDIR/$NAME
+mkdir -p $DESTDIR/$NAME
 
 stuff_to_remove=(
 aws-sig-v4-test-suite
@@ -62,6 +62,6 @@ for file in "${stuff_to_remove[@]}" ; do
     rm -rf "$SRC/$file"
 done
 
-cp -r $SRC/* $DEST_DIR
+cp -r $SRC/* $DESTDIR
 
 

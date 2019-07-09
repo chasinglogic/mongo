@@ -37,13 +37,13 @@ fi
 
 # Create the directory where the input lives, and where the output should live
 RPM_SOURCE_DIR="/tmp/rpmsource-$fullname"
-RPM_BUILD_DIR="/tmp/rpmbuild-$fullname"
+RPM_VARIANT_DIR="/tmp/rpmbuild-$fullname"
 
-trap 'rm -rf $RPM_SOURCE_DIR $RPM_BUILD_DIR; exit $?' EXIT SIGHUP SIGINT SIGTERM
+trap 'rm -rf $RPM_SOURCE_DIR $RPM_VARIANT_DIR; exit $?' EXIT SIGHUP SIGINT SIGTERM
 
-rm -rf "$RPM_SOURCE_DIR" "$RPM_BUILD_DIR"
+rm -rf "$RPM_SOURCE_DIR" "$RPM_VARIANT_DIR"
 mkdir "$RPM_SOURCE_DIR"
-mkdir "$RPM_BUILD_DIR"
+mkdir "$RPM_VARIANT_DIR"
 
 cp "$archive" "$RPM_SOURCE_DIR"
 
@@ -62,7 +62,7 @@ rpmbuild -bb rpm/rpm.spec $target \
   --define "NAME $PACKAGE" \
   --define "VERSION $VERSION" \
   --define "_sourcedir $RPM_SOURCE_DIR" \
-  --define "_builddir $RPM_BUILD_DIR" \
+  --define "_builddir $RPM_VARIANT_DIR" \
   --define "_rpmdir $RPM_SOURCE_DIR"
 
 # We put the output in a directory based on what system we've built for

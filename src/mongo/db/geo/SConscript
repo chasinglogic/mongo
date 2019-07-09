@@ -9,17 +9,17 @@ env.Library("geometry", [ "hash.cpp",
                           "shapes.cpp",
                           "big_polygon.cpp",
                           "r2_region_coverer.cpp" ],
-            LIBDEPS = [ "$BUILD_DIR/mongo/base",
-                        "$BUILD_DIR/mongo/db/common",
-                        "$BUILD_DIR/third_party/s2/s2" ])
+            LIBDEPS = [ "$VARIANT_DIR/mongo/base",
+                        "$VARIANT_DIR/mongo/db/common",
+                        "$VARIANT_DIR/third_party/s2/s2" ])
 
 # Geometry / BSON parsing and wrapping
 env.Library("geoparser", [ "geoparser.cpp",
                            "geometry_container.cpp" ],
             LIBDEPS = [ "geometry",
-                        "$BUILD_DIR/mongo/base",
-                        "$BUILD_DIR/mongo/db/bson/dotted_path_support",
-                        "$BUILD_DIR/third_party/s2/s2" ])
+                        "$VARIANT_DIR/mongo/base",
+                        "$VARIANT_DIR/mongo/db/bson/dotted_path_support",
+                        "$VARIANT_DIR/third_party/s2/s2" ])
 
 env.CppUnitTest(
     target="db_geo_test",
@@ -32,6 +32,6 @@ env.CppUnitTest(
     LIBDEPS=[
         "geometry",
         "geoparser",
-        "$BUILD_DIR/mongo/db/common"
+        "$VARIANT_DIR/mongo/db/common"
     ]
 )

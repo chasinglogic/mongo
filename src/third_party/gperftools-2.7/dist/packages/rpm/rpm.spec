@@ -50,11 +50,11 @@ files for developing applications that use the %name package.
 make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT install
+rm -rf $RPM_BUILD_DIR
+make DESTDIR=$RPM_BUILD_DIR install
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_DIR
 
 %files
 %defattr(-,root,root)

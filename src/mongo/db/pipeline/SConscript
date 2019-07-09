@@ -22,7 +22,7 @@ env.Library(
         'field_path.cpp',
         ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
         ]
     )
 
@@ -37,9 +37,9 @@ env.Library(
         ],
     LIBDEPS=[
         'field_path',
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/query/datetime/date_time_support',
-        '$BUILD_DIR/mongo/util/intrusive_counter',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/query/datetime/date_time_support',
+        '$VARIANT_DIR/mongo/util/intrusive_counter',
         ]
     )
 
@@ -49,7 +49,7 @@ env.Library(
         'document_value_test_util.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/unittest/unittest',
+        '$VARIANT_DIR/mongo/unittest/unittest',
         'document_value',
     ],
 )
@@ -60,14 +60,14 @@ env.Library(
         'aggregation_request.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/namespace_string',
-        '$BUILD_DIR/mongo/db/query/command_request_response',
-        '$BUILD_DIR/mongo/db/query/explain_options',
-        '$BUILD_DIR/mongo/db/query/query_request',
-        '$BUILD_DIR/mongo/db/repl/read_concern_args',
-        '$BUILD_DIR/mongo/db/storage/storage_options',
-        '$BUILD_DIR/mongo/db/write_concern_options',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/namespace_string',
+        '$VARIANT_DIR/mongo/db/query/command_request_response',
+        '$VARIANT_DIR/mongo/db/query/explain_options',
+        '$VARIANT_DIR/mongo/db/query/query_request',
+        '$VARIANT_DIR/mongo/db/repl/read_concern_args',
+        '$VARIANT_DIR/mongo/db/storage/storage_options',
+        '$VARIANT_DIR/mongo/db/write_concern_options',
         'document_sources_idl',
         'document_value',
     ]
@@ -81,9 +81,9 @@ env.Library(
     ],
     LIBDEPS=[
         'aggregation_request',
-        '$BUILD_DIR/mongo/db/query/collation/collator_factory_interface',
-        '$BUILD_DIR/mongo/db/service_context',
-        '$BUILD_DIR/mongo/util/intrusive_counter',
+        '$VARIANT_DIR/mongo/db/query/collation/collator_factory_interface',
+        '$VARIANT_DIR/mongo/db/service_context',
+        '$VARIANT_DIR/mongo/util/intrusive_counter',
     ]
 )
 
@@ -105,10 +105,10 @@ env.Library(
         'expression_trigonometric.cpp',
         ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/query/datetime/date_time_support',
-        '$BUILD_DIR/mongo/db/server_options_core',
-        '$BUILD_DIR/mongo/util/regex_util',
-        '$BUILD_DIR/mongo/util/summation',
+        '$VARIANT_DIR/mongo/db/query/datetime/date_time_support',
+        '$VARIANT_DIR/mongo/db/server_options_core',
+        '$VARIANT_DIR/mongo/util/regex_util',
+        '$VARIANT_DIR/mongo/util/summation',
         'dependencies',
         'document_value',
         'expression_context',
@@ -131,7 +131,7 @@ env.Library(
         ],
     LIBDEPS=[
         'document_value',
-        '$BUILD_DIR/mongo/util/summation',
+        '$VARIANT_DIR/mongo/util/summation',
         'expression',
         'field_path',
     ]
@@ -158,7 +158,7 @@ env.Library(
         'stub_mongo_process_interface_lookup_single_document.cpp',
         ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/query/query_test_service_context',
+        '$VARIANT_DIR/mongo/db/query/query_test_service_context',
         'pipeline',
     ]
 )
@@ -170,9 +170,9 @@ env.Library(
     ],
     LIBDEPS=[
         'aggregation',
-        '$BUILD_DIR/mongo/s/async_requests_sender',
-        '$BUILD_DIR/mongo/s/query/cluster_aggregation_planner',
-        '$BUILD_DIR/mongo/s/commands/shared_cluster_commands',
+        '$VARIANT_DIR/mongo/s/async_requests_sender',
+        '$VARIANT_DIR/mongo/s/query/cluster_aggregation_planner',
+        '$VARIANT_DIR/mongo/s/commands/shared_cluster_commands',
     ],
 )
 
@@ -193,7 +193,7 @@ env.Library(
         'mongo_process_interface.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ]
 )
 
@@ -203,9 +203,9 @@ env.Library(
         'mongo_process_common.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/auth/auth',
-        '$BUILD_DIR/mongo/db/generic_cursor',
-        '$BUILD_DIR/mongo/s/sharding_router_api',
+        '$VARIANT_DIR/mongo/db/auth/auth',
+        '$VARIANT_DIR/mongo/db/generic_cursor',
+        '$VARIANT_DIR/mongo/s/sharding_router_api',
         'field_path',
     ]
 )
@@ -216,17 +216,17 @@ env.Library(
         'process_interface_standalone.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/ops/write_ops_exec',
-        '$BUILD_DIR/mongo/db/query_exec',
-        '$BUILD_DIR/mongo/db/repl/speculative_majority_read_info',
+        '$VARIANT_DIR/mongo/db/ops/write_ops_exec',
+        '$VARIANT_DIR/mongo/db/query_exec',
+        '$VARIANT_DIR/mongo/db/repl/speculative_majority_read_info',
         'mongo_process_common',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/db/catalog/database_holder',
-        '$BUILD_DIR/mongo/db/concurrency/flow_control_ticketholder',
-        '$BUILD_DIR/mongo/db/session_catalog',
-        '$BUILD_DIR/mongo/db/storage/backup_cursor_hooks',
-        '$BUILD_DIR/mongo/db/transaction',
+        '$VARIANT_DIR/mongo/db/catalog/database_holder',
+        '$VARIANT_DIR/mongo/db/concurrency/flow_control_ticketholder',
+        '$VARIANT_DIR/mongo/db/session_catalog',
+        '$VARIANT_DIR/mongo/db/storage/backup_cursor_hooks',
+        '$VARIANT_DIR/mongo/db/transaction',
     ],
 )
 
@@ -236,9 +236,9 @@ env.Library(
         'process_interface_shardsvr.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/transaction',
-        '$BUILD_DIR/mongo/db/write_ops',
-        '$BUILD_DIR/mongo/s/sharding_api',
+        '$VARIANT_DIR/mongo/db/transaction',
+        '$VARIANT_DIR/mongo/db/write_ops',
+        '$VARIANT_DIR/mongo/s/sharding_api',
         'process_interface_standalone',
         'sharded_agg_helpers',
     ],
@@ -250,10 +250,10 @@ env.Library(
         'mongos_process_interface.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/pipeline/pipeline',
-        '$BUILD_DIR/mongo/s/query/async_results_merger',
-        '$BUILD_DIR/mongo/s/query/cluster_aggregation_planner',
-        '$BUILD_DIR/mongo/s/query/cluster_query',
+        '$VARIANT_DIR/mongo/db/pipeline/pipeline',
+        '$VARIANT_DIR/mongo/s/query/async_results_merger',
+        '$VARIANT_DIR/mongo/s/query/cluster_aggregation_planner',
+        '$VARIANT_DIR/mongo/s/query/cluster_query',
         'mongo_process_common',
         'sharded_agg_helpers',
     ]
@@ -325,29 +325,29 @@ pipelineeEnv.Library(
         'tee_buffer.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/client/clientdriver_minimal',
-        '$BUILD_DIR/mongo/db/auth/auth',
-        '$BUILD_DIR/mongo/db/bson/dotted_path_support',
-        '$BUILD_DIR/mongo/db/curop',
-        '$BUILD_DIR/mongo/db/curop_failpoint_helpers',
-        '$BUILD_DIR/mongo/db/generic_cursor',
-        '$BUILD_DIR/mongo/db/index/key_generator',
-        '$BUILD_DIR/mongo/db/logical_session_cache',
-        '$BUILD_DIR/mongo/db/logical_session_id_helpers',
-        '$BUILD_DIR/mongo/db/matcher/expressions',
-        '$BUILD_DIR/mongo/db/pipeline/lite_parsed_document_source',
-        '$BUILD_DIR/mongo/db/query/collation/collator_factory_interface',
-        '$BUILD_DIR/mongo/db/query/collation/collator_interface',
-        '$BUILD_DIR/mongo/db/repl/oplog_entry',
-        '$BUILD_DIR/mongo/db/repl/read_concern_args',
-        '$BUILD_DIR/mongo/db/repl/repl_coordinator_interface',
-        '$BUILD_DIR/mongo/db/repl/speculative_majority_read_info',
-        '$BUILD_DIR/mongo/db/service_context',
-        '$BUILD_DIR/mongo/db/sessions_collection',
-        '$BUILD_DIR/mongo/db/storage/encryption_hooks',
-        '$BUILD_DIR/mongo/db/storage/storage_options',
-        '$BUILD_DIR/mongo/s/is_mongos',
-        '$BUILD_DIR/third_party/shim_snappy',
+        '$VARIANT_DIR/mongo/client/clientdriver_minimal',
+        '$VARIANT_DIR/mongo/db/auth/auth',
+        '$VARIANT_DIR/mongo/db/bson/dotted_path_support',
+        '$VARIANT_DIR/mongo/db/curop',
+        '$VARIANT_DIR/mongo/db/curop_failpoint_helpers',
+        '$VARIANT_DIR/mongo/db/generic_cursor',
+        '$VARIANT_DIR/mongo/db/index/key_generator',
+        '$VARIANT_DIR/mongo/db/logical_session_cache',
+        '$VARIANT_DIR/mongo/db/logical_session_id_helpers',
+        '$VARIANT_DIR/mongo/db/matcher/expressions',
+        '$VARIANT_DIR/mongo/db/pipeline/lite_parsed_document_source',
+        '$VARIANT_DIR/mongo/db/query/collation/collator_factory_interface',
+        '$VARIANT_DIR/mongo/db/query/collation/collator_interface',
+        '$VARIANT_DIR/mongo/db/repl/oplog_entry',
+        '$VARIANT_DIR/mongo/db/repl/read_concern_args',
+        '$VARIANT_DIR/mongo/db/repl/repl_coordinator_interface',
+        '$VARIANT_DIR/mongo/db/repl/speculative_majority_read_info',
+        '$VARIANT_DIR/mongo/db/service_context',
+        '$VARIANT_DIR/mongo/db/sessions_collection',
+        '$VARIANT_DIR/mongo/db/storage/encryption_hooks',
+        '$VARIANT_DIR/mongo/db/storage/storage_options',
+        '$VARIANT_DIR/mongo/s/is_mongos',
+        '$VARIANT_DIR/third_party/shim_snappy',
         'accumulator',
         'dependencies',
         'document_sources_idl',
@@ -358,8 +358,8 @@ pipelineeEnv.Library(
         'parsed_aggregation_projection',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/db/commands/test_commands_enabled',
-        '$BUILD_DIR/mongo/rpc/command_status',
+        '$VARIANT_DIR/mongo/db/commands/test_commands_enabled',
+        '$VARIANT_DIR/mongo/rpc/command_status',
     ]
 )
 
@@ -375,7 +375,7 @@ env.Library(
     LIBDEPS=[
         'expression',
         'field_path',
-        '$BUILD_DIR/mongo/db/matcher/expressions',
+        '$VARIANT_DIR/mongo/db/matcher/expressions',
     ]
 )
 
@@ -385,7 +385,7 @@ env.Library(
         env.Idlc('runtime_constants.idl')[0]
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/idl/idl_parser',
+        '$VARIANT_DIR/mongo/idl/idl_parser',
     ],
 )
 
@@ -403,10 +403,10 @@ env.Library(
         'resume_token.cpp'
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/storage/key_string',
-        '$BUILD_DIR/mongo/idl/idl_parser',
-        '$BUILD_DIR/mongo/s/common_s',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/storage/key_string',
+        '$VARIANT_DIR/mongo/idl/idl_parser',
+        '$VARIANT_DIR/mongo/s/common_s',
         'document_value',
         'runtime_constants_idl',
     ],
@@ -478,20 +478,20 @@ env.CppUnitTest(
         'value_comparator_test.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/auth/authmocks',
-        '$BUILD_DIR/mongo/db/query/collation/collator_interface_mock',
-        '$BUILD_DIR/mongo/db/query/query_test_service_context',
-        '$BUILD_DIR/mongo/db/repl/oplog_entry',
-        '$BUILD_DIR/mongo/db/repl/replmocks',
-        '$BUILD_DIR/mongo/db/service_context',
-        '$BUILD_DIR/mongo/db/service_context_test_fixture',
-        '$BUILD_DIR/mongo/executor/thread_pool_task_executor_test_fixture',
-        '$BUILD_DIR/mongo/s/is_mongos',
-        '$BUILD_DIR/mongo/s/query/cluster_aggregate',
-        '$BUILD_DIR/mongo/s/query/router_exec_stage',
-        '$BUILD_DIR/mongo/s/sharding_router_test_fixture',
-        '$BUILD_DIR/mongo/util/clock_source_mock',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/auth/authmocks',
+        '$VARIANT_DIR/mongo/db/query/collation/collator_interface_mock',
+        '$VARIANT_DIR/mongo/db/query/query_test_service_context',
+        '$VARIANT_DIR/mongo/db/repl/oplog_entry',
+        '$VARIANT_DIR/mongo/db/repl/replmocks',
+        '$VARIANT_DIR/mongo/db/service_context',
+        '$VARIANT_DIR/mongo/db/service_context_test_fixture',
+        '$VARIANT_DIR/mongo/executor/thread_pool_task_executor_test_fixture',
+        '$VARIANT_DIR/mongo/s/is_mongos',
+        '$VARIANT_DIR/mongo/s/query/cluster_aggregate',
+        '$VARIANT_DIR/mongo/s/query/router_exec_stage',
+        '$VARIANT_DIR/mongo/s/sharding_router_test_fixture',
+        '$VARIANT_DIR/mongo/util/clock_source_mock',
         'accumulator',
         'aggregation_request',
         'document_source_mock',

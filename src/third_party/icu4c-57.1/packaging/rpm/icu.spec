@@ -121,9 +121,9 @@ echo 'CPPFLAGS += -DICU_DATA_DIR=\"/usr/share/icu/%{version}\"' >> icudefs.mk
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_DIR
 cd source
-make install DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_DIR
 
 %files
 %defattr(-,root,root)

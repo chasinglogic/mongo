@@ -13,7 +13,7 @@ env.Library(
         "collator_interface.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/base",
     ],
 )
 
@@ -33,7 +33,7 @@ env.Library(
         "collator_factory_interface.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/db/service_context",
+        "$VARIANT_DIR/mongo/db/service_context",
         "collator_interface",
     ],
 )
@@ -88,10 +88,10 @@ icuEnv.Library(
         "collator_interface_icu.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
-        "$BUILD_DIR/mongo/bson/util/bson_extract",
-        "$BUILD_DIR/mongo/util/icu_init",
-        "$BUILD_DIR/third_party/shim_icu",
+        "$VARIANT_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/bson/util/bson_extract",
+        "$VARIANT_DIR/mongo/util/icu_init",
+        "$VARIANT_DIR/third_party/shim_icu",
         "collator_factory_interface",
     ],
 )

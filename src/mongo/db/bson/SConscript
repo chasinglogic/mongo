@@ -10,7 +10,7 @@ env.Library(
         "dotted_path_support.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/base",
     ],
 )
 

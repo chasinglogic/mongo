@@ -8,9 +8,9 @@ env.Library(
         'watchdog.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/service_context',
-        '$BUILD_DIR/mongo/db/storage/storage_options',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/service_context',
+        '$VARIANT_DIR/mongo/db/storage/storage_options',
     ]
 )
 
@@ -28,12 +28,12 @@ env.Library(
         env.Idlc('watchdog_mongod.idl')[0],
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/commands/server_status',
+        '$VARIANT_DIR/mongo/db/commands/server_status',
         'watchdog',
         ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/db/server_options_core',
-        '$BUILD_DIR/mongo/idl/server_parameter',
+        '$VARIANT_DIR/mongo/db/server_options_core',
+        '$VARIANT_DIR/mongo/idl/server_parameter',
         'watchdog_register',
         ],
 )
@@ -44,8 +44,8 @@ env.CppUnitTest(
         'watchdog_test.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/db/service_context_test_fixture',
-        '$BUILD_DIR/mongo/util/clock_source_mock',
+        '$VARIANT_DIR/mongo/db/service_context_test_fixture',
+        '$VARIANT_DIR/mongo/util/clock_source_mock',
         'watchdog',
     ],
 )

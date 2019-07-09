@@ -17,7 +17,7 @@ REVISION=22afb86087a77037cd296d27134756c9b0d2cb75
 SRC_ROOT=$(mktemp -d /tmp/asio.XXXXXX)
 #trap "rm -rf $SRC_ROOT" EXIT
 SRC=${SRC_ROOT}/${NAME}_${REVISION}
-DEST_DIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-master
+DESTDIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-master
 PATCH_DIR=$(git rev-parse --show-toplevel)/src/third_party/$NAME-master/patches
 
 if [ ! -d $SRC ]; then
@@ -35,6 +35,6 @@ if [ ! -d $SRC ]; then
     popd
 fi
 
-test -d $DEST_DIR/asio && rm -r $DEST_DIR/asio
-mkdir -p $DEST_DIR
-mv $SRC/asio $DEST_DIR
+test -d $DESTDIR/asio && rm -r $DESTDIR/asio
+mkdir -p $DESTDIR
+mv $SRC/asio $DESTDIR

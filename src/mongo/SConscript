@@ -143,13 +143,13 @@ env.Library(
     # NOTE: This library *must not* depend on any libraries than
     # the ones declared here. Do not add to this list.
     LIBDEPS=[
-        '$BUILD_DIR/third_party/murmurhash3/murmurhash3',
-        '$BUILD_DIR/third_party/shim_abseil',
-        '$BUILD_DIR/third_party/shim_allocator',
-        '$BUILD_DIR/third_party/shim_boost',
-        '$BUILD_DIR/third_party/shim_fmt',
-        '$BUILD_DIR/third_party/shim_intel_decimal128',
-        '$BUILD_DIR/third_party/shim_pcrecpp',
+        '$VARIANT_DIR/third_party/murmurhash3/murmurhash3',
+        '$VARIANT_DIR/third_party/shim_abseil',
+        '$VARIANT_DIR/third_party/shim_allocator',
+        '$VARIANT_DIR/third_party/shim_boost',
+        '$VARIANT_DIR/third_party/shim_fmt',
+        '$VARIANT_DIR/third_party/shim_intel_decimal128',
+        '$VARIANT_DIR/third_party/shim_pcrecpp',
         'boost_assert_shim',
         'util/quick_exit',
     ],
@@ -304,7 +304,7 @@ env.Library(
     ],
     LIBDEPS_PRIVATE=[
         'db/mongod_options',
-        '$BUILD_DIR/mongo/util/net/ssl_options_server' if get_option('ssl') == 'on' else '',
+        '$VARIANT_DIR/mongo/util/net/ssl_options_server' if get_option('ssl') == 'on' else '',
     ]
 )
 
@@ -328,7 +328,7 @@ mongod = env.Program(
         "db/db.cpp",
     ] + env.WindowsResourceFile("db/db.rc"),
     LIBDEPS=[
-        '$BUILD_DIR/third_party/shim_snappy',
+        '$VARIANT_DIR/third_party/shim_snappy',
         'base',
         'db/auth/auth_op_observer',
         'db/auth/authmongod',
@@ -450,7 +450,7 @@ mongod = env.Program(
 hygienic = get_option('install-mode') == 'hygienic'
 
 if hygienic:
-    env.Default('$INSTALL_DIR/bin/mongod$PROGSUFFIX')
+    env.Default('$DESTDIR/bin/mongod$PROGSUFFIX')
 else:
     env.Default(env.Install('#/', mongod))
 
@@ -622,21 +622,21 @@ if not has_option('noshell') and usemozjs:
             "shell/shell_options_init.cpp",
         ] + env.WindowsResourceFile("shell/shell.rc"),
         LIBDEPS=[
-            "$BUILD_DIR/third_party/shim_pcrecpp",
+            "$VARIANT_DIR/third_party/shim_pcrecpp",
             "shell_core",
             "db/server_options_core",
             "client/clientdriver_network",
             "shell/kms_shell" if get_option('ssl') == 'on' else '',
             "shell/encrypted_dbclient" if get_option('ssl') == 'on' else '',
-            "$BUILD_DIR/mongo/util/password",
-            '$BUILD_DIR/mongo/db/storage/duplicate_key_error_info',
-            "$BUILD_DIR/mongo/db/views/resolved_view",
+            "$VARIANT_DIR/mongo/util/password",
+            '$VARIANT_DIR/mongo/db/storage/duplicate_key_error_info',
+            "$VARIANT_DIR/mongo/db/views/resolved_view",
         ],
         LIBDEPS_PRIVATE=[
             'shell/shell_options_register',
             'transport/message_compressor_options_client',
-            "$BUILD_DIR/mongo/client/connection_string",
-            '$BUILD_DIR/mongo/util/net/ssl_options_client' if get_option('ssl') == 'on' else '',
+            "$VARIANT_DIR/mongo/client/connection_string",
+            '$VARIANT_DIR/mongo/util/net/ssl_options_client' if get_option('ssl') == 'on' else '',
         ],
         AIB_COMPONENT="shell",
         AIB_COMPONENTS_EXTRA=[
@@ -708,7 +708,7 @@ def installBinary( e, name ):
     else:
         distBinaries.append(name)
 
-    inst = e.Install( "$INSTALL_DIR/bin", name )
+    inst = e.Install( "$DESTDIR/bin", name )
 
     if env.TargetOSIs('posix'):
         e.AddPostAction( inst, 'chmod 755 $TARGET' )
@@ -731,7 +731,7 @@ def installExternalBinary( e, name_str ):
 
     distBinaries.append(name)
 
-    inst = e.Install( "$INSTALL_DIR/bin", name )
+    inst = e.Install( "$DESTDIR/bin", name )
 
     if env.TargetOSIs('posix'):
         e.AddPostAction( inst, 'chmod 755 $TARGET' )
@@ -742,7 +742,7 @@ if has_option("use-new-tools"):
 
     if hygienic:
         env.AutoInstall(
-            target='$INSTALL_DIR',
+            target='$DESTDIR',
             source=env.File('#/src/mongo-tools/distsrc/THIRD-PARTY-NOTICES.gotools'),
             AIB_COMPONENT='tools',
             AIB_ROLE='base',
@@ -776,7 +776,7 @@ if not hygienic:
 distsrc = env.Dir('#distsrc')
 if hygienic:
     env.AutoInstall(
-        target='$INSTALL_DIR',
+        target='$DESTDIR',
         source=[
             distsrc.File('README'),
             # TODO: we need figure out what to do when we use a different
@@ -795,7 +795,7 @@ else:
 enterprise_license = [banner for banner in env["MODULE_BANNERS"] if banner.name ==  "LICENSE-Enterprise.txt"]
 if hygienic:
     env.AutoInstall(
-        target='$INSTALL_DIR',
+        target='$DESTDIR',
         source=[
             enterprise_license[0]
             if enterprise_license else distsrc.File('LICENSE-Community.txt'),
@@ -854,7 +854,7 @@ compass_installer = env.Substfile('#/src/mongo/installer/compass/' + compass_scr
 distBinaries.append(compass_installer)
 
 if not hygienic:
-    compass_script_installer = env.Install("$INSTALL_DIR/bin", compass_installer)
+    compass_script_installer = env.Install("$DESTDIR/bin", compass_installer)
 else:
     compass_script_installer = env.AutoInstall(
         target='$PREFIX_BIN_DIR',
@@ -880,17 +880,17 @@ if has_option("use-new-tools") and not hygienic:
             archive_addition_transforms +
             module_banner_transforms +
             [
-                '--transform $BUILD_DIR/mongo/db/modules/enterprise=$SERVER_DIST_BASENAME/bin',
-                '--transform $BUILD_DIR/mongo/stripped/db/modules/enterprise=$SERVER_DIST_BASENAME/bin',
-                '--transform $BUILD_DIR/mongo/stripped=$SERVER_DIST_BASENAME/bin',
-                '--transform $BUILD_DIR/mongo=$SERVER_DIST_BASENAME/bin',
-                '--transform $BUILD_DIR/mongo/stripped/src/mongo-tools=$SERVER_DIST_BASENAME/bin',
+                '--transform $VARIANT_DIR/mongo/db/modules/enterprise=$SERVER_DIST_BASENAME/bin',
+                '--transform $VARIANT_DIR/mongo/stripped/db/modules/enterprise=$SERVER_DIST_BASENAME/bin',
+                '--transform $VARIANT_DIR/mongo/stripped=$SERVER_DIST_BASENAME/bin',
+                '--transform $VARIANT_DIR/mongo=$SERVER_DIST_BASENAME/bin',
+                '--transform $VARIANT_DIR/mongo/stripped/src/mongo-tools=$SERVER_DIST_BASENAME/bin',
                 '--transform src/mongo-tools=$SERVER_DIST_BASENAME/bin',
                 '--transform src/mongo/installer/compass=$SERVER_DIST_BASENAME/bin',
                 '${TEMPFILE(SOURCES[1:])}'
             ],
         ),
-        BUILD_DIR=env.Dir('$BUILD_DIR').path
+        VARIANT_DIR=env.Dir('$VARIANT_DIR').path
     )
 
     env.Alias("dist", server_archive)
@@ -907,12 +907,12 @@ debug_symbols_dist = env.Command(
     action=' '.join(
         [
             '$PYTHON ${SOURCES[0]} -o $TARGET',
-            '--transform $BUILD_DIR/mongo/db/modules/enterprise=$SERVER_DIST_BASENAME',
-            '--transform $BUILD_DIR/mongo=$SERVER_DIST_BASENAME',
+            '--transform $VARIANT_DIR/mongo/db/modules/enterprise=$SERVER_DIST_BASENAME',
+            '--transform $VARIANT_DIR/mongo=$SERVER_DIST_BASENAME',
             '${TEMPFILE(SOURCES[1:])}',
         ]
     ),
-    BUILD_DIR=env.Dir('$BUILD_DIR').path
+    VARIANT_DIR=env.Dir('$VARIANT_DIR').path
 )
 
 env.Alias('dist-debugsymbols', debug_symbols_dist)
@@ -920,4 +920,4 @@ env.NoCache(debug_symbols_dist)
 
 #final alias
 if not hygienic:
-    env.Alias( "install", "$INSTALL_DIR" )
+    env.Alias( "install", "$DESTDIR" )

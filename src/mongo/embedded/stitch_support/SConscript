@@ -40,18 +40,18 @@ stitchSupportTargets = stitchSupportEnv.Library(
         'stitch_support.cpp',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/db/index/index_access_methods',
-        '$BUILD_DIR/mongo/db/matcher/expressions',
-        '$BUILD_DIR/mongo/db/ops/parsed_update',
-        '$BUILD_DIR/mongo/db/query/collation/collator_factory_icu',
-        '$BUILD_DIR/mongo/db/query/collation/collator_factory_interface',
+        '$VARIANT_DIR/mongo/db/index/index_access_methods',
+        '$VARIANT_DIR/mongo/db/matcher/expressions',
+        '$VARIANT_DIR/mongo/db/ops/parsed_update',
+        '$VARIANT_DIR/mongo/db/query/collation/collator_factory_icu',
+        '$VARIANT_DIR/mongo/db/query/collation/collator_factory_interface',
     ],
     AIB_COMPONENT='stitch-support',
 )
 
 if get_option('install-mode') == 'hygienic':
     env.AutoInstall(
-        '$INSTALL_DIR/include/stitch_support/v1/stitch_support',
+        '$DESTDIR/include/stitch_support/v1/stitch_support',
         source=['stitch_support.h'],
         AIB_COMPONENT='stitch-support',
         AIB_ROLE='dev',
@@ -65,7 +65,7 @@ if get_option('link-model') != 'dynamic-sdk':
             "stitch_support_test.cpp",
         ],
         LIBDEPS=[
-            '$BUILD_DIR/mongo/unittest/unittest',
+            '$VARIANT_DIR/mongo/unittest/unittest',
             'stitch_support',
         ],
         AIB_COMPONENT='stitch-support-test',

@@ -56,13 +56,13 @@ baseEnv.Library('base_fts', [
         'stop_words.cpp',
         'stop_words_list.cpp',
         'tokenizer.cpp',
-        ], LIBDEPS=["$BUILD_DIR/mongo/base",
-                    "$BUILD_DIR/mongo/db/bson/dotted_path_support",
-                    "$BUILD_DIR/mongo/db/common",
-                    "$BUILD_DIR/mongo/db/fts/unicode/unicode",
-                    "$BUILD_DIR/mongo/db/matcher/expressions",
-                    "$BUILD_DIR/mongo/util/md5",
-                    "$BUILD_DIR/third_party/shim_stemmer",
+        ], LIBDEPS=["$VARIANT_DIR/mongo/base",
+                    "$VARIANT_DIR/mongo/db/bson/dotted_path_support",
+                    "$VARIANT_DIR/mongo/db/common",
+                    "$VARIANT_DIR/mongo/db/fts/unicode/unicode",
+                    "$VARIANT_DIR/mongo/db/matcher/expressions",
+                    "$VARIANT_DIR/mongo/util/md5",
+                    "$VARIANT_DIR/third_party/shim_stemmer",
                     ])
 
 env.Library(
@@ -71,13 +71,13 @@ env.Library(
         'fts_query_noop.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ],
 )
 
 env.Library('ftsmongod', [
     'ftsmongod.cpp',
-        ], LIBDEPS=["base_fts","$BUILD_DIR/mongo/base"])
+        ], LIBDEPS=["base_fts","$VARIANT_DIR/mongo/base"])
 
 env.CppUnitTest(
     target='db_fts_test',
@@ -98,8 +98,8 @@ env.CppUnitTest(
         "tokenizer_test.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/db/fts/fts_query_noop",
-        "$BUILD_DIR/mongo/db/matcher/expressions",
+        "$VARIANT_DIR/mongo/db/fts/fts_query_noop",
+        "$VARIANT_DIR/mongo/db/matcher/expressions",
         "base_fts",
     ],
 )

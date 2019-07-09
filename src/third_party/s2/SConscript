@@ -53,18 +53,18 @@ env.Library( "s2",
 	"s2regioncoverer.cc",
 	"s2regionintersection.cc",
 	"s2regionunion.cc",
-    ], LIBDEPS=['$BUILD_DIR/third_party/s2/base/base_s2',
-		'$BUILD_DIR/third_party/s2/strings/strings',
-		'$BUILD_DIR/third_party/s2/util/coding/coding',
-		'$BUILD_DIR/third_party/s2/util/math/math'])
+    ], LIBDEPS=['$VARIANT_DIR/third_party/s2/base/base_s2',
+		'$VARIANT_DIR/third_party/s2/strings/strings',
+		'$VARIANT_DIR/third_party/s2/util/coding/coding',
+		'$VARIANT_DIR/third_party/s2/util/math/math'])
 
 #env.Program('r1interval_test', ['r1interval_test.cc'],
-#            LIBDEPS=['s2', '$BUILD_DIR/third_party/gtest/gtest_with_main'])
+#            LIBDEPS=['s2', '$VARIANT_DIR/third_party/gtest/gtest_with_main'])
 #env.Program('s1angle_test', ['s1angle_test.cc'],
-#            LIBDEPS=['s2', '$BUILD_DIR/third_party/gtest/gtest_with_main'])
+#            LIBDEPS=['s2', '$VARIANT_DIR/third_party/gtest/gtest_with_main'])
 #env.Program('s1interval_test', ['s1interval_test.cc'],
-#            LIBDEPS=['s2', '$BUILD_DIR/third_party/gtest/gtest_with_main'])
+#            LIBDEPS=['s2', '$VARIANT_DIR/third_party/gtest/gtest_with_main'])
 #env.Program('s2regioncoverer_test', ['s2regioncoverer_test.cc'],
-#            LIBDEPS=['s2', '$BUILD_DIR/third_party/gtest/gtest_with_main'])
+#            LIBDEPS=['s2', '$VARIANT_DIR/third_party/gtest/gtest_with_main'])
 #env.Program('s2_test', ['s2_test.cc'],
-#            LIBDEPS=['s2', '$BUILD_DIR/third_party/gtest/gtest_with_main'])
+#            LIBDEPS=['s2', '$VARIANT_DIR/third_party/gtest/gtest_with_main'])

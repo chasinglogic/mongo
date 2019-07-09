@@ -135,9 +135,9 @@ def get_module_sconscripts(modules):
 def __get_src_relative_path(path):
     """Return a path relative to ./src.
 
-    The src directory is important because of its relationship to BUILD_DIR,
+    The src directory is important because of its relationship to VARIANT_DIR,
     established in the SConstruct file.  For variant directories to work properly
-    in SCons, paths relative to the src or BUILD_DIR must often be generated.
+    in SCons, paths relative to the src or VARIANT_DIR must often be generated.
     """
     src_dir = os.path.abspath('src')
     path = os.path.abspath(os.path.normpath(path))
@@ -171,7 +171,7 @@ def __get_module_build_path(module_frame_depth):
     module_frame_depth is the number of frames above the current one in which one can find a
     function from the MongoDB module's build.py function.
     """
-    return os.path.join('$BUILD_DIR', __get_module_path(module_frame_depth + 1))
+    return os.path.join('$VARIANT_DIR', __get_module_path(module_frame_depth + 1))
 
 
 def get_current_module_src_path():
@@ -192,7 +192,7 @@ def get_current_module_build_path():
 
 
 def get_current_module_libdep_name(libdep_rel_path):
-    """Return a $BUILD_DIR relative path to a "libdep_rel_path".
+    """Return a $VARIANT_DIR relative path to a "libdep_rel_path".
 
     The "libdep_rel_path" is relative to the MongoDB module's build.py file.
 

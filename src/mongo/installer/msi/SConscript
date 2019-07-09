@@ -73,7 +73,7 @@ sourcesList = [ "BinaryFragment.wxs",
             ]
 
 # Need to do this in order to get scons to translate path separators into native format
-buildDir = env.Dir("$BUILD_DIR").path
+buildDir = env.Dir("$VARIANT_DIR").path
 if has_option("use-new-tools"):
 	toolBuildDir = "src\mongo-tools"
 else:
@@ -108,7 +108,7 @@ else:
 sourcesList.append("Installer_64.wxs")
 
 sources = ["wxs/" + file for file in sourcesList]
-objects = ["$BUILD_DIR/msi/" + file.replace(".wxs", ".wixobj") for file in sourcesList]
+objects = ["$VARIANT_DIR/msi/" + file.replace(".wxs", ".wixobj") for file in sourcesList]
 
 full_version = env['MONGO_VERSION'].partition('-')[0]
 
@@ -179,7 +179,7 @@ env.Command(objects,
             ' $SOURCES')
 
 #light: link .objs into an msi
-pre_msi = "$BUILD_DIR/msi/${SERVER_DIST_BASENAME}.pre.msi"
+pre_msi = "$VARIANT_DIR/msi/${SERVER_DIST_BASENAME}.pre.msi"
 
 # Suppress VC140_CRT_CRT.MSM Internal Consistency Errors
 # ICE03 - Supress "String overflow"
@@ -200,10 +200,10 @@ pre_msi_cmd = env.Command(pre_msi,
 env.NoCache(pre_msi_cmd)
 
 # Generated Dependencies
-env.Depends(pre_msi_cmd, '$BUILD_DIR/mongo/mongo.exe')
-env.Depends(pre_msi_cmd, '$BUILD_DIR/mongo/mongod.exe')
-env.Depends(pre_msi_cmd, '$BUILD_DIR/mongo/mongos.exe')
-env.Depends(pre_msi_cmd, '$BUILD_DIR/mongo/installer/msi/ca/mongoca.dll')
+env.Depends(pre_msi_cmd, '$VARIANT_DIR/mongo/mongo.exe')
+env.Depends(pre_msi_cmd, '$VARIANT_DIR/mongo/mongod.exe')
+env.Depends(pre_msi_cmd, '$VARIANT_DIR/mongo/mongos.exe')
+env.Depends(pre_msi_cmd, '$VARIANT_DIR/mongo/installer/msi/ca/mongoca.dll')
 env.Depends(pre_msi_cmd, '#src/mongo/installer/compass/Install-Compass.ps1')
 
 # Source Dependencies
@@ -214,7 +214,7 @@ if 'enterprise' in env['MONGO_MODULES']:
     env.Depends(pre_msi_cmd, "#" + enterpriseToolBuildDir + "/mongoldap.exe")
     env.Depends(pre_msi_cmd, "#" + enterpriseToolBuildDir + "/mongocryptd.exe")
 
-msi = "$BUILD_DIR/msi/${SERVER_DIST_BASENAME}.msi"
+msi = "$VARIANT_DIR/msi/${SERVER_DIST_BASENAME}.msi"
 env.Command(msi,
             pre_msi,
             r'$PYTHON buildscripts\msitrim.py ${SOURCES} ${TARGET}')

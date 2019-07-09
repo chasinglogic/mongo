@@ -32,10 +32,10 @@ SRC_ROOT=$(mktemp -d $TEMPDIR/$NAME.XXXXXX)
 
 trap "rm -rf $SRC_ROOT" EXIT
 SRC=${SRC_ROOT}/${PNAME}
-DEST_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$PNAME
+DESTDIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$PNAME
 PATCH_DIR=$($GIT_EXE rev-parse --show-toplevel)/src/third_party/$PNAME/patches
 if $IS_WSL; then
-    DEST_DIR=$(wslpath -u "$DEST_DIR")
+    DESTDIR=$(wslpath -u "$DESTDIR")
     PATCH_DIR=$(wslpath -u "$PATCH_DIR")
 fi
 
@@ -55,7 +55,7 @@ if [ ! -d $SRC ]; then
 fi
 
 
-test -d $DEST_DIR/$NAME && rm -r $DEST_DIR/$NAME
-mkdir -p $DEST_DIR/$NAME
+test -d $DESTDIR/$NAME && rm -r $DESTDIR/$NAME
+mkdir -p $DESTDIR/$NAME
 
-mv $SRC/* $DEST_DIR/$NAME/
+mv $SRC/* $DESTDIR/$NAME/

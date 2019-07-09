@@ -13,8 +13,8 @@ set -o errexit
 VERSION=0.6.2
 NAME=yaml-cpp
 TARBALL=$NAME-$VERSION.tar.gz
-TARBALL_DEST_DIR=$NAME-$NAME-$VERSION
-DEST_DIR=`git rev-parse --show-toplevel`/src/third_party/$NAME-$VERSION
+TARBALL_DESTDIR=$NAME-$NAME-$VERSION
+DESTDIR=`git rev-parse --show-toplevel`/src/third_party/$NAME-$VERSION
 
 if [ ! -f $TARBALL ]; then
     echo "Get tarball"
@@ -23,16 +23,16 @@ fi
 
 tar -zxvf $TARBALL
 
-rm -rf $DEST_DIR
+rm -rf $DESTDIR
 
-mv $TARBALL_DEST_DIR $DEST_DIR
+mv $TARBALL_DESTDIR $DESTDIR
 
 # Prune sources
 echo "Prune tree"
-rm -rf $DEST_DIR/test
-rm -rf $DEST_DIR/util
-rm -f $DEST_DIR/CMakeLists.txt
-rm -f $DEST_DIR/*.cmake*
+rm -rf $DESTDIR/test
+rm -rf $DESTDIR/util
+rm -f $DESTDIR/CMakeLists.txt
+rm -f $DESTDIR/*.cmake*
 
 # Note: There are no config.h or other build artifacts to generate
 echo "Done"

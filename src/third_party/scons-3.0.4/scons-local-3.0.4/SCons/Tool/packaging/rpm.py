@@ -171,16 +171,16 @@ def build_specfile_sections(spec):
     # Default prep, build, install and clean rules
     # TODO: optimize those build steps, to not compile the project a second time
     if 'X_RPM_PREP' not in spec:
-        spec['X_RPM_PREP'] = '[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"' + '\n%setup -q'
+        spec['X_RPM_PREP'] = '[ -n "$RPM_BUILD_DIR" -a "$RPM_BUILD_DIR" != / ] && rm -rf "$RPM_BUILD_DIR"' + '\n%setup -q'
 
     if 'X_RPM_BUILD' not in spec:
-        spec['X_RPM_BUILD'] = '[ ! -e "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && mkdir "$RPM_BUILD_ROOT"'
+        spec['X_RPM_BUILD'] = '[ ! -e "$RPM_BUILD_DIR" -a "$RPM_BUILD_DIR" != / ] && mkdir "$RPM_BUILD_DIR"'
 
     if 'X_RPM_INSTALL' not in spec:
-        spec['X_RPM_INSTALL'] = 'scons --install-sandbox="$RPM_BUILD_ROOT" "$RPM_BUILD_ROOT"'
+        spec['X_RPM_INSTALL'] = 'scons --install-sandbox="$RPM_BUILD_DIR" "$RPM_BUILD_DIR"'
 
     if 'X_RPM_CLEAN' not in spec:
-        spec['X_RPM_CLEAN'] = '[ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"'
+        spec['X_RPM_CLEAN'] = '[ -n "$RPM_BUILD_DIR" -a "$RPM_BUILD_DIR" != / ] && rm -rf "$RPM_BUILD_DIR"'
 
     str = str + SimpleTagCompiler(optional_sections, mandatory=0).compile( spec )
 

@@ -38,7 +38,7 @@ env.Library(
         'system_error.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ],
 )
 
@@ -64,10 +64,10 @@ env.Library(
         'secure_allocator.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/db/server_options_core',
-        '$BUILD_DIR/mongo/util/processinfo',
-        '$BUILD_DIR/mongo/util/secure_zero_memory',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/db/server_options_core',
+        '$VARIANT_DIR/mongo/util/processinfo',
+        '$VARIANT_DIR/mongo/util/secure_zero_memory',
     ],
 )
 

@@ -24,7 +24,7 @@ else
     TEMP_DIR="/tmp"
 fi
 TEMP_DIR=$(mktemp -d $TEMP_DIR/$NAME.XXXXXX)
-DEST_DIR=`git rev-parse --show-toplevel`/src/third_party/$NAME-$VERSION
+DESTDIR=`git rev-parse --show-toplevel`/src/third_party/$NAME-$VERSION
 
 # Check prerequisites: re2c, wget
 if ! [ -x "$(command -v re2c)" ]; then
@@ -53,14 +53,14 @@ tar -zxvf $TARBALL
 
 rm -rf $TEMP_DIR
 mv $TARBALL_DIR $TEMP_DIR
-mkdir $DEST_DIR || true
+mkdir $DESTDIR || true
 
-cp -r $TEMP_DIR/* $DEST_DIR
+cp -r $TEMP_DIR/* $DESTDIR
 
-cd $DEST_DIR
+cd $DESTDIR
 
 # Prune files
-rm -rf $DEST_DIR/tests
+rm -rf $DESTDIR/tests
 rm $DEST_DIT/zones/old-tzcode-32-bit-output.tar.gz || true
 
 # Create parsers

@@ -40,20 +40,20 @@ env.Library(
         env.Idlc("expression_index_knobs.idl")[0],
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
-        "$BUILD_DIR/mongo/db/bson/dotted_path_support",
-        "$BUILD_DIR/mongo/db/index/expression_params",
-        "$BUILD_DIR/mongo/db/index/key_generator",
-        "$BUILD_DIR/mongo/db/index_names",
-        "$BUILD_DIR/mongo/db/matcher/expressions",
-        "$BUILD_DIR/mongo/db/mongohasher",
+        "$VARIANT_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/db/bson/dotted_path_support",
+        "$VARIANT_DIR/mongo/db/index/expression_params",
+        "$VARIANT_DIR/mongo/db/index/key_generator",
+        "$VARIANT_DIR/mongo/db/index_names",
+        "$VARIANT_DIR/mongo/db/matcher/expressions",
+        "$VARIANT_DIR/mongo/db/mongohasher",
         "collation/collator_factory_interface",
         "collation/collator_interface",
         "command_request_response",
         "query_knobs",
     ],
     LIBDEPS_PRIVATE=[
-        "$BUILD_DIR/mongo/idl/server_parameter",
+        "$VARIANT_DIR/mongo/idl/server_parameter",
     ],
 )
 
@@ -63,7 +63,7 @@ env.Library(
         env.Idlc('distinct_command.idl')[0],
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/idl/idl_parser',
+        '$VARIANT_DIR/mongo/idl/idl_parser',
     ],
 )
 
@@ -75,8 +75,8 @@ env.Library(
         "parsed_distinct.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
-        "$BUILD_DIR/mongo/util/fail_point",
+        "$VARIANT_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/util/fail_point",
         "collation/collator_factory_icu",
         "collation/collator_icu",
         "datetime/init_timezone_data",
@@ -93,7 +93,7 @@ env.Library(
         "explain_options.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/base",
     ],
 )
 
@@ -112,16 +112,16 @@ env.Library(
         env.Idlc('count_command.idl')[0],
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/bson/util/bson_extract',
-        '$BUILD_DIR/mongo/db/common',
-        '$BUILD_DIR/mongo/db/namespace_string',
-        '$BUILD_DIR/mongo/db/ops/write_ops_parsers',
-        '$BUILD_DIR/mongo/db/repl/optime',
-        "$BUILD_DIR/mongo/idl/idl_parser",
-        '$BUILD_DIR/mongo/rpc/command_status',
-        '$BUILD_DIR/mongo/rpc/rpc',
-        '$BUILD_DIR/mongo/db/query/hint_parser',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/bson/util/bson_extract',
+        '$VARIANT_DIR/mongo/db/common',
+        '$VARIANT_DIR/mongo/db/namespace_string',
+        '$VARIANT_DIR/mongo/db/ops/write_ops_parsers',
+        '$VARIANT_DIR/mongo/db/repl/optime',
+        "$VARIANT_DIR/mongo/idl/idl_parser",
+        '$VARIANT_DIR/mongo/rpc/command_status',
+        '$VARIANT_DIR/mongo/rpc/rpc',
+        '$VARIANT_DIR/mongo/db/query/hint_parser',
         'query_request',
     ]
 )
@@ -134,10 +134,10 @@ env.Library(
         env.Idlc("tailable_mode.idl")[0],
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
-        "$BUILD_DIR/mongo/db/repl/read_concern_args",
-        "$BUILD_DIR/mongo/db/catalog/collection_catalog",
-        "$BUILD_DIR/mongo/db/pipeline/runtime_constants_idl"
+        "$VARIANT_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/db/repl/read_concern_args",
+        "$VARIANT_DIR/mongo/db/catalog/collection_catalog",
+        "$VARIANT_DIR/mongo/db/pipeline/runtime_constants_idl"
     ],
 )
 
@@ -147,7 +147,7 @@ env.Library(
         env.Idlc('query_knobs.idl')[0]
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/idl/server_parameter'
+        '$VARIANT_DIR/mongo/idl/server_parameter'
     ]
 )
 
@@ -158,8 +158,8 @@ env.Library(
     ],
     LIBDEPS=[
         "collation/collator_factory_mock",
-        "$BUILD_DIR/mongo/db/logical_session_id",
-        "$BUILD_DIR/mongo/db/service_context",
+        "$VARIANT_DIR/mongo/db/logical_session_id",
+        "$VARIANT_DIR/mongo/db/service_context",
     ],
     LIBDEPS_PRIVATE=[
     ],
@@ -172,7 +172,7 @@ env.Library(
     ],
     LIBDEPS=[
         "query_planner_test_lib",
-        "$BUILD_DIR/mongo/unittest/unittest",
+        "$VARIANT_DIR/mongo/unittest/unittest",
     ],
 )
 
@@ -195,7 +195,7 @@ env.Library(
         env.Idlc('hint.idl')[0],
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ],
 )
 
@@ -237,14 +237,14 @@ env.CppUnitTest(
         "view_response_formatter_test.cpp",
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/db/auth/authmocks",
-        "$BUILD_DIR/mongo/db/concurrency/lock_manager",
-        "$BUILD_DIR/mongo/db/pipeline/aggregation_request",
-        "$BUILD_DIR/mongo/db/query_exec",
-        "$BUILD_DIR/mongo/db/service_context_d",
-        "$BUILD_DIR/mongo/db/service_context_test_fixture",
-        "$BUILD_DIR/mongo/dbtests/mocklib",
-        "$BUILD_DIR/mongo/rpc/rpc",
+        "$VARIANT_DIR/mongo/db/auth/authmocks",
+        "$VARIANT_DIR/mongo/db/concurrency/lock_manager",
+        "$VARIANT_DIR/mongo/db/pipeline/aggregation_request",
+        "$VARIANT_DIR/mongo/db/query_exec",
+        "$VARIANT_DIR/mongo/db/service_context_d",
+        "$VARIANT_DIR/mongo/db/service_context_test_fixture",
+        "$VARIANT_DIR/mongo/dbtests/mocklib",
+        "$VARIANT_DIR/mongo/rpc/rpc",
         "collation/collator_factory_mock",
         "collation/collator_interface_mock",
         "command_request_response",

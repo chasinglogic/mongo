@@ -13,18 +13,18 @@ env.Library(
         'bench.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/client/clientdriver_minimal',
-        '$BUILD_DIR/mongo/db/logical_session_id',
-        '$BUILD_DIR/mongo/scripting/bson_template_evaluator',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/client/clientdriver_minimal',
+        '$VARIANT_DIR/mongo/db/logical_session_id',
+        '$VARIANT_DIR/mongo/scripting/bson_template_evaluator',
     ]
 )
 
 generateJSErrorCodes = env.Command(
     target=['error_codes.js'],
     source=[
-        '$BUILD_DIR/mongo/base/generate_error_codes.py',
-        '$BUILD_DIR/mongo/base/error_codes.err',
+        '$VARIANT_DIR/mongo/base/generate_error_codes.py',
+        '$VARIANT_DIR/mongo/base/error_codes.err',
         'error_codes.tpl.js',
     ],
     action=['$PYTHON ${SOURCES[0]} ${SOURCES[1]} ${SOURCES[2]}=${TARGETS[0]}'])
@@ -77,7 +77,7 @@ env.Library(
         'mongo.cpp',
     ],
     LIBDEPS=[
-        "$BUILD_DIR/mongo/base",
+        "$VARIANT_DIR/mongo/base",
     ],
 )
 
@@ -87,11 +87,11 @@ env.Library(
         'shell_options_storage.cpp',
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/client/connection_string',
-        '$BUILD_DIR/mongo/util/cmdline_utils/cmdline_utils',
+        '$VARIANT_DIR/mongo/client/connection_string',
+        '$VARIANT_DIR/mongo/util/cmdline_utils/cmdline_utils',
     ],
 )
 
@@ -102,10 +102,10 @@ env.Library(
     ],
     LIBDEPS=[
         'shell_options_storage',
-        '$BUILD_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/base',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/util/options_parser/options_parser',
+        '$VARIANT_DIR/mongo/util/options_parser/options_parser',
     ],
 )
 
@@ -120,13 +120,13 @@ env.Library(
     ],
     LIBDEPS=[
         'benchrun',
-        '$BUILD_DIR/mongo/base/environment_buffer',
-        '$BUILD_DIR/mongo/client/clientdriver_network',
-        '$BUILD_DIR/mongo/db/mongohasher',
-        '$BUILD_DIR/mongo/db/traffic_reader',
-        '$BUILD_DIR/mongo/scripting/scripting',
-        '$BUILD_DIR/mongo/transport/message_compressor',
-        '$BUILD_DIR/mongo/util/password',
+        '$VARIANT_DIR/mongo/base/environment_buffer',
+        '$VARIANT_DIR/mongo/client/clientdriver_network',
+        '$VARIANT_DIR/mongo/db/mongohasher',
+        '$VARIANT_DIR/mongo/db/traffic_reader',
+        '$VARIANT_DIR/mongo/scripting/scripting',
+        '$VARIANT_DIR/mongo/transport/message_compressor',
+        '$VARIANT_DIR/mongo/util/password',
         'shell_options_storage',
     ]
 )
@@ -144,17 +144,17 @@ kmsEnv.Library(
         kmsEnv.Idlc("kms.idl")[0],
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/base/secure_allocator',
+        '$VARIANT_DIR/mongo/base/secure_allocator',
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/base',
-        '$BUILD_DIR/mongo/crypto/aead_encryption',
-        '$BUILD_DIR/mongo/db/commands/test_commands_enabled',
-        '$BUILD_DIR/mongo/util/net/network',
-        '$BUILD_DIR/mongo/util/net/socket',
-        '$BUILD_DIR/mongo/util/net/ssl_manager',
-        '$BUILD_DIR/mongo/util/net/ssl_options',
-        '$BUILD_DIR/third_party/shim_kms_message',
+        '$VARIANT_DIR/mongo/base',
+        '$VARIANT_DIR/mongo/crypto/aead_encryption',
+        '$VARIANT_DIR/mongo/db/commands/test_commands_enabled',
+        '$VARIANT_DIR/mongo/util/net/network',
+        '$VARIANT_DIR/mongo/util/net/socket',
+        '$VARIANT_DIR/mongo/util/net/ssl_manager',
+        '$VARIANT_DIR/mongo/util/net/ssl_options',
+        '$VARIANT_DIR/third_party/shim_kms_message',
     ],
 )
 
@@ -164,7 +164,7 @@ env.Library(
         "kms_shell.cpp",
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/shell_core',
+        '$VARIANT_DIR/mongo/shell_core',
         'kms',
     ],
 )
@@ -179,12 +179,12 @@ scriptingEnv.Library(
         scriptingEnv.Idlc("fle_shell_options.idl")[0],
     ],
     LIBDEPS_PRIVATE=[
-        '$BUILD_DIR/mongo/crypto/aead_encryption',
-        '$BUILD_DIR/mongo/crypto/symmetric_crypto',
-        '$BUILD_DIR/mongo/client/clientdriver_minimal',
-        '$BUILD_DIR/mongo/scripting/scripting',
-        '$BUILD_DIR/mongo/shell/shell_options_register',
-        '$BUILD_DIR/third_party/shim_mozjs',
+        '$VARIANT_DIR/mongo/crypto/aead_encryption',
+        '$VARIANT_DIR/mongo/crypto/symmetric_crypto',
+        '$VARIANT_DIR/mongo/client/clientdriver_minimal',
+        '$VARIANT_DIR/mongo/scripting/scripting',
+        '$VARIANT_DIR/mongo/shell/shell_options_register',
+        '$VARIANT_DIR/third_party/shim_mozjs',
         'kms',
     ],
 )
@@ -197,7 +197,7 @@ env.CppUnitTest(
         'shell_utils_test.cpp'
     ],
     LIBDEPS=[
-        '$BUILD_DIR/mongo/util/signal_handlers',
+        '$VARIANT_DIR/mongo/util/signal_handlers',
         'kms' if get_option('ssl') == 'on' else [],
         'shell_options_register',
         'shell_utils',
