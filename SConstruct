@@ -1046,6 +1046,7 @@ envDict = dict(BUILD_ROOT=buildDir,
                PREFIX=get_option('prefix'),
                CONFIG_HEADER_DEFINES={},
                LIBDEPS_TAG_EXPANSIONS=[],
+               AIB_PACKAGE_PREFIX='mongodb-',
                )
 
 env = Environment(variables=env_vars, **envDict)

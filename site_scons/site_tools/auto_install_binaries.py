@@ -17,6 +17,7 @@ from SCons.Tool import install
 
 ALIAS_MAP = 'AIB_ALIAS_MAP'
 SUFFIX_MAP = 'AIB_SUFFIX_MAP'
+PACKAGE_PREFIX = 'AIB_PACKAGE_PREFIX'
 ROLE_DEPENDENCIES = 'AIB_ROLE_DEPENDENCIES'
 COMPONENTS = 'AIB_COMPONENTS_EXTRA'
 ROLES = 'AIB_ROLES'
@@ -348,7 +349,11 @@ def finalize_install_dependencies(env):
 
             tar_alias = generate_alias(component, role, target="tar")
             tar = env.TarBall(
-                "{}-{}.tar".format(component, role),
+                "{prefix}{component}-{role}.tar".format(
+                    prefix=env.subst(env[PACKAGE_PREFIX]),
+                    component=component,
+                    role=role,
+                ),
                 source=installed_component_files,
                 AIB_COMPONENT=component,
                 AIB_ROLE=role,
@@ -456,6 +461,8 @@ def generate(env):  # pylint: disable=too-many-statements
     env["PREFIX_INCLUDE_DIR"] = "$INSTALL_DIR/include"
     env["PREFIX_SHARE_DIR"]  = "$INSTALL_DIR/share"
     env["PREFIX_DEBUG_DIR"] = _aib_debugdir
+    if PACKAGE_PREFIX not in env:
+        env[PACKAGE_PREFIX] = ""
     env[SUFFIX_MAP] = {}
     env[ALIAS_MAP] = defaultdict(dict)
     env[ROLE_DEPENDENCIES] = {
