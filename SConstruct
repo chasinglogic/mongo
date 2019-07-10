@@ -688,7 +688,7 @@ def variable_distsrc_converter(val):
 
 variables_files = variable_shlex_converter(get_option('variables-files'))
 for file in variables_files:
-    print(("Using variable customization file %s" % file))
+    print("Using variable customization file {}".format(file))
 
 env_vars = Variables(
     files=variables_files,
@@ -4033,6 +4033,16 @@ env.SConscript(
         'env',
     ],
     variant_dir='$BUILD_DIR',
+)
+
+env.SConscript(
+    [
+        'jstests/SConscript',
+    ],
+    duplicate=False,
+    exports=[
+        'env',
+    ],
 )
 
 allTargets = ['core', 'tools', 'unittests', 'integration_tests', 'benchmarks']
