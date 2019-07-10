@@ -1046,7 +1046,7 @@ env = Environment(variables=env_vars, **envDict)
 
 if get_option('dest-dir') is None:
     destDir = env.Dir('$BUILD_DIR/install')
-    if str(destDir) != env.subst(get_option('prefix')):
+    if str(destDir) != str(env.Dir(get_option('prefix'))):
         destDir = destDir.Dir(get_option('prefix')[1:])
 else:
     destDir = get_option('dest-dir')
@@ -3838,7 +3838,7 @@ def getSystemInstallName():
 # This function will add the version.txt file to the source tarball
 # so that versioning will work without having the git repo available.
 def add_version_to_distsrc(env, archive):
-    version_file_path = env.subst("$MONGO_DIST_SRC_PREFIX") + "version.json"
+    version_file_path = env.Dir("$MONGO_DIST_SRC_PREFIX").abspath + "version.json"
     if version_file_path not in archive:
         version_data = {
             'version': env['MONGO_VERSION'],
@@ -4070,4 +4070,5 @@ env.NoCache(env.FindInstalledFiles())
 # We need to replace the values in the BUILD_TARGETS object in-place
 # because SCons wants it to be a particular object.
 for i, s in enumerate(BUILD_TARGETS):
-    BUILD_TARGETS[i] = env.subst(s)
+    if '$' in s:
+        BUILD_TARGETS[i] = env.File(s).abspath
