@@ -1012,25 +1012,34 @@ envDict = dict(BUILD_ROOT=buildDir,
 
 env = Environment(variables=env_vars, **envDict)
 
-if get_option('dest-dir') is None:
-    destDir = env.Dir('$BUILD_ROOT/install')
-    prefix = env.Dir(get_option('prefix'))
-    if destDir != prefix:
-        installDir = destDir.Dir(get_option('prefix')[1:])
-    else:
-        installDir = destDir
-else:
-    destDir = get_option('dest-dir')
-    if destDir[0] not in ['$', '#']:
-        if not os.path.isabs(destDir):
-            print("Do not use relative paths with --dest-dir")
-            Exit(1)
-    installDir = destDir
+def generate_dest_dir(prefix=None):
+    """
+    DESTDIR needs to be calculated by reading prefix. 
 
-env['INSTALL_DIR'] = installDir
-env['DEST_DIR'] = destDir
-if get_option('legacy-tarball') == 'true':
-    env['INSTALL_DIR'] = env.Dir('$INSTALL_DIR').Dir('$SERVER_DIST_BASENAME')
+    Some conditions can cause DESTDIR to need to be recalculated.
+    """
+    if prefix is None:
+        prefix = env.subst(get_option('prefix'))
+    if get_option('dest-dir') is None:
+        destDir = env.Dir('$BUILD_ROOT/install')
+        if str(destDir) != prefix:
+            if prefix[0] == '/':
+                preifx = prefix[1:]
+            installDir = destDir.Dir(prefix)
+        else:
+            installDir = destDir
+    else:
+        destDir = get_option('dest-dir')
+        if destDir[0] not in ['$', '#']:
+            if not os.path.isabs(destDir):
+                print("Do not use relative paths with --dest-dir")
+                Exit(1)
+        installDir = destDir
+
+    env['INSTALL_DIR'] = installDir
+    env['DEST_DIR'] = destDir
+
+generate_dest_dir()
 
 del envDict
 
@@ -1055,12 +1064,12 @@ env.AddMethod(mongo_platform.env_os_is_wrapper, 'TargetOSIs')
 env.AddMethod(mongo_platform.env_get_os_name_wrapper, 'GetTargetOSName')
 
 def fatal_error(env, msg, *args):
-    print((msg.format(*args)))
+    print(msg.format(*args))
     Exit(1)
 
 def conf_error(env, msg, *args):
-    print((msg.format(*args)))
-    print(("See {0} for details".format(env.File('$CONFIGURELOG').abspath)))
+    print(msg.format(*args))
+    print("See {0} for details".format(env.File('$CONFIGURELOG').abspath))
     Exit(1)
 
 env.AddMethod(fatal_error, 'FatalError')
@@ -1079,7 +1088,7 @@ else:
 env.AddMethod(lambda env: env['VERBOSE'], 'Verbose')
 
 if has_option('variables-help'):
-    print((env_vars.GenerateHelpText(env)))
+    print(env_vars.GenerateHelpText(env))
     Exit(0)
 
 unknown_vars = env_vars.UnknownVariables()
@@ -1293,7 +1302,7 @@ else:
     env['TARGET_ARCH'] = detected_processor
 
 if env['TARGET_OS'] not in os_macros:
-    print(("No special config for [{0}] which probably means it won't work".format(env['TARGET_OS'])))
+    print("No special config for [{0}] which probably means it won't work".format(env['TARGET_OS']))
 elif not detectConf.CheckForOS(env['TARGET_OS']):
     env.ConfError("TARGET_OS ({0}) is not supported by compiler", env['TARGET_OS'])
 
@@ -1428,8 +1437,8 @@ if link_model.startswith("dynamic"):
 
     if env.TargetOSIs('darwin'):
         if link_model.startswith('dynamic'):
-            print(("WARNING: Building MongoDB server with dynamic linking " +
-                  "on macOS is not supported. Static linking is recommended."))
+            print("WARNING: Building MongoDB server with dynamic linking " +
+                  "on macOS is not supported. Static linking is recommended.")
 
         if link_model == "dynamic-strict":
             # Darwin is strict by default
@@ -2735,7 +2744,7 @@ def doConfigure(myenv):
         llvm_symbolizer = get_option('llvm-symbolizer')
         if os.path.isabs(llvm_symbolizer):
             if not myenv.File(llvm_symbolizer).exists():
-                print(("WARNING: Specified symbolizer '%s' not found" % llvm_symbolizer))
+                print("WARNING: Specified symbolizer '%s' not found" % llvm_symbolizer)
                 llvm_symbolizer = None
         else:
             llvm_symbolizer = myenv.WhereIs(llvm_symbolizer)
@@ -3199,7 +3208,7 @@ def doConfigure(myenv):
         # Either crypto engine is native,
         # or it's OpenSSL and has been checked to be working.
         conf.env.SetConfigHeaderDefine("MONGO_CONFIG_SSL")
-        print(("Using SSL Provider: {0}".format(ssl_provider)))
+        print("Using SSL Provider: {0}".format(ssl_provider))
     else:
         ssl_provider = "none"
 
@@ -3221,7 +3230,7 @@ def doConfigure(myenv):
         files = ['ssleay32.dll', 'libeay32.dll']
         for extra_file in files:
             if not addOpenSslLibraryToDistArchive(extra_file):
-                print(("WARNING: Cannot find SSL library '%s'" % extra_file))
+                print("WARNING: Cannot find SSL library '%s'" % extra_file)
 
     def checkHTTPLib(required=False):
         # WinHTTP available on Windows
@@ -3695,6 +3704,8 @@ if get_option('install-mode') == 'hygienic':
         ),
     })
 
+    env.AddPackageNameAlias(component="dist", role="runtime", name="${SERVER_DIST_BASENAME[8:]}")
+
     if env['PLATFORM'] == 'posix':
         env.AppendUnique(
             RPATH=[
@@ -3840,6 +3851,9 @@ def add_version_to_distsrc(env, archive):
 env.AddDistSrcCallback(add_version_to_distsrc)
 
 env['SERVER_DIST_BASENAME'] = env.subst('mongodb-%s-$MONGO_DISTNAME' % (getSystemInstallName()))
+if get_option('legacy-tarball') == 'true':
+    env['PREFIX'] = env.subst('$SERVER_DIST_BASENAME')
+    generate_dest_dir(prefix=env['PREFIX'])
 
 module_sconscripts = moduleconfig.get_module_sconscripts(mongo_modules)
 

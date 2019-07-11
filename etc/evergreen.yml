@@ -3558,7 +3558,16 @@ tasks:
     - func: "build new tools"
     - func: "scons compile"
       vars:
-        targets: core tools dist dist-debugsymbols distsrc-${ext|tgz} ${msi_target|} ${mh_target|}
+        targets: tar-dist
+        task_compile_flags: >-
+          --dest-dir="${workdir}"
+          --use-new-tools
+          --build-mongoreplay="${build_mongoreplay}"
+          --install-mode=hygienic
+          --legacy-tarball
+    - func: "scons compile"
+      vars:
+        targets: core tools dist-debugsymbols distsrc-${ext|tgz} ${msi_target|} ${mh_target|}
         task_compile_flags: >-
           --use-new-tools
           --build-mongoreplay="${build_mongoreplay}"

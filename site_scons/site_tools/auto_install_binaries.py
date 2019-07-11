@@ -17,9 +17,11 @@ from SCons.Tool import install
 
 ALIAS_MAP = "AIB_ALIAS_MAP"
 SUFFIX_MAP = "AIB_SUFFIX_MAP"
+PACKAGE_ALIAS_MAP = "AIB_PACKAGE_ALIAS_MAP"
 PACKAGE_PREFIX = "AIB_PACKAGE_PREFIX"
 ROLE_DEPENDENCIES = "AIB_ROLE_DEPENDENCIES"
 COMPONENTS = "AIB_COMPONENTS_EXTRA"
+INSTALL_ACTIONS = "AIB_INSTALL_ACTIONS"
 ROLES = "AIB_ROLES"
 
 PRIMARY_COMPONENT = "AIB_COMPONENT"
@@ -50,11 +52,24 @@ SuffixMap = namedtuple(
 )
 
 def generate_alias(component, role, target="install"):
+    """Generate a scons alias for the component and role combination"""
     return "{target}-{component}{role}".format(
         target=target,
         component=component,
         role="" if role == "runtime" else "-" + role,
     )
+
+
+def get_package_name(env, component, role, suffix=""):
+    """Return the package file name for the component and role combination."""
+    combination = (component, role)
+    basename = env.subst(
+        env[PACKAGE_ALIAS_MAP].get(
+            combination,
+            "{component}-{role}".format(component=component, role=role)
+        )
+    )
+    return '{prefix}{basename}'.format(basename=basename, prefix=env.subst(env[PACKAGE_PREFIX]))
 
 
 def get_dependent_actions(
@@ -85,10 +100,13 @@ def get_dependent_actions(
     #
     # If they are overlapping then that means we can't transition to a
     # new role during scanning.
-    can_transfer = (
-        non_transitive_roles
-        and roles.isdisjoint(non_transitive_roles)
-    )
+    if "base" not in roles:
+        can_transfer = (
+            non_transitive_roles
+            and roles.isdisjoint(non_transitive_roles)
+        )
+    else:
+        can_transfer = True
 
     node_roles = {
         role for role
@@ -97,7 +115,7 @@ def get_dependent_actions(
     }
     if (
         # TODO: make the "always transitive" roles configurable
-        "common" not in node_roles
+        "base" not in node_roles
         # If we are not transferrable
         and not can_transfer
         # Checks if we are actually crossing a boundry
@@ -117,19 +135,19 @@ def get_dependent_actions(
     return actions
 
 
-def scan_for_transitive_install(node, env, path=None, cb=None):
+def scan_for_transitive_install(node, env, cb=None):
     """Walk the children of node finding all installed dependencies of it."""
     results = []
     install_sources = node.sources
     # Filter out all
     components = {
         component for component
-        in getattr(node.sources[0].attributes, "aib_components", set())
+        in getattr(node.sources[0].attributes, COMPONENTS, set())
         if component != "all"
     }
     roles = {
         role for role
-        in getattr(node.sources[0].attributes, "aib_roles", set())
+        in getattr(node.sources[0].attributes, ROLES, set())
         if role != "meta"
     }
     # TODO: add fancy configurability
@@ -159,60 +177,19 @@ def scan_for_transitive_install(node, env, path=None, cb=None):
     return results
 
 
-def collect_transitive_files(sources, env, ignore_component_boundries=False):
-    """Collect all transitive files for node."""
-    dependent_components = {}
-
-    def check_component_boundries(
-            components,
-            roles,
-            non_transitive_roles,
-            node,
-            node_roles,
-            aib_actions,
-    ):
-        # Filter out all, otherwise it would always share a component
-        node_components = {
-            component for component
-            in getattr(node.sources[0].attributes, "aib_components", set())
-            if component != "all"
-        }
-        shares_component = not node_components.isdisjoint(components)
-        if not shares_component:
-            dependent_components = dependent_components.union(node_components)
-
-        # TODO: make the always transitive roles configurable
-        #
-        # Check if we're crossing a component boundry. Unless we're one of
-        # the "special" always transitive roles we should not cross
-        # component boundries.
-        if (
-            not ignore_component_boundries
-            and "common" not in node_roles
-            and not shares_component
-        ):
-            return []
-        return aib_actions
-
-    scanned_components = set()
+def collect_transitive_files(env, source):
+    """Collect all transitive files for source where source is a list of either Alias or File nodes."""
     files = []
-    for source in sources:
-        component = getattr(source.sources[0].attributes, "aib_components", set())
-        if not component:
+
+    for s in source:
+        if isinstance(s, SCons.Node.FS.File):
+            files.append(s)
             continue
+        else:
+            files.extend(collect_transitive_files(env, s.children()))
 
-        diff = component.difference(scanned_components)
-        if not diff:
-            continue
+    return files
 
-        scanned_components = scanned_components.union(component)
-        files.extend(scan_for_transitive_install(source, env))
-
-    files.extend(sources)
-    return {
-        "dependent_components": dependent_components,
-        "files": files,
-    }
 
 def tarball_builder(target, source, env):
     """Build a tarball of the AutoInstall'd sources."""
@@ -220,21 +197,20 @@ def tarball_builder(target, source, env):
         return
     if not isinstance(source, list):
         source = [source]
-    transitive_files = collect_transitive_files(
-        source,
-        env,
-        ignore_component_boundries=True
-    )
+    else:
+        source = env.Flatten(source)
+
+    transitive_files = collect_transitive_files(env, source)
     common_ancestor = env.Dir("$DEST_DIR").get_abspath()
-    paths = [file.get_abspath() for file in transitive_files["files"]]
+    paths = {file.get_abspath() for file in transitive_files}
     relative_files = [os.path.relpath(path, common_ancestor) for path in paths]
     # Target name minus the .gz
     # TODO: $PKGDIR support
-    tar_name = str(target[0])[0:-3]
+    tar_name = str(target[0])
     tar_cmd = SCons.Action._subproc(
         env,
         shlex.split(
-            "tar -cvf {tarball} -C {ancestor} {files}".format(
+            "tar -P -czf {tarball} -C {ancestor} {files}".format(
                 tarball=tar_name,
                 ancestor=common_ancestor,
                 files=" ".join(relative_files),
@@ -242,10 +218,24 @@ def tarball_builder(target, source, env):
         ),
     )
     tar_cmd.wait()
-    gzip_cmd = SCons.Action._subproc(
-        env, shlex.split("gzip -9 {tarball}".format(tarball=tar_name))
+
+
+def package_builder_string_func(target, source, env):
+    """Print a human-friendly string when package builders are called."""
+    alias_name = str(source[0])
+    split = alias_name.split("-")
+    component = "-".join(split[1:-1])
+    # It's a runtime role so the role is missing
+    if not component:
+        component = split[-1]
+        role = "runtime"
+    else:
+        role = split[-1]
+    return "Building package {} from component {} and role {}".format(
+        target[0],
+        component,
+        role
     )
-    gzip_cmd.wait()
 
 
 def auto_install(env, target, source, **kwargs):
@@ -313,6 +303,8 @@ def auto_install(env, target, source, **kwargs):
     for component, role in itertools.product(components, roles):
         alias_name = generate_alias(component, role)
         alias = env.Alias(alias_name, actions)
+        setattr(alias[0].attributes, COMPONENTS, components)
+        setattr(alias[0].attributes, ROLES, roles)
         if role != "base":
             env.Depends(alias, env.Alias(generate_alias(component, "base")))
         if not (component == "common" and role == "base"):
@@ -339,40 +331,26 @@ def finalize_install_dependencies(env):
     for component, rolemap in env[ALIAS_MAP].items():
         for role, info in rolemap.items():
 
+            aliases = [info.alias]
             if common_rolemap and component != "common" and role in common_rolemap:
                 env.Depends(info.alias, common_rolemap[role].alias)
+                aliases.extend(common_rolemap[role].alias)
 
             for dependency in env[ROLE_DEPENDENCIES].get(role, []):
                 dependency_info = rolemap.get(dependency, [])
                 if dependency_info:
                     env.Depends(info.alias, dependency_info.alias)
 
-            installed_component_files = [
-                file for file in installed_files
-                if (
-                    component in getattr(file.sources[0].attributes, COMPONENTS, [])
-                    and (
-                        role in getattr(file.sources[0].attributes, ROLES, [])
-                        # TODO: make configurable
-                        or "common" in getattr(file.sources[0].attributes, ROLES, [])
-                    )
-                )
-            ]
-
-            tar_alias = generate_alias(component, role, target="tar")
+            pkg_name = get_package_name(env, component, role)
             tar = env.TarBall(
-                "{prefix}{component}-{role}.tar.gz".format(
-                    prefix=env.subst(env[PACKAGE_PREFIX]),
-                    component=component,
-                    role=role,
-                ),
-                source=installed_component_files,
+                "{}.tar.gz".format(pkg_name),
+                source=aliases,
                 AIB_COMPONENT=component,
                 AIB_ROLE=role,
             )
             env.NoCache(tar)
+            tar_alias = generate_alias(component, role, target="tar")
             env.Alias(tar_alias, tar)
-            env.Depends(tar, info.alias)
 
 
 def auto_install_emitter(target, source, env):
@@ -429,6 +407,17 @@ def add_suffix_mapping(env, source, target=None):
     env[SUFFIX_MAP].update({env.subst(key): value for key, value in source.items()})
 
 
+def add_package_name_alias(env, source=None, target=None, name="", component=None, role=None):
+    """Add a package name mapping for the combination of component and role."""
+    if not name:
+        raise Exception("when setting a package name alias must provide a name parameter")
+    if source is not None and component is None:
+        component = source
+    if target is not None and role is None:
+        role = target
+    env[PACKAGE_ALIAS_MAP][(component, role)] = name
+
+
 def suffix_mapping(env, source=False, target=False, **kwargs):
     """Generate a SuffixMap object from source and target."""
     return SuffixMap(
@@ -469,7 +458,12 @@ def list_targets(env, **kwargs):
 
 def generate(env):  # pylint: disable=too-many-statements
     """Generate the auto install builders."""
-    bld = SCons.Builder.Builder(action=tarball_builder)
+    bld = SCons.Builder.Builder(
+        action=SCons.Action.Action(
+            tarball_builder, 
+            package_builder_string_func,
+        )
+    )
     env.Append(BUILDERS={"TarBall": bld})
 
     env["PREFIX_BIN_DIR"] = "$INSTALL_DIR/bin"
@@ -480,6 +474,7 @@ def generate(env):  # pylint: disable=too-many-statements
     env["PREFIX_DEBUG_DIR"] = _aib_debugdir
     env[PACKAGE_PREFIX] = env.get(PACKAGE_PREFIX, "")
     env[SUFFIX_MAP] = {}
+    env[PACKAGE_ALIAS_MAP] = {}
     env[ALIAS_MAP] = defaultdict(dict)
     env[ROLE_DEPENDENCIES] = {
         "debug": [
@@ -502,6 +497,7 @@ def generate(env):  # pylint: disable=too-many-statements
 
     env.AddMethod(suffix_mapping, "SuffixMap")
     env.AddMethod(add_suffix_mapping, "AddSuffixMapping")
+    env.AddMethod(add_package_name_alias, "AddPackageNameAlias")
     env.AddMethod(auto_install, "AutoInstall")
     env.AddMethod(finalize_install_dependencies, "FinalizeInstallDependencies")
     env.Tool("install")

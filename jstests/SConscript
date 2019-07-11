@@ -6,7 +6,7 @@ Import("get_option")
 env = env.Clone()
 
 if not get_option("install-mode") == "hygienic":
-    env.Return()
+    Return()
 
 for jstest in env.Glob("**/*.js"):
     env.AutoInstall(
