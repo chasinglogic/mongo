@@ -103,14 +103,13 @@ def discover_module_directories(module_root, allowed_modules):
     return found_modules
 
 
-def configure_modules(modules, conf):
+def configure_modules(modules, conf, env):
     """Run the configure() function in the build.py python modules for each module in "modules".
 
     The modules were created by discover_modules.
 
     The configure() function should prepare the Mongo build system for building the module.
     """
-    env = conf.env
     env['MONGO_MODULES'] = []
     for module in modules:
         name = module.name

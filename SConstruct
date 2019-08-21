@@ -3580,7 +3580,7 @@ def doConfigure(myenv):
             myenv.ConfError("Version of mongoc is too old. Version 1.13+ required")
 
     # ask each module to configure itself and the build environment.
-    moduleconfig.configure_modules(mongo_modules, conf)
+    moduleconfig.configure_modules(mongo_modules, conf, env)
 
     # Resolve --enable-free-mon
     if free_monitoring == "auto":
