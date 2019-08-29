@@ -6,11 +6,10 @@ from collections import defaultdict
 Import("env")
 Import("get_option")
 
-env = env.Clone()
-
 if not get_option("install-mode") == "hygienic":
     Return()
 
+env = env.Clone()
 jstests = env.Glob("**/*.js")
 
 # Group by directory to avoid making a million calls to AutoInstall

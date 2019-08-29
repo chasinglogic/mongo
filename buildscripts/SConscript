@@ -1,0 +1,38 @@
+Import("env")
+Import("get_option")
+
+if not get_option("install-mode") == "hygienic":
+    Return()
+
+env = env.Clone()
+
+env.AutoInstall(
+    target="$PREFIX_BINDIR/resmokelib",
+    source=env.Glob("resmokelib/**/*"),
+    AIB_COMPONENT="resmoke",
+    AIB_COMPONENTS_EXTRA=[
+        "tests",
+        "unittests",
+    ]
+)
+
+env.AutoInstall(
+    target="$PREFIX_BINDIR/resmoke.py",
+    source=[env.File("resmoke.py")],
+    AIB_COMPONENT="resmoke",
+    AIB_COMPONENTS_EXTRA=[
+        "tests",
+        "unittests",
+    ]
+)
+
+env.AutoInstall(
+    "$PREFIX_CONFDIR/resmoke",
+    source=env.Glob("resmokeconfig/**/*"),
+    AIB_COMPONENT="resmoke",
+    AIB_COMPONENTS_EXTRA=[
+        "tests",
+        "unittests",
+    ]
+)
+
