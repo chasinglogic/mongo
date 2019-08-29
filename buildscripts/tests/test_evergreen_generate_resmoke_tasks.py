@@ -836,7 +836,7 @@ class GenerateSubSuitesTest(unittest.TestCase):
         ]
 
         with patch(ns("suitesconfig")) as suitesconfig_mock:
-            evg = MagicMock()
+            evg = Mock()
             suitesconfig_mock.get_suite.return_value.tests = \
                 [runtime[0] for runtime in tests_runtimes]
             config_options = MagicMock(suite="suite")

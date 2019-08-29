@@ -15,6 +15,7 @@ def get_named_suites():
     # Skip "with_*server" and "no_server" because they do not define any test files to run.
     executor_only = {"with_server", "with_external_server", "no_server"}
     names = [name for name in _config.NAMED_SUITES.keys() if name not in executor_only]
+    names = list(_config.NAMED_SUITES.keys())
     names.sort()
     return names
 
