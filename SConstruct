@@ -4184,6 +4184,15 @@ env.SConscript(
     ],
 )
 
+env.SConscript(
+    dirs=[
+        'buildscripts',
+    ],
+    duplicate=False,
+    exports=[
+        'env',
+    ],
+)
 
 allTargets = ['core', 'tools', 'unittests', 'integration_tests', 'benchmarks']
 
