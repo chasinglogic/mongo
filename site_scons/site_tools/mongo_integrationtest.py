@@ -44,8 +44,18 @@ def build_cpp_integration_test(env, target, source, **kwargs):
 
 
 def generate(env):
-    env.Command('$INTEGRATION_TEST_LIST', env.Value(_integration_tests),
-                Action(integration_test_list_builder_action, 'Generating $TARGET'))
+    test_list = env.Command('$INTEGRATION_TEST_LIST', env.Value(_integration_tests),
+                            Action(integration_test_list_builder_action, 'Generating $TARGET'))
+
+    if env.GetOption("install-mode") == "hygienic":
+        env.AutoInstall(
+            target="$PREFIX_CONFDIR/resmokeconfig",
+            source=test_list,
+            AIB_COMPONENT="unittests",
+            AIB_COMPONENTS_EXTRA=["tests"],
+            AIB_ROLE="runtime",
+        )
+    
     env.AddMethod(register_integration_test, 'RegisterIntegrationTest')
     env.AddMethod(build_cpp_integration_test, 'CppIntegrationTest')
     env.Alias('$INTEGRATION_TEST_ALIAS', '$INTEGRATION_TEST_LIST')

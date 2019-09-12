@@ -59,8 +59,18 @@ def build_cpp_unit_test(env, target, source, **kwargs):
 
 
 def generate(env):
-    env.Command('$UNITTEST_LIST', env.Value(_unittests),
-                Action(unit_test_list_builder_action, 'Generating $TARGET'))
+    test_list = env.Command('$UNITTEST_LIST', env.Value(_unittests),
+                            Action(unit_test_list_builder_action, 'Generating $TARGET'))
+
+    if env.GetOption("install-mode") == "hygienic":
+        env.AutoInstall(
+            target="$PREFIX_CONFDIR/resmokeconfig",
+            source=test_list,
+            AIB_COMPONENT="unittests",
+            AIB_COMPONENTS_EXTRA=["tests"],
+            AIB_ROLE="runtime",
+        )
+    
     env.AddMethod(register_unit_test, 'RegisterUnitTest')
     env.AddMethod(build_cpp_unit_test, 'CppUnitTest')
     env.Alias('$UNITTEST_ALIAS', '$UNITTEST_LIST')

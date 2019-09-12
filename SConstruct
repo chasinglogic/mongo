@@ -1035,6 +1035,11 @@ envDict = dict(BUILD_ROOT=buildDir,
 
 env = Environment(variables=env_vars, **envDict)
 
+if get_option('install-mode') == 'hygienic':
+    env['UNITTEST_LIST'] = '$BUILD_DIR/unittests.txt'
+    env['LIBFUZZER_TEST_LIST'] = '$BUILD_DIR/libfuzzer_tests.txt'
+    env['INTEGRATION_TEST_LIST'] = '$BUILD_DIR/integration_tests.txt'
+
 
 del envDict
 

@@ -55,8 +55,9 @@ def build_cpp_libfuzzer_test(env, target, source, **kwargs):
 
 
 def generate(env):
-    env.Command('$LIBFUZZER_TEST_LIST', env.Value(_libfuzzer_tests),
-                Action(libfuzzer_test_list_builder_action, "Generating $TARGET"))
+    test_list = env.Command('$LIBFUZZER_TEST_LIST', env.Value(_libfuzzer_tests),
+                            Action(libfuzzer_test_list_builder_action, "Generating $TARGET"))
+
     env.AddMethod(register_libfuzzer_test, 'RegisterLibfuzzerTest')
     env.AddMethod(build_cpp_libfuzzer_test, 'CppLibfuzzerTest')
     env.Alias('$LIBFUZZER_TEST_ALIAS', '$LIBFUZZER_TEST_LIST')
