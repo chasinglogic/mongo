@@ -1,38 +1,57 @@
 Import("env")
 Import("get_option")
 
+from os.path import join
+
 if not get_option("install-mode") == "hygienic":
     Return()
 
 env = env.Clone()
 
 env.AutoInstall(
-    target="$PREFIX_BINDIR/resmokelib",
-    source=env.Glob("resmokelib/**/*"),
-    AIB_COMPONENT="resmoke",
-    AIB_COMPONENTS_EXTRA=[
-        "tests",
-        "unittests",
-    ]
-)
-
-env.AutoInstall(
-    target="$PREFIX_BINDIR/resmoke.py",
+    target="$PREFIX_BINDIR",
     source=[env.File("resmoke.py")],
     AIB_COMPONENT="resmoke",
+    AIB_ROLE="runtime",
     AIB_COMPONENTS_EXTRA=[
         "tests",
         "unittests",
     ]
 )
 
-env.AutoInstall(
-    "$PREFIX_CONFDIR/resmoke",
-    source=env.Glob("resmokeconfig/**/*"),
-    AIB_COMPONENT="resmoke",
-    AIB_COMPONENTS_EXTRA=[
-        "tests",
-        "unittests",
-    ]
-)
+# We put this in bin because resmoke.py uses it's path to import this
+# stuff so it has to be adjacent to resmoke.py. Resmoke does not
+# behave properly as a python module and even if it did putting this
+# somewhere like "lib" and making python actually able to import it
+# would be needlessly complicated and not something that scons could
+# easily do.
+for pyfile in env.Glob("resmokelib/**/*.py"):
+    
+    # The last path element is the path of the dir relative to this
+    # SConscript.  i.e. resmokelib/some/directory
+    normalized_dir_path = str(pyfile.dir.get_path_elements()[-1])
 
+    env.AutoInstall(
+        target=join("$PREFIX_BINDIR", normalized_dir_path),
+        source=pyfile,
+        AIB_COMPONENT="resmoke",
+        AIB_ROLE="runtime",
+        AIB_COMPONENTS_EXTRA=[
+            "tests",
+            "unittests",
+        ]
+    )
+
+for ymlfile in env.Glob("resmokeconfig/**/*.yml"):
+    normalized_dir_path = str(ymlfile.dir.get_path_elements()[-1])
+    
+    env.AutoInstall(
+        target=join("$PREFIX_CONFDIR", normalized_dir_path),
+        source=ymlfile,
+        AIB_COMPONENT="resmoke",
+        AIB_ROLE="runtime",
+        AIB_COMPONENTS_EXTRA=[
+            "tests",
+            "unittests",
+        ]
+    )
