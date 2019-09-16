@@ -624,7 +624,7 @@ def decide_platform_tools():
 
 def variable_tools_converter(val):
     tool_list = shlex.split(val)
-    return tool_list + [
+    default_tools = [
         "distsrc",
         "gziptool",
         'idl_tool',
@@ -635,6 +635,11 @@ def variable_tools_converter(val):
         "mongo_libfuzzer",
         "textfile",
     ]
+
+    if get_option('install-mode') == 'hygienic':
+        default_tools.insert(0, 'auto_install_binaries')
+
+    return tool_list + default_tools
 
 def variable_distsrc_converter(val):
     if not val.endswith("/"):
@@ -3756,7 +3761,6 @@ if get_option('install-mode') == 'hygienic':
         env.Tool('separate_debug')
 
     env["AIB_TARBALL_SUFFIX"] = "tgz"
-    env.Tool('auto_install_binaries')
 
     env.DeclareRoles(
         roles=[
