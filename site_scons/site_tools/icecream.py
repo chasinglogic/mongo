@@ -23,6 +23,15 @@ from pkg_resources import parse_version
 icecream_version_min = '1.1rc2'
 
 
+def icecc_version_full_path(env, target, source):
+    """Return the full path to ICECC_VERSION"""
+    try:
+        return env["ICECC_VERSION_FULL_PATH_CACHE"]
+    except KeyError:
+        fp = os.path.realpath(env.File("$ICECC_SYMLINK_VERSION").abspath)
+        env["ICECC_VERSION_FULL_PATH_CACHE"] = fp
+        return fp
+
 def generate(env):
 
     if not exists(env):
@@ -124,7 +133,8 @@ def generate(env):
         # file so that we can expand it in the realpath expressions for
         # CXXCOM and friends below.
         env['ICECC_SYMLINK_VERSION'] = icecc_version
-        env['ENV']['ICECC_VERSION'] = os.path.realpath(env.File("$ICECC_SYMLINK_VERSION").abspath)
+        env['ICECC_VERSION_FULL_PATH'] = icecc_version_full_path
+        env['ENV']['ICECC_VERSION'] = "$ICECC_VERSION_FULL_PATH"
 
     if env.ToolchainIs('clang'):
         env['ENV']['ICECC_CLANG_REMOTE_CPP'] = 1
@@ -165,6 +175,9 @@ def exists(env):
     if not icecc:
         return False
     icecc = env.WhereIs(icecc)
+    if icecc is None:
+        raise Exception("A non-absolute path to icecc was provided and icecc"
+                        " could not be found in the $PATH.")
 
     pipe = SCons.Action._subproc(env,
                                  SCons.Util.CLVar(icecc) + ['--version'], stdin='devnull',
