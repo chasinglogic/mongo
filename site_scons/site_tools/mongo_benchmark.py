@@ -68,8 +68,18 @@ def build_benchmark(env, target, source, **kwargs):
 
 
 def generate(env):
-    env.Command('$BENCHMARK_LIST', env.Value(_benchmarks),
-                Action(benchmark_list_builder_action, "Generating $TARGET"))
+    test_list = env.Command('$BENCHMARK_LIST', env.Value(_benchmarks),
+                            Action(benchmark_list_builder_action, "Generating $TARGET"))
+
+    if env.GetOption("install-mode") == "hygienic":
+        env.AutoInstall(
+            target="$PREFIX_CONFDIR/resmokeconfig",
+            source = test_list,
+            AIB_COMPONENT="benchmarks",
+            AIB_COMPONENTS_EXTRA=["tests"],
+            AIB_ROLE="runtime",
+        )
+
     env.AddMethod(register_benchmark, 'RegisterBenchmark')
     env.AddMethod(build_benchmark, 'Benchmark')
     env.Alias('$BENCHMARK_ALIAS', '$BENCHMARK_LIST')

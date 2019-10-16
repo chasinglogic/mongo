@@ -58,6 +58,15 @@ def generate(env):
     test_list = env.Command('$LIBFUZZER_TEST_LIST', env.Value(_libfuzzer_tests),
                             Action(libfuzzer_test_list_builder_action, "Generating $TARGET"))
 
+    if env.GetOption("install-mode") == "hygienic":
+        env.AutoInstall(
+            target="$PREFIX_CONFDIR/resmokeconfig",
+            source=test_list,
+            AIB_COMPONENT="fuzzertests",
+            AIB_COMPONENTS_EXTRA=["tests"],
+            AIB_ROLE="runtime",
+        )
+
     env.AddMethod(register_libfuzzer_test, 'RegisterLibfuzzerTest')
     env.AddMethod(build_cpp_libfuzzer_test, 'CppLibfuzzerTest')
     env.Alias('$LIBFUZZER_TEST_ALIAS', '$LIBFUZZER_TEST_LIST')
