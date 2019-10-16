@@ -624,20 +624,18 @@ def decide_platform_tools():
 
 def variable_tools_converter(val):
     tool_list = shlex.split(val)
-    default_tools = [
+    if get_option('install-mode') == 'hygienic':
+        default_tools = ['auto_install_binaries']
+    else:
+        default_tools = []
+
+    default_tools += [
         "distsrc",
         "gziptool",
         'idl_tool',
         "jsheader",
-        "mongo_benchmark",
-        "mongo_integrationtest",
-        "mongo_unittest",
-        "mongo_libfuzzer",
         "textfile",
     ]
-
-    if get_option('install-mode') == 'hygienic':
-        default_tools.insert(0, 'auto_install_binaries')
 
     return tool_list + default_tools
 
@@ -825,7 +823,7 @@ different configurations, for instance:
 
     scons --sanitize=asan --ninja NINJA_SUFFIX=asan ninja-install-all-meta
     scons --sanitize=tsan --ninja NINJA_SUFFIX=tsan ninja-install-all-meta
-          
+
 Will generate the files (respectively):
 
     install-all-meta.build.ninja.asan
@@ -3893,6 +3891,16 @@ elif get_option('separate-debug') == "on":
     env.FatalError('Cannot use --separate-debug without --install-mode=hygienic')
 
 
+hygienic_integrated_tools = [
+    "mongo_benchmark",
+    "mongo_integrationtest",
+    "mongo_unittest",
+    "mongo_libfuzzer",
+]
+
+for tool in hygienic_integrated_tools:
+    env.Tool(tool)
+
 # If the flags in the environment are configured for -gsplit-dwarf,
 # inject the necessary emitter.
 split_dwarf = Tool('split_dwarf')
@@ -4240,8 +4248,8 @@ if get_option('install-mode') == 'hygienic':
         env.Alias("archive-dist", "tar-dist")
         env.Alias("archive-dist-debug", "tar-dist-debug")
 
-# We don't want installing files to cause them to flow into the cache,	
-# since presumably we can re-install them from the origin if needed.	
+# We don't want installing files to cause them to flow into the cache,
+# since presumably we can re-install them from the origin if needed.
 env.NoCache(env.FindInstalledFiles())
 
 # Substitute environment variables in any build targets so that we can
