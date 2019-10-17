@@ -5,6 +5,7 @@ import os
 import os.path
 import sys
 import shlex
+import configparser
 
 import datetime
 import optparse
@@ -565,6 +566,18 @@ def _update_config_vars(values):  # pylint: disable=too-many-statements,too-many
 
     config = _config.DEFAULTS.copy()
 
+    resmoke_py_location = os.path.abspath(sys.argv[0])
+    cfg_file_locations = [
+        os.path.join(resmoke_py_location, "testconfig.ini"),
+        "testconfig.ini",
+    ]
+
+    for cfg_file in cfg_file_locations:
+        if os.path.isfile(cfg_file):
+            p = configparser.ConfigParser()
+            p.read(cfg_file)
+            config.update(p['resmoke'])
+
     # Override `config` with values from command line arguments.
     cmdline_vars = vars(values)
     for cmdline_key in cmdline_vars:
@@ -654,6 +667,13 @@ def _update_config_vars(values):  # pylint: disable=too-many-statements,too-many
 
     # Config Dir options.
     _config.CONFIG_DIR = config.pop("config_dir")
+    _config.DEFAULT_BENCHMARK_TEST_LIST = config.pop("default_benchmark_test_list")
+    _config.DEFAULT_UNIT_TEST_LIST = config.pop("default_unit_test_list")
+    _config.DEFAULT_INTEGRATION_TEST_LIST = config.pop("default_integration_test_list")
+    _config.DEFAULT_LIBFUZZER_TEST_LIST = config.pop("default_libfuzzer_test_list")
+    _config.EXTERNAL_SUITE_SELECTORS = (_config.DEFAULT_BENCHMARK_TEST_LIST, _config.DEFAULT_UNIT_TEST_LIST,
+                                        _config.DEFAULT_INTEGRATION_TEST_LIST, _config.DEFAULT_DBTEST_EXECUTABLE,
+                                        _config.DEFAULT_MONGOEBENCH_EXECUTABLE, _config.DEFAULT_LIBFUZZER_TEST_LIST)
 
     # Populate the named suites by scanning config_dir/suites
     #

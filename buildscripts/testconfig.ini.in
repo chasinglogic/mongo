@@ -1,0 +1,6 @@
+[resmoke]
+config_dir=@conf_dir@
+default_benchmark_test_list=@benchmark_test_list@
+default_unit_test_list=@unittest_test_list@
+default_integration_test_list=@integration_test_list@
+default_libfuzzer_test_list=@libfuzzer_test_list@

@@ -26,7 +26,7 @@ env.AutoInstall(
 # would be needlessly complicated and not something that scons could
 # easily do.
 for pyfile in env.Glob("resmokelib/**/*.py"):
-    
+
     # The last path element is the path of the dir relative to this
     # SConscript.  i.e. resmokelib/some/directory
     normalized_dir_path = str(pyfile.dir.get_path_elements()[-1])
@@ -42,9 +42,36 @@ for pyfile in env.Glob("resmokelib/**/*.py"):
         ]
     )
 
+resmoke_config_file = env.Substfile(
+    target='#/testconfig.ini',
+    source='testconfig.ini.in',
+    SUBST_DICT={
+        '@conf_dir@': env.Dir('$PREFIX_CONFDIR/resmokeconfig'),
+        '@benchmark_test_list@': env.File('$PREFIX_CONFDIR/resmokeconfig/benchmarks.txt'),
+        '@unittest_test_list@': env.File('$PREFIX_CONFDIR/resmokeconfig/unittests.txt'),
+        '@libfuzzer_test_list@': env.File('$PREFIX_CONFDIR/resmokeconfig/libfuzzer_tests.txt'),
+        '@integration_test_list@': env.File('$PREFIX_CONFDIR/resmokeconfig/integration_tests.txt'),
+    },
+)
+
+env.AlwaysBuild(resmoke_config_file)
+
+env.AutoInstall(
+    target="$PREFIX_BINDIR",
+    source=resmoke_config_file,
+    AIB_COMPONENT='resmoke',
+    AIB_COMPONENTS_EXTRA=[
+        'unittests',
+        'jstests',
+        'benchmarks',
+        'fuzzertests',
+    ],
+    AIB_ROLE='runtime',
+)
+
 for ymlfile in env.Glob("resmokeconfig/**/*.yml"):
     normalized_dir_path = str(ymlfile.dir.get_path_elements()[-1])
-    
+
     env.AutoInstall(
         target=join("$PREFIX_CONFDIR", normalized_dir_path),
         source=ymlfile,

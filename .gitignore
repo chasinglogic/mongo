@@ -1,3 +1,4 @@
+/testconfig.ini
 /build
 /src/mongo/db/modules
 /.jsdbshell
@@ -20,10 +21,10 @@
 *.tar.gz
 *.suo
 *.ncb
-*.idb 
-*.obj 
-*.opt 
-*.pch 
+*.idb
+*.obj
+*.opt
+*.pch
 *.jsh
 *.jsall
 *.pyc
