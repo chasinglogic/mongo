@@ -69,8 +69,49 @@ env.AutoInstall(
     AIB_ROLE='runtime',
 )
 
+templated_configs = [
+    'resmokeconfig/suites/integration_tests_replset.yml.in',
+    'resmokeconfig/suites/integration_tests_sharded.yml.in',
+    'resmokeconfig/suites/integration_tests_standalone.yml.in',
+    'resmokeconfig/suites/integration_tests_standalone_audit.yml.in',
+    'resmokeconfig/suites/libfuzzer.yml.in',
+    'resmokeconfig/suites/unittests.yml.in',
+    'resmokeconfig/suites/unittests_auth.yml.in',
+    'resmokeconfig/suites/unittests_client.yml.in',
+    'resmokeconfig/suites/unittests_query.yml.in',
+    'resmokeconfig/suites/unittests_repl.yml.in',
+    'resmokeconfig/suites/unittests_sharding.yml.in',
+]
+
+for templated_config in templated_configs:
+    rendered_config = env.Substfile(
+        target='$BUILD_DIR/' + templated_config.replace('.in', ''),
+        source=templated_config,
+        # TODO: this isn't really self-testable because the full path is encoded
+        # to these text files. Not really sure how to un-hardcode this mess yet.
+        SUBST_DICT={
+            'unittests_txt': env.subst('$prefix_confdir/resmokeconfig/unittests.txt'),
+            'integration_tests_txt': env.subst('$prefix_confdir/resmokeconfig/integration_tests.txt'),
+            'fuzzer_tests_txt': env.subst('$prefix_confdir/resmokeconfig/fuzzer_tests.txt'),
+        }
+    )
+
+    env.AutoInstall(
+        target='$PREFIX_CONFDIR' + templated_config.replace('.in', ''),
+        source=rendered_config,
+        AIB_COMPONENT='resmoke',
+        AIB_COMPONENTS_EXTRA=[
+            "tests",
+            "unittests",
+        ],
+        AIB_ROLE='runtime',
+    )
+
 for ymlfile in env.Glob("resmokeconfig/**/*.yml"):
     normalized_dir_path = str(ymlfile.dir.get_path_elements()[-1])
+
+    if normalized_dir_path in templated_configs or normalized_dir_path + '.in' in templated_configs:
+        continue
 
     env.AutoInstall(
         target=join("$PREFIX_CONFDIR", normalized_dir_path),

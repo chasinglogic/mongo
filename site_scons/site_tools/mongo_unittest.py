@@ -10,13 +10,14 @@ def exists(env):
 
 _unittests = []
 def register_unit_test(env, test):
-    _unittests.append(test.path)
 
     hygienic = env.GetOption('install-mode') == 'hygienic'
     if hygienic and getattr(test.attributes, "AIB_INSTALL_ACTIONS", []):
         installed = getattr(test.attributes, "AIB_INSTALL_ACTIONS")
+        _unittests.append(installed[0].get_path())
     else:
         installed = [test]
+        _unittests.append(test.path)
 
     env.Command(
         target="#@{}".format(os.path.basename(installed[0].get_path())),
@@ -70,7 +71,7 @@ def generate(env):
             AIB_COMPONENTS_EXTRA=["tests"],
             AIB_ROLE="runtime",
         )
-    
+
     env.AddMethod(register_unit_test, 'RegisterUnitTest')
     env.AddMethod(build_cpp_unit_test, 'CppUnitTest')
     env.Alias('$UNITTEST_ALIAS', '$UNITTEST_LIST')
