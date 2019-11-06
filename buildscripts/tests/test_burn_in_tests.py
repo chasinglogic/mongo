@@ -19,8 +19,8 @@ from shrub.config import Configuration
 import buildscripts.burn_in_tests as under_test
 from buildscripts.ciconfig.evergreen import parse_evergreen_file
 import buildscripts.util.teststats as teststats_utils
-import buildscripts.resmokelib.parser as _parser
-import buildscripts.resmokelib.config as _config
+import resmokelib.parser as _parser
+import resmokelib.config as _config
 import buildscripts.evergreen_gen_multiversion_tests as gen_multiversion
 _parser.set_options()
 
@@ -52,7 +52,7 @@ def create_multiversion_tests_by_task_mock(n_tasks, n_tests):
 
 
 _DATE = datetime.datetime(2018, 7, 15)
-RESMOKELIB = "buildscripts.resmokelib"
+RESMOKELIB = "resmokelib"
 NUM_REPL_MIXED_VERSION_CONFIGS = len(gen_multiversion.REPL_MIXED_VERSION_CONFIGS)
 NUM_SHARDED_MIXED_VERSION_CONFIGS = len(gen_multiversion.SHARDED_MIXED_VERSION_CONFIGS)
 

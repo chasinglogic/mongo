@@ -2,7 +2,7 @@
 
 import unittest
 
-from buildscripts.resmokelib.core.programs import _format_shell_vars
+from resmokelib.core.programs import _format_shell_vars
 
 
 class ResmokeProgramsTestCase(unittest.TestCase):

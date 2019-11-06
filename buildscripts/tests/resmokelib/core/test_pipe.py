@@ -8,7 +8,7 @@ import unittest
 
 import mock
 
-from buildscripts.resmokelib.core import pipe as _pipe
+from resmokelib.core import pipe as _pipe
 
 # pylint: disable=missing-docstring
 

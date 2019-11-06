@@ -2,7 +2,7 @@
 
 import unittest
 
-from buildscripts.resmokelib import parser as _parser
+from resmokelib import parser as _parser
 
 # pylint: disable=missing-docstring
 

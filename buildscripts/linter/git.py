@@ -7,7 +7,7 @@ from typing import Any, Callable, List, Tuple
 
 from buildscripts.linter import git_base as _git
 from buildscripts import moduleconfig
-from buildscripts.resmokelib.utils import globstar
+from resmokelib.utils import globstar
 
 # Path to the modules in the mongodb source tree
 # Has to match the string in SConstruct

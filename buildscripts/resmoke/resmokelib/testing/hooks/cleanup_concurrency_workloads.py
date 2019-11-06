@@ -2,9 +2,9 @@
 
 import copy
 
-from buildscripts.resmokelib import utils
-from buildscripts.resmokelib.testing.hooks import interface
-from buildscripts.resmokelib.testing.fixtures import shardedcluster
+from resmokelib import utils
+from resmokelib.testing.hooks import interface
+from resmokelib.testing.fixtures import shardedcluster
 
 
 class CleanupConcurrencyWorkloads(interface.Hook):

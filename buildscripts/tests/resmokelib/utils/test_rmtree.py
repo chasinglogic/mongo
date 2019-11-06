@@ -7,7 +7,7 @@ import sys
 import tempfile
 import unittest
 
-from buildscripts.resmokelib import utils
+from resmokelib import utils
 
 # pylint: disable=missing-docstring,protected-access
 

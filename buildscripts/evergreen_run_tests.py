@@ -9,8 +9,8 @@ import sys
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from buildscripts import resmoke  # pylint: disable=wrong-import-position
-from buildscripts import resmokelib  # pylint: disable=wrong-import-position
+import resmokelib  # pylint: disable=wrong-import-position
+import resmokelib.cli as resmoke  # pylint: disable=wrong-import-position
 
 _TagInfo = collections.namedtuple("_TagInfo", ["tag_name", "evergreen_aware", "suite_options"])
 

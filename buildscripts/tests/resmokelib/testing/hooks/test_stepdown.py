@@ -5,7 +5,7 @@ import unittest
 
 import mock
 
-from buildscripts.resmokelib.testing.hooks import stepdown as _stepdown
+from resmokelib.testing.hooks import stepdown as _stepdown
 
 # pylint: disable=missing-docstring
 

@@ -32,8 +32,8 @@ from shrub.variant import TaskSpec
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import buildscripts.resmokelib.parser as _parser  # pylint: disable=wrong-import-position
-import buildscripts.resmokelib.suitesconfig as suitesconfig  # pylint: disable=wrong-import-position
+import resmokelib.parser as _parser  # pylint: disable=wrong-import-position
+import resmokelib.suitesconfig as suitesconfig  # pylint: disable=wrong-import-position
 import buildscripts.util.read_config as read_config  # pylint: disable=wrong-import-position
 import buildscripts.util.taskname as taskname  # pylint: disable=wrong-import-position
 import buildscripts.util.teststats as teststats  # pylint: disable=wrong-import-position

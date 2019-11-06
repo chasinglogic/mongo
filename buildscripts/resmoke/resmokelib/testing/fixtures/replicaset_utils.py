@@ -7,7 +7,7 @@ resmoke.py.
 
 import bson
 
-from buildscripts.resmokelib import errors
+from resmokelib import errors
 
 
 def get_last_optime(client):

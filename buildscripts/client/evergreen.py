@@ -11,7 +11,7 @@ except ImportError:
 import requests
 import yaml
 
-from buildscripts.resmokelib import utils
+from resmokelib import utils
 
 LOGGER = logging.getLogger(__name__)
 

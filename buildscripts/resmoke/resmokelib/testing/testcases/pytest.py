@@ -2,8 +2,8 @@
 import os
 import sys
 
-from buildscripts.resmokelib import core
-from buildscripts.resmokelib.testing.testcases import interface
+from resmokelib import core
+from resmokelib.testing.testcases import interface
 
 
 class PyTestCase(interface.ProcessTestCase):

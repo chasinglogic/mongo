@@ -1,11 +1,11 @@
-"""Unit tests for the buildscripts.resmokelib.testing.testcases.pytest module."""
+"""Unit tests for the resmokelib.testing.testcases.pytest module."""
 import logging
 import sys
 import unittest
 
 from mock import MagicMock, patch
 
-from buildscripts.resmokelib.testing.testcases import pytest
+from resmokelib.testing.testcases import pytest
 
 _IS_WINDOWS = sys.platform == "win32"
 

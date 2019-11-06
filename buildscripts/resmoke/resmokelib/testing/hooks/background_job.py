@@ -3,7 +3,7 @@
 import sys
 import threading
 
-from buildscripts.resmokelib.testing.hooks import jsfile
+from resmokelib.testing.hooks import jsfile
 
 
 class _BackgroundJob(threading.Thread):  # pylint: disable=too-many-instance-attributes

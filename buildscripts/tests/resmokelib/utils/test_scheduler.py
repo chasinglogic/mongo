@@ -3,7 +3,7 @@
 import sched
 import unittest
 
-from buildscripts.resmokelib.utils import scheduler as _scheduler
+from resmokelib.utils import scheduler as _scheduler
 
 # pylint: disable=missing-docstring
 

@@ -33,10 +33,10 @@ if __name__ == "__main__" and __package__ is None:
 import buildscripts.evergreen_gen_multiversion_tests as gen_multiversion
 import buildscripts.evergreen_generate_resmoke_tasks as gen_resmoke
 from buildscripts.patch_builds.change_data import find_changed_files
-import buildscripts.resmokelib.parser
-from buildscripts.resmokelib.suitesconfig import create_test_membership_map, get_suites, \
+import resmokelib.parser
+from resmokelib.suitesconfig import create_test_membership_map, get_suites, \
     get_named_suites_with_root_level_key_and_value
-from buildscripts.resmokelib.utils import default_if_none, globstar
+from resmokelib.utils import default_if_none, globstar
 from buildscripts.ciconfig.evergreen import parse_evergreen_file, ResmokeArgs, \
     EvergreenProjectConfig, VariantTask
 from buildscripts.util.teststats import TestStats
@@ -695,7 +695,7 @@ def create_tests_by_task(build_variant: str, repo: Repo, evg_conf: EvergreenProj
     exclude_suites, exclude_tasks, exclude_tests = find_excludes(SELECTOR_FILE)
     changed_tests = filter_tests(changed_tests, exclude_tests)
 
-    buildscripts.resmokelib.parser.set_options()
+    resmokelib.parser.set_options()
     if changed_tests:
         return create_task_list_for_tests(changed_tests, build_variant, evg_conf, exclude_suites,
                                           exclude_tasks)

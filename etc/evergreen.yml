@@ -1280,7 +1280,13 @@ functions:
           # Windows path separator
           toolchain_txt="$pip_dir/toolchain-requirements.txt"
           ${activate_virtualenv}
+          # Change path so the relative path in resmoke.req functions correctly.
+          # There is no way to reliably encode this path until:
+          # https://github.com/pypa/pip/issues/6112 is resolved.
+          pushd $pip_dir/../../
           python -m pip install -r "$toolchain_txt" -q
+          # Change back so upload pip requirements can find the freeze file.
+          popd
           python -m pip freeze > pip-requirements.txt
 
   "upload pip requirements": &upload_pip_requirements

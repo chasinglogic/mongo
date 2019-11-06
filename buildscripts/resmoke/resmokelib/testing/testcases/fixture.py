@@ -1,7 +1,7 @@
 """The unittest.TestCase instances for setting up and tearing down fixtures."""
-from buildscripts.resmokelib import errors
-from buildscripts.resmokelib.testing.testcases import interface
-from buildscripts.resmokelib.utils import registry
+from resmokelib import errors
+from resmokelib.testing.testcases import interface
+from resmokelib.utils import registry
 
 
 class FixtureTestCase(interface.TestCase):  # pylint: disable=abstract-method

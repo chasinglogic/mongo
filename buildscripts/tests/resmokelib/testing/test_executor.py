@@ -4,12 +4,12 @@ import unittest
 
 import mock
 
-from buildscripts.resmokelib.testing import executor
-from buildscripts.resmokelib.testing import queue_element
+from resmokelib.testing import executor
+from resmokelib.testing import queue_element
 
 # pylint: disable=missing-docstring,protected-access
 
-NS = "buildscripts.resmokelib.testing.executor"
+NS = "resmokelib.testing.executor"
 
 
 def ns(relative_name):  # pylint: disable=invalid-name

@@ -1,9 +1,9 @@
 """unittest.TestCase for multi-statement transaction passthrough tests."""
 
-from buildscripts.resmokelib import config
-from buildscripts.resmokelib import core
-from buildscripts.resmokelib import utils
-from buildscripts.resmokelib.testing.testcases import jsrunnerfile
+from resmokelib import config
+from resmokelib import core
+from resmokelib import utils
+from resmokelib.testing.testcases import jsrunnerfile
 
 
 class MultiStmtTxnTestCase(jsrunnerfile.JSRunnerFileTestCase):

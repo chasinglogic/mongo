@@ -7,7 +7,7 @@ import unittest
 
 import mock
 
-import buildscripts.resmokelib.testing.hooks.combine_benchrun_embedded_results as cber
+import resmokelib.testing.hooks.combine_benchrun_embedded_results as cber
 
 # pylint: disable=missing-docstring,protected-access,attribute-defined-outside-init
 
@@ -77,7 +77,7 @@ class CombineBenchrunEmbeddedResultsFixture(unittest.TestCase):
 
     # Mock the hook's parent class because we're testing only functionality of this hook and
     # not anything related to or inherit from the parent class.
-    @mock.patch("buildscripts.resmokelib.testing.hooks.interface.Hook", autospec=True)
+    @mock.patch("resmokelib.testing.hooks.interface.Hook", autospec=True)
     def setUp(self, MockHook):  # pylint: disable=arguments-differ,unused-argument
         self.cber_hook = cber.CombineBenchrunEmbeddedResults(None, None)
         self.cber_hook.create_time = datetime.datetime.utcfromtimestamp(_START_TIME)

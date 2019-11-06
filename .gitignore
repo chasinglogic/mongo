@@ -11,6 +11,7 @@
 /massif.out.*
 
 *~
+*.egg-info*
 *.swp
 *.o
 *.os
@@ -20,10 +21,10 @@
 *.tar.gz
 *.suo
 *.ncb
-*.idb 
-*.obj 
-*.opt 
-*.pch 
+*.idb
+*.obj
+*.opt
+*.pch
 *.jsh
 *.jsall
 *.pyc

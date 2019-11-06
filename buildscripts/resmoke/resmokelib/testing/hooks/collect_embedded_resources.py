@@ -3,8 +3,8 @@
 import os
 
 from buildscripts.mobile import adb_monitor
-from buildscripts.resmokelib import config as _config
-from buildscripts.resmokelib.testing.hooks import interface
+from resmokelib import config as _config
+from resmokelib.testing.hooks import interface
 
 
 class CollectEmbeddedResources(interface.Hook):  # pylint: disable=too-many-instance-attributes

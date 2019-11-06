@@ -29,7 +29,7 @@ from optparse import OptionParser
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(os.path.realpath(__file__)))))
 
-from buildscripts.resmokelib.utils import globstar  # pylint: disable=wrong-import-position
+from resmokelib.utils import globstar  # pylint: disable=wrong-import-position
 
 from buildscripts.linter import git  # pylint: disable=wrong-import-position
 from buildscripts.linter import parallel  # pylint: disable=wrong-import-position

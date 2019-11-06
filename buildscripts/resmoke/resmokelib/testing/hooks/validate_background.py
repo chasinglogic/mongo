@@ -7,10 +7,10 @@ This should not be run against a sharded cluster!
 
 import os.path
 
-from buildscripts.resmokelib import errors
-from buildscripts.resmokelib.testing.hooks import jsfile
-from buildscripts.resmokelib.testing.testcases import interface as testcase
-from buildscripts.resmokelib.testing.hooks.background_job import _BackgroundJob, _ContinuousDynamicJSTestCase
+from resmokelib import errors
+from resmokelib.testing.hooks import jsfile
+from resmokelib.testing.testcases import interface as testcase
+from resmokelib.testing.hooks.background_job import _BackgroundJob, _ContinuousDynamicJSTestCase
 
 
 class ValidateCollectionsInBackground(jsfile.JSHook):

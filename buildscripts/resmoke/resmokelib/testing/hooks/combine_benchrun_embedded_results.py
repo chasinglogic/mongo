@@ -7,8 +7,8 @@ import json
 import os
 import re
 
-from buildscripts.resmokelib import config as _config
-from buildscripts.resmokelib.testing.hooks import combine_benchmark_results as cbr
+from resmokelib import config as _config
+from resmokelib.testing.hooks import combine_benchmark_results as cbr
 
 
 class CombineBenchrunEmbeddedResults(cbr.CombineBenchmarkResults):

@@ -4,13 +4,13 @@ import unittest
 
 import mock
 
-from buildscripts.resmokelib import suitesconfig
-from buildscripts.resmokelib import parser
+from resmokelib import suitesconfig
+from resmokelib import parser
 parser.set_options()
 
 # pylint: disable=missing-docstring
 
-RESMOKELIB = "buildscripts.resmokelib"
+RESMOKELIB = "resmokelib"
 
 
 class TestSuitesConfig(unittest.TestCase):

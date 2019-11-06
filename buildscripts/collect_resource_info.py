@@ -14,7 +14,7 @@ import requests
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from buildscripts.resmokelib import utils  # pylint: disable=wrong-import-position
+from resmokelib import utils  # pylint: disable=wrong-import-position
 
 
 def main():

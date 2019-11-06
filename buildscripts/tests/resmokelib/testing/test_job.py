@@ -6,11 +6,11 @@ import unittest
 
 import mock
 
-from buildscripts.resmokelib import errors
-from buildscripts.resmokelib.testing import job
-from buildscripts.resmokelib.testing import queue_element
-from buildscripts.resmokelib.testing.fixtures import interface as _fixtures
-from buildscripts.resmokelib.utils import queue as _queue
+from resmokelib import errors
+from resmokelib.testing import job
+from resmokelib.testing import queue_element
+from resmokelib.testing.fixtures import interface as _fixtures
+from resmokelib.utils import queue as _queue
 
 # pylint: disable=missing-docstring,protected-access
 

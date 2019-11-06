@@ -2,9 +2,9 @@
 
 import time
 
-from buildscripts.resmokelib import core
-from buildscripts.resmokelib import errors
-from buildscripts.resmokelib.testing.hooks import interface
+from resmokelib import core
+from resmokelib import errors
+from resmokelib.testing.hooks import interface
 
 
 class WaitForReplication(interface.Hook):
