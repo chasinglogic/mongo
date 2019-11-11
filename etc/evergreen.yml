@@ -1248,6 +1248,7 @@ functions:
         script: |
           # exit immediately if virtualenv is not found
           set -o errexit
+          set -o verbose
 
           virtualenv_loc=$(which ${virtualenv|virtualenv})
 
