@@ -1262,6 +1262,9 @@ functions:
             # python path as 'C:\python\python_version'
             python_loc=$(cygpath -w $python_loc)
             venv_dir="$(cygpath -w "$venv_dir")"
+            echo "venv_dir: $venv_dir"
+            echo "python_loc: $python_loc"
+            echo 'gencommand: cmd.exe /c "$python_loc -m venv --system-site-packages $venv_dir"'
             cmd.exe /c "$python_loc -m venv --system-site-packages $venv_dir"
           else
             "$python_loc" -m venv --system-site-packages "$venv_dir"
