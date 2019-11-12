@@ -17,7 +17,7 @@ setup(
     install_requires=requirements.splitlines(),
     entry_points={
         'console_scripts': [
-            'resmoke = resmoke.cli:main',
+            'resmoke = resmokelib.cli:main',
         ],
     },
 )
