@@ -24,6 +24,8 @@ LimitMEMLOCK=infinity
 # total threads (user+kernel)
 TasksMax=infinity
 TasksAccounting=false
+NUMAPolicy=interleave
+NUMAMask=
 
 # Recommended limits for for mongod as specified in
 # https://docs.mongodb.com/manual/reference/ulimit/#recommended-ulimit-settings
