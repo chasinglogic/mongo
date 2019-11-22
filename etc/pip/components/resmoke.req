@@ -1,1 +1,2 @@
--e buildscripts/resmoke
+-e resmoke
+-e buildscripts
