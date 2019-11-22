@@ -7,7 +7,7 @@ with open('requirements.txt') as req_txt:
 
 setup(
     name='resmoke',
-    version='1.0.0',
+    version='0.1.0',
     url='https://github.com/mongodb/mongo',
     license='SSPLv2',
     author='MongoDB Inc.',
