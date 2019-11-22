@@ -1,4 +1,4 @@
-"""Test runner for MongoDB JS, unit, and integration tests."""
+"""MongoDB buildscripts and their utility packages."""
 
 from setuptools import find_packages, setup
 
