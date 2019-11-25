@@ -19,7 +19,4 @@ def load_all_modules(name, path):
     """
 
     for (_, module, _) in pkgutil.walk_packages(path=path):
-        try:
-            importlib.import_module("." + module, package=name)
-        except ImportError:
-            import pdb; pdb.set_trace()
+        importlib.import_module("." + module, package=name)

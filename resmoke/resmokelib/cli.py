@@ -18,10 +18,6 @@ try:
 except ImportError:
     pass
 
-# Get relative imports to work when the package is not installed on the PYTHONPATH.
-if __name__ == "__main__" and __package__ is None:
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 # pylint: disable=wrong-import-position
 from resmokelib import config
 from resmokelib import errors
@@ -390,6 +386,7 @@ class Resmoke(object):  # pylint: disable=too-many-instance-attributes
 
 def main():
     """Execute Main function for resmoke."""
+    import pdb; pdb.set_trace()
     resmoke = Resmoke()
     resmoke.configure_from_command_line()
     resmoke.run()

@@ -1,5 +1,6 @@
 """MongoDB buildscripts and their utility packages."""
 
+import os
 from setuptools import find_packages, setup
 
 setup(
@@ -9,7 +10,7 @@ setup(
     license='SSPLv2',
     author='MongoDB Inc.',
     description=__doc__,
-    packages=find_packages(),
+    packages=['buildscripts'],
     platforms='any',
     entry_points={},
 )

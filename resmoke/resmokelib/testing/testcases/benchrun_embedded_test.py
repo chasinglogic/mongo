@@ -3,7 +3,10 @@
 import os
 import posixpath
 
-from buildscripts.mobile import adb_monitor
+try:
+    from buildscripts.mobile import adb_monitor
+except ImportError:
+    import pdb; pdb.set_trace()
 from resmokelib import config as _config
 from resmokelib import core
 from resmokelib import parser
