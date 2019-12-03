@@ -162,12 +162,13 @@ def generate(env):
             return "${ICECC_VERSION_ARCH}:"
         return str()
     env['ICECC_VERSION_ARCH_GEN'] = icecc_version_arch_gen
+    env['ICECC_VERSION_TARBALL'] = env.subst('${ICECC_VERSION_ARCH_GEN}${ICECC_VERSION_GEN}')
 
     # Make compile jobs flow through icecc
-    env['CCCOM'] = '$( ICECC_VERSION=${ICECC_VERSION_ARCH_GEN}${ICECC_VERSION_GEN} $ICECC $) ' + env['CCCOM']
-    env['CXXCOM'] = '$( ICECC_VERSION=${ICECC_VERSION_ARCH_GEN}${ICECC_VERSION_GEN} $ICECC $) ' + env['CXXCOM']
-    env['SHCCCOM'] = '$( ICECC_VERSION=${ICECC_VERSION_ARCH_GEN}${ICECC_VERSION_GEN} $ICECC $) ' + env['SHCCCOM']
-    env['SHCXXCOM'] = '$( ICECC_VERSION=${ICECC_VERSION_ARCH_GEN}${ICECC_VERSION_GEN} $ICECC $) ' + env['SHCXXCOM']
+    env['CCCOM'] = '$( ICECC_VERSION=$ICECC_VERSION_TARBALL $ICECC $) ' + env['CCCOM']
+    env['CXXCOM'] = '$( ICECC_VERSION=$ICECC_VERSION_TARBALL $ICECC $) ' + env['CXXCOM']
+    env['SHCCCOM'] = '$( ICECC_VERSION=$ICECC_VERSION_TARBALL $ICECC $) ' + env['SHCCCOM']
+    env['SHCXXCOM'] = '$( ICECC_VERSION=$ICECC_VERSION_TARBALL $ICECC $) ' + env['SHCXXCOM']
 
     # Make link like jobs flow through icerun so we don't kill the
     # local machine.

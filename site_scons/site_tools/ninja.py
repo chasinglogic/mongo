@@ -29,6 +29,7 @@ NINJA_RULES = "__NINJA_CUSTOM_RULES"
 NINJA_CUSTOM_HANDLERS = "__NINJA_CUSTOM_HANDLERS"
 NINJA_BUILD = "NINJA_BUILD"
 NINJA_OUTPUTS = "__NINJA_OUTPUTS"
+NINJA_WHEREIS_MEMO = {}
 
 # These are the types that get_command can do something with
 COMMAND_TYPES = (
@@ -845,7 +846,21 @@ def ninja_noop(*_args, **_kwargs):
 
 def ninja_whereis(thing, *_args, **_kwargs):
     """Replace env.WhereIs with a much faster version"""
-    return shutil.which(thing)
+    global NINJA_WHEREIS_MEMO
+
+    # Optimize for success, this gets called significantly more often
+    # when the value is already memoized than when it's not.
+    try:
+        return NINJA_WHEREIS_MEMO[thing]
+    except KeyError:
+        path = shutil.which(thing)
+        NINJA_WHEREIS_MEMO[thing] = path
+        return path
+
+
+def ninja_lstat(self, path):
+    """Monkey patch FS.LocalFS.lstat to never do IO."""
+    return None 
 
 
 class NinjaEternalTempFile(SCons.Platform.TempFileMunge):
@@ -915,9 +930,6 @@ class NinjaEternalTempFile(SCons.Platform.TempFileMunge):
 
 def generate(env):
     """Generate the NINJA builders."""
-    if not exists(env):
-        return
-
     env[NINJA_SYNTAX] = env.get(NINJA_SYNTAX, "ninja_syntax.py")
 
     # Add the Ninja builder.
@@ -936,27 +948,6 @@ def generate(env):
     # Make SCons node walk faster by preventing unnecessary work
     env.Decider("timestamp-match")
 
-    # Monkey patch get_csig for some node classes. It slows down the build
-    # significantly and we don't need content signatures calculated when
-    # generating a ninja file.
-    SCons.Node.FS.File.make_ready = ninja_noop
-    SCons.Node.FS.File.prepare = ninja_noop
-    SCons.Node.FS.File.push_to_cache = ninja_noop
-    SCons.Node.FS.File.built = ninja_noop
-
-    SCons.Executor.Executor.get_contents = ninja_contents(SCons.Executor.Executor.get_contents)
-    SCons.Node.Alias.Alias.get_contents = ninja_contents(SCons.Node.Alias.Alias.get_contents)
-    SCons.Node.FS.File.get_contents = ninja_contents(SCons.Node.FS.File.get_contents)
-
-    SCons.Node.FS.File.get_csig = ninja_csig(SCons.Node.FS.File.get_csig)
-    SCons.Node.FS.Dir.get_csig = ninja_csig(SCons.Node.FS.Dir.get_csig)
-    SCons.Node.Alias.Alias.get_csig = ninja_csig(SCons.Node.Alias.Alias.get_csig)
-
-    SCons.Util.WhereIs = ninja_whereis
-
-    # pylint: disable=protected-access
-    SCons.Platform.TempFileMunge._print_cmd_str = ninja_noop
-
     # Replace false Compiling* messages with a more accurate output
     #
     # We also use this to tag all Nodes with Builders using
@@ -971,11 +962,6 @@ def generate(env):
     # doesn't represent as a non-FunctionAction during the print_func
     # call.
     env["PRINT_CMD_LINE_FUNC"] = ninja_print
-
-    # Set build to no_exec, our sublcass of FunctionAction will force
-    # an execution for ninja_builder so this simply effects all other
-    # Builders.
-    env.SetOption("no_exec", True)
 
     # This makes SCons more aggressively cache MD5 signatures in the
     # SConsign file.
@@ -996,10 +982,42 @@ def generate(env):
 
     env['TEMPFILE'] = NinjaEternalTempFile
 
-    # Force the SConsign to be written, we benefit from SCons caching of
-    # implicit dependencies and conftests. Unfortunately, we have to do this
-    # using an atexit handler because SCons will not write the file when in a
-    # no_exec build.
-    import atexit
+    # This is the point of no return, anything after this comment
+    # makes changes to SCons that are irreversible and incompatible
+    # with a normal SCons build. We return early if __NINJA_NO=1 has
+    # been given on the command line (i.e. by us in the generated
+    # ninja file) here to prevent these modifications from happening
+    # when we want SCons to do work. Everything before this was
+    # necessary to setup the builder and other functions so that the
+    # tool can be unconditionally used in the users's SCons files.
 
-    atexit.register(SCons.SConsign.write)
+    if not exists(env):
+        return
+
+    # Monkey patch get_csig for some node classes. It slows down the build
+    # significantly and we don't need content signatures calculated when
+    # generating a ninja file.
+    SCons.Node.FS.LocalFS.lstat = ninja_lstat
+    SCons.Node.FS.File.make_ready = ninja_noop
+    SCons.Node.FS.File.prepare = ninja_noop
+    SCons.Node.FS.File.push_to_cache = ninja_noop
+    SCons.Node.FS.File.built = ninja_noop
+
+    SCons.Executor.Executor.get_contents = ninja_contents(SCons.Executor.Executor.get_contents)
+    SCons.Node.Alias.Alias.get_contents = ninja_contents(SCons.Node.Alias.Alias.get_contents)
+    SCons.Node.FS.File.get_contents = ninja_contents(SCons.Node.FS.File.get_contents)
+
+    SCons.Node.FS.File.get_csig = ninja_csig(SCons.Node.FS.File.get_csig)
+    SCons.Node.FS.Dir.get_csig = ninja_csig(SCons.Node.FS.Dir.get_csig)
+    SCons.Node.Alias.Alias.get_csig = ninja_csig(SCons.Node.Alias.Alias.get_csig)
+
+    SCons.Util.WhereIs = ninja_whereis
+    SCons.Executor.Executor.prepare = ninja_noop
+
+    # pylint: disable=protected-access
+    SCons.Platform.TempFileMunge._print_cmd_str = ninja_noop
+
+    # Set build to no_exec, our sublcass of FunctionAction will force
+    # an execution for ninja_builder so this simply effects all other
+    # Builders.
+    env.SetOption("no_exec", True)
