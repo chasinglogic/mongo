@@ -615,8 +615,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         self._func_get_contents = 0
         self._func_target_from_source = 0
         self.ninfo = None
-
-        self.clear_memoized_values()
+        self._memo = dict()
 
         # Let the interface in which the build engine is embedded
         # annotate this Node with its own info (like a description of
@@ -872,7 +871,6 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         # but is for interactive mode, where we might rebuild the same
         # target and need to start from scratch.
         self.del_binfo()
-        self.clear_memoized_values()
         self.ninfo = self.new_ninfo()
         self.executor_cleanup()
         try:
@@ -882,7 +880,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         self.includes = None
 
     def clear_memoized_values(self):
-        self._memo = {}
+        self._memo = dict()
 
     def builder_set(self, builder):
         self.builder = builder
@@ -1335,7 +1333,6 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             self.wkids.append(wkid)
 
     def _children_reset(self):
-        self.clear_memoized_values()
         # We need to let the Executor clear out any calculated
         # build info that it's cached so we can re-calculate it.
         self.executor_cleanup()
