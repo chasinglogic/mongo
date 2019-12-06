@@ -150,19 +150,14 @@ def generate(env):
 
     # Not all platforms have the readlink utility, so create our own
     # generator for that.
-    def icecc_version_gen(target, source, env, for_signature):
-        f = env.File('$ICECC_VERSION')
-        if not f.islink():
-            return f
-        return env.File(os.path.realpath(f.abspath))
-    env['ICECC_VERSION_GEN'] = icecc_version_gen
+    f = env.File('$ICECC_VERSION')
+    if f.islink():
+        f = env.File(os.path.realpath(f.abspath))
 
-    def icecc_version_arch_gen(target, source, env, for_signature):
-        if 'ICECC_VERSION_ARCH' in env:
-            return "${ICECC_VERSION_ARCH}:"
-        return str()
-    env['ICECC_VERSION_ARCH_GEN'] = icecc_version_arch_gen
-    env['ICECC_VERSION_TARBALL'] = env.subst('${ICECC_VERSION_ARCH_GEN}${ICECC_VERSION_GEN}')
+    if 'ICECC_VERSION_ARCH' in env:
+        f = env.subst("${ICECC_VERSION_ARCH}:") + f
+
+    env['ICECC_VERSION_TARBALL'] = f
 
     # Make compile jobs flow through icecc
     env['CCCOM'] = '$( ICECC_VERSION=$ICECC_VERSION_TARBALL $ICECC $) ' + env['CCCOM']
