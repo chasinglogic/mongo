@@ -3105,7 +3105,6 @@ class File(Base):
         return self.fs.variant_dir_target_climb(self, self.dir, [self.name])
 
     def _rmv_existing(self):
-        self.clear_memoized_values()
         if SCons.Node.print_duplicate:
             print("dup: removing existing target {}".format(self))
         e = Unlink(self, [], None)
