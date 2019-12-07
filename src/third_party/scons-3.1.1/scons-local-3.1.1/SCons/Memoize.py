@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2001 - 2019 The SCons Foundation
 #
+
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -21,6 +22,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 from __future__ import print_function
+
+from collections import defaultdict
 
 __revision__ = "src/engine/SCons/Memoize.py 72ae09dc35ac2626f8ff711d8c4b30b6138e08e3 2019-08-08 14:50:06 bdeegan"
 
@@ -121,10 +124,13 @@ class Counter(object):
         self.method_name = method_name
         self.hit = 0
         self.miss = 0
+
     def key(self):
         return self.cls_name+'.'+self.method_name
+
     def display(self):
         print("    {:7d} hits {:7d} misses    {}()".format(self.hit, self.miss, self.key()))
+
     def __eq__(self, other):
         try:
             return self.key() == other.key()
@@ -237,6 +243,74 @@ def CountDictCall(keyfunc):
         else:
             return fn
     return decorator
+
+
+class Memoizer:
+    """Memoizer maintains state and statistics for Memoized values."""
+
+    def __init__(self, ident="default"):
+        self._internal_cache = {}
+        self.ident = ident
+        # There should always be at least one miss (the first attempt)
+        # so start at -1
+        self.misses = -1
+        self.per_key_misses = defaultdict(lambda: -1)
+        self.hits = 0
+        self.per_key_hits = defaultdict(int)
+        self.immortal = False
+
+    def __contains__(self, key):
+        return key in self._internal_cache
+
+    def __getitem__(self, key):
+        """
+        Allow gettings values from this Memoizer like a standard dictionary.
+
+        This uses self.get internally to keep the stat tracking up to
+        date even when this entry point is used.
+        """
+        val = self.get(key)
+        if val is None:
+            raise KeyError
+        return val
+
+    def __setitem__(self, key, value):
+        """Allow setting values in the Memoizer like a standard dictionary."""
+        self._internal_cache[key] = value
+
+    def make_immortal(self):
+        """Make this memoizer immortal, it can never be cleared."""
+        self.immortal = True
+
+    def get(self, key, default=None):
+        """Get memoized value for key."""
+        try:
+            val = self._internal_cache[key]
+            self.hits += 1
+            self.per_key_hits[key] += 1
+            return val
+        except KeyError:
+            self.misses += 1
+            self.per_key_misses[key] += 1
+            return default
+
+    def clear(self, key=None):
+        """
+        Clear this Memoizer of values.
+
+        If key is provided clears a single key from the Memoizer. This
+        should be the preferred way to clear the Memoizer because full
+        invalidation is usually unnecessary.
+        
+        If this Memoizer is immortal this function is a no-op.
+        """
+        if self.immortal:
+            return
+
+        if key is None:
+            self._internal_cache = {}
+        else:
+            del self._internal_cache[key]
 
 # Local Variables:
 # tab-width:4

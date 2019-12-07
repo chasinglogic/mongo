@@ -615,7 +615,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         self._func_get_contents = 0
         self._func_target_from_source = 0
         self.ninfo = None
-        self._memo = dict()
+        self._memo = SCons.Memoize.Memoizer()
 
         # Let the interface in which the build engine is embedded
         # annotate this Node with its own info (like a description of
@@ -880,7 +880,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
         self.includes = None
 
     def clear_memoized_values(self):
-        self._memo = dict()
+        self._memo.clear()
 
     def builder_set(self, builder):
         self.builder = builder
@@ -1333,6 +1333,7 @@ class Node(object, with_metaclass(NoSlotsPyPy)):
             self.wkids.append(wkid)
 
     def _children_reset(self):
+        # self.clear_memoized_values()
         # We need to let the Executor clear out any calculated
         # build info that it's cached so we can re-calculate it.
         self.executor_cleanup()

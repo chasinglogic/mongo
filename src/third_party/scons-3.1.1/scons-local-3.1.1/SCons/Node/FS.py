@@ -416,7 +416,7 @@ def do_diskcheck_match(node, predicate, errorfmt):
         # really belong to us, but it's all about performance, so
         # for now we'll just document the dependency...)
         if node._memo['stat'] is None:
-            del node._memo['stat']
+            node._memo.clear('stat')
     except (AttributeError, KeyError):
         pass
     if result:
@@ -548,6 +548,19 @@ class EntryProxy(SCons.Util.Proxy):
         else:
             return attr_function(self)
 
+UNMEMOED = []
+# def print_unmemoed():
+#     total_hits = 0
+#     total_misses = 0
+#     for node in UNMEMOED:
+#         if node._memo.misses > 0:
+#             total_misses += node._memo.misses
+#         total_hits += node._memo.hits
+#     print("Total memo misses:", total_misses)
+#     print("Total memo hits:", total_hits)
+
+# import atexit
+# atexit.register(print_unmemoed)
 
 class Base(SCons.Node.Node):
     """A generic class for file system entries.  This class is for
@@ -696,10 +709,10 @@ class Base(SCons.Node.Node):
             # Python code in the SConscript files might still create
             # or otherwise affect the on-disk file.  So get rid of the
             # values that the underlying stat() method saved.
-            try: del self._memo['stat']
+            try: self._memo.clear('stat')
             except KeyError: pass
             if self is not srcnode:
-                try: del srcnode._memo['stat']
+                try: srcnode._memo.clear('stat')
                 except KeyError: pass
         return result
 
@@ -711,6 +724,7 @@ class Base(SCons.Node.Node):
             return self._memo['stat']
         except KeyError:
             pass
+
         try:
             result = self.fs.stat(self.get_abspath())
         except os.error:
@@ -749,9 +763,17 @@ class Base(SCons.Node.Node):
 
     if hasattr(os, 'symlink'):
         def islink(self):
-            try: st = self.fs.lstat(self.get_abspath())
-            except os.error: return 0
-            return stat.S_ISLNK(st[stat.ST_MODE])
+            try:
+                return self._memo['islink']
+            except KeyError:
+                try:
+                    result = self.fs.lstat(self.get_abspath())
+                    result = stat.S_ISLINK(result[stat.ST_MODE])
+                except os.error:
+                    result = 0
+
+                self._memo['islink'] = result
+                return result
     else:
         def islink(self):
             return 0                    # no symlinks
@@ -2643,6 +2665,9 @@ class File(Base):
         if SCons.Debug.track_instances: logInstanceCreation(self, 'Node.FS.File')
         Base.__init__(self, name, directory, fs)
         self._morph()
+        # self._memo.ident = self.get_abspath()
+        global UNMEMOED
+        UNMEMOED.append(self)
 
     def Entry(self, name):
         """Create an entry node named 'name' relative to
