@@ -1076,7 +1076,7 @@ env = Environment(variables=env_vars, **envDict)
 
 # Only print the spinner if stdout is a tty
 if sys.stdout.isatty():
-    Progress(['-\r', '\\\r', '|\r', '/\r'], interval=5)
+    Progress(['-\r', '\\\r', '|\r', '/\r'], interval=50)
 
 del envDict
 

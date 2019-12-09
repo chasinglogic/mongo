@@ -18,6 +18,8 @@ import os
 import importlib
 import io
 import shutil
+
+from threading import Lock
 from glob import glob
 
 import SCons
@@ -29,6 +31,8 @@ NINJA_RULES = "__NINJA_CUSTOM_RULES"
 NINJA_CUSTOM_HANDLERS = "__NINJA_CUSTOM_HANDLERS"
 NINJA_BUILD = "NINJA_BUILD"
 NINJA_OUTPUTS = "__NINJA_OUTPUTS"
+NINJA_STAT_MEMO = {}
+MEMO_LOCK = Lock()
 
 # These are the types that get_command can do something with
 COMMAND_TYPES = (
@@ -46,11 +50,6 @@ def is_generated_source(output):
         if generated.endswith(".h") or generated.endswith(".hpp"):
             return True
     return False
-
-
-def null_function(_env, _node):
-    """Do nothing for this function action"""
-    return None
 
 
 def _install_action_function(_env, node):
@@ -146,12 +145,12 @@ class SConsToNinjaTranslator:
         self.func_handlers = {
 
             # Skip conftest builders
-            "_createSource": null_function,
+            "_createSource": ninja_noop,
 
             # SCons has a custom FunctionAction that just makes sure the
             # target isn't static. We let the commands that ninja runs do
             # this check for us.
-            "SharedFlagChecker": null_function,
+            "SharedFlagChecker": ninja_noop,
 
             # The install builder is implemented as a function action.
             "installFunc": _install_action_function,
@@ -450,7 +449,6 @@ class NinjaState:
                     # Use False since None is a valid value for this attribute
                     build = getattr(child.attributes, NINJA_BUILD, False)
                     if build is False:
-                        print("Generating Ninja build for:", str(child))
                         build = self.translator.action_to_ninja_build(child)
                         setattr(child.attributes, NINJA_BUILD, build)
                 else:
@@ -460,7 +458,6 @@ class NinjaState:
                 if build is None or build == 0:
                     continue
 
-                print("Collecting build for:", build["outputs"])
                 self.builds.append(build)
 
     # pylint: disable=too-many-branches,too-many-locals
@@ -832,6 +829,37 @@ def ninja_contents(original):
     return wrapper
 
 
+def ninja_stat(_self, path):
+    """
+    Eternally memoized stat call.
+
+    SCons is very aggressive about clearing out cached values. For our
+    purposes everything should only ever get statted once since we're
+    running in a no_exec build the file system state should not
+    change. For these reasons we patch SCons.Node.FS.LocalFS.stat to
+    use our eternal memoized dictionary.
+    
+    Since this is happening during the Node walk it's being run while
+    threaded, we have to protect adding to the memoized dictionary
+    with a threading.Lock otherwise many targets miss the memoization
+    due to a racing.
+    """
+    global NINJA_STAT_MEMO
+
+    try:
+        return NINJA_STAT_MEMO[path]
+    except KeyError:
+        try:
+            result = os.stat(path)
+        except os.error:
+            result = None
+
+        with MEMO_LOCK:
+            NINJA_STAT_MEMO[path] = result
+
+        return result
+
+
 def ninja_noop(*_args, **_kwargs):
     """
     A general purpose no-op function.
@@ -840,7 +868,7 @@ def ninja_noop(*_args, **_kwargs):
     also don't return anything. We use this to disable those functions
     instead of creating multiple definitions of the same thing.
     """
-    pass  # pylint: disable=unnecessary-pass
+    return None
 
 
 def ninja_whereis(thing, *_args, **_kwargs):
@@ -878,6 +906,10 @@ def generate(env):
     SCons.Node.FS.File.prepare = ninja_noop
     SCons.Node.FS.File.push_to_cache = ninja_noop
     SCons.Node.FS.File.built = ninja_noop
+    SCons.Node.FS.LocalFS.lstat = ninja_noop
+    SCons.Node.FS.LocalFS.stat = ninja_stat
+
+    SCons.Executor.Executor.prepare = ninja_noop
 
     SCons.Executor.Executor.get_contents = ninja_contents(SCons.Executor.Executor.get_contents)
     SCons.Node.Alias.Alias.get_contents = ninja_contents(SCons.Node.Alias.Alias.get_contents)
