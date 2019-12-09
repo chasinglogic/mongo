@@ -24,10 +24,10 @@ from shrub.task import TaskDependency
 from shrub.variant import DisplayTaskDefinition
 from shrub.variant import TaskSpec
 
-from buildscripts.resmokelib import config as _config
-from buildscripts.resmokelib.multiversionconstants import (LAST_STABLE_MONGO_BINARY,
+from resmoke.resmokelib import config as _config
+from resmoke.resmokelib.multiversionconstants import (LAST_STABLE_MONGO_BINARY,
                                                            REQUIRES_FCV_TAG)
-import buildscripts.resmokelib.parser
+import resmoke.resmokelib.parser
 import buildscripts.util.read_config as read_config
 import buildscripts.util.taskname as taskname
 import buildscripts.evergreen_generate_resmoke_tasks as generate_resmoke
@@ -374,7 +374,7 @@ def generate_exclude_yaml(suite, task_path_suffix, is_generated_suite):
 
     if not is_generated_suite:
         # Populate the config values to get the resmoke config directory.
-        buildscripts.resmokelib.parser.set_options()
+        resmoke.resmokelib.parser.set_options()
         suites_dir = os.path.join(_config.CONFIG_DIR, "suites")
 
         # Update the static suite config with the excluded files and write to disk.
