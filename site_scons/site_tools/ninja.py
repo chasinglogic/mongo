@@ -885,9 +885,6 @@ def ninja_whereis(thing, *_args, **_kwargs):
 
 def generate(env):
     """Generate the NINJA builders."""
-    if not exists(env):
-        return
-
     env[NINJA_SYNTAX] = env.get(NINJA_SYNTAX, "ninja_syntax.py")
 
     # Add the Ninja builder.
@@ -911,6 +908,33 @@ def generate(env):
     # Make SCons node walk faster by preventing unnecessary work
     env.Decider("timestamp-match")
 
+    # This is the point of no return, anything after this comment
+    # makes changes to SCons that are irreversible and incompatible
+    # with a normal SCons build. We return early if __NINJA_NO=1 has
+    # been given on the command line (i.e. by us in the generated
+    # ninja file) here to prevent these modifications from happening
+    # when we want SCons to do work. Everything before this was
+    # necessary to setup the builder and other functions so that the
+    # tool can be unconditionally used in the users's SCons files.
+
+    if not exists(env):
+        return
+
+    # Replace false Compiling* messages with a more accurate output
+    #
+    # We also use this to tag all Nodes with Builders using
+    # CommandActions with the final command that was used to compile
+    # it for passing to Ninja. If we don't inject this behavior at
+    # this stage in the build too much state is lost to generate the
+    # command at the actual ninja_builder execution time for most
+    # commands.
+    #
+    # We do attempt command generation again in ninja_builder if it
+    # hasn't been tagged and it seems to work for anything that
+    # doesn't represent as a non-FunctionAction during the print_func
+    # call.
+    env["PRINT_CMD_LINE_FUNC"] = ninja_print
+
     # Monkey patch get_csig for some node classes. It slows down the build
     # significantly and we don't need content signatures calculated when
     # generating a ninja file.
@@ -931,21 +955,6 @@ def generate(env):
 
     # pylint: disable=protected-access
     SCons.Platform.TempFileMunge._print_cmd_str = ninja_noop
-
-    # Replace false Compiling* messages with a more accurate output
-    #
-    # We also use this to tag all Nodes with Builders using
-    # CommandActions with the final command that was used to compile
-    # it for passing to Ninja. If we don't inject this behavior at
-    # this stage in the build too much state is lost to generate the
-    # command at the actual ninja_builder execution time for most
-    # commands.
-    #
-    # We do attempt command generation again in ninja_builder if it
-    # hasn't been tagged and it seems to work for anything that
-    # doesn't represent as a non-FunctionAction during the print_func
-    # call.
-    env["PRINT_CMD_LINE_FUNC"] = ninja_print
 
     # Set build to no_exec, our sublcass of FunctionAction will force
     # an execution for ninja_builder so this simply effects all other
