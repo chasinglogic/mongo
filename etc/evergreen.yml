@@ -3960,7 +3960,7 @@ tasks:
       params:
         working_dir: src
         shell: bash
-        script: ninja -f all.build.ninja
+        script: ninja -f new.build.ninja
 
 ## compile_all - build all scons targets ##
 - name: compile_all
@@ -9494,6 +9494,7 @@ buildvariants:
     push_name: windows
     push_arch: x86-enterprise
   tasks:
+  - name: compile_ninja_TG
   - name: compile_TG
     requires:
     - name: burn_in_tests_gen
