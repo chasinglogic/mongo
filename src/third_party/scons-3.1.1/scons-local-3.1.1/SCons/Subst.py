@@ -4,6 +4,8 @@ SCons string substitution.
 
 """
 
+TIMES = 0
+
 #
 # Copyright (c) 2001 - 2019 The SCons Foundation
 #
@@ -57,6 +59,16 @@ def raise_exception(exception, target, s):
         raise SCons.Errors.UserError(msg)
 
 
+def needs_further_subst(s):
+    """
+    Determines if s needs to be recursively substituted.
+
+    If s is not a string or is an unexpanded string it needs to be
+    substituted again to evaluate it's value.
+    """
+    return not (s and is_String(s) and s[0] != '$')
+
+# def stupid_hash():
 
 class Literal(object):
     """A wrapper for a string.  If you use this object wrapped
@@ -695,10 +707,12 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         else:
                             return
 
-                    if s and is_String(s) and s[0] != '$':
+                    if not needs_further_subst(s):
                         self.append(s)
                         return
-                    
+                    elif not s:
+                        return
+
                     # Before re-expanding the result, handle
                     # recursive expansion by copying the local
                     # variable dictionary and overwriting a null
@@ -707,14 +721,16 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     lv = lvars.copy()
                     var = key.split('.')[0]
                     lv[var] = ''
-                    self.substitute(s, lv, 0)
+                    self.substitute(s, lv, 0, recursive_call=True)
                     self.this_word()
             elif is_Sequence(s):
                 for a in s:
-                    if a and is_String(a) and a[0] != '$':
+                    if not needs_further_subst(a):
                         self.append(a)
+                    elif not s:
+                        continue
                     else:
-                        self.substitute(a, lvars, 1)
+                        self.substitute(a, lvars, 1, recursive_call=True)
                     self.next_word()
             elif callable(s):
                 try:
@@ -730,18 +746,31 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         self.append(s)
                         return
                     s = self.conv(s)
-                self.substitute(s, lvars, within_list)
+
+                if not needs_further_subst(s):
+                    self.append(s)
+                    return 
+                elif not s:
+                    return
+
+                self.substitute(s, lvars, within_list, recursive_call=True)
             elif s is None:
                 self.this_word()
             else:
                 self.append(s)
 
-        def substitute(self, args, lvars, within_list):
+        def substitute(self, args, lvars, within_list, recursive_call=False):
             """Substitute expansions in an argument or list of arguments.
 
             This serves as a wrapper for splitting up a string into
             separate tokens.
             """
+
+            # if recursive_call:
+            #     global TIMES
+            #     TIMES += 1
+
+            #     print("Recursed", TIMES, "times.")
 
             if is_String(args) and not isinstance(args, CmdStringHolder):
                 args = str(args)        # In case it's a UserString.
@@ -872,6 +901,8 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
     # construction environment Dictionary(ies) that are typically used
     # for expansion.
     gvars['__builtins__'] = __builtins__
+
+
 
     ls = ListSubber(env, mode, conv, gvars)
     ls.substitute(strSubst, lvars, 0)
