@@ -695,6 +695,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         else:
                             return
 
+                    if s and is_String(s) and s[0] != '$':
+                        self.append(s)
+                        return
+                    
                     # Before re-expanding the result, handle
                     # recursive expansion by copying the local
                     # variable dictionary and overwriting a null
@@ -707,7 +711,10 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                     self.this_word()
             elif is_Sequence(s):
                 for a in s:
-                    self.substitute(a, lvars, 1)
+                    if a and is_String(a) and a[0] != '$':
+                        self.append(a)
+                    else:
+                        self.substitute(a, lvars, 1)
                     self.next_word()
             elif callable(s):
                 try:
@@ -808,11 +815,8 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
                         # so we'll take this out but leave it commented
                         # for now in case there's a problem not covered
                         # by the test cases and we need to resurrect this.
-                        #literal1 = self.literal(self[-1][-1])
-                        #literal2 = self.literal(x)
                         y = self.conv(y)
                         if is_String(y):
-                            #y = CmdStringHolder(y, literal1 or literal2)
                             y = CmdStringHolder(y, None)
                         self[-1][-1] = y
 
