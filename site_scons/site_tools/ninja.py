@@ -23,7 +23,8 @@ from threading import Lock
 from glob import glob
 
 import SCons
-from SCons.Action import _string_from_cmd_list
+from SCons.Action import _string_from_cmd_list, get_default_ENV
+from SCons.Util import is_String, is_List
 from SCons.Script import COMMAND_LINE_TARGETS
 
 NINJA_SYNTAX = "NINJA_SYNTAX"
@@ -279,17 +280,25 @@ class SConsToNinjaTranslator:
         if results[0]["rule"] == "CMD":
             cmdline = ""
             for cmd in results:
-                if not cmd["variables"]["cmd"]:
+
+                # Occasionally a command line will expand to a
+                # whitespace only string (i.e. '  '). Which is not a
+                # valid command but does not trigger the empty command
+                # condition if not cmdstr. So here we strip preceding
+                # and proceeding whitespace to make strings like the
+                # above become empty strings and so will be skipped.
+                cmdstr = cmd["variables"]["cmd"].strip()
+                if not cmdstr:
+                    continue
+
+                # Skip duplicate commands
+                if cmdstr in cmdline:
                     continue
 
                 if cmdline:
                     cmdline += " && "
 
-                # Skip duplicate commands
-                if cmd["variables"]["cmd"] in cmdline:
-                    continue
-
-                cmdline += cmd["variables"]["cmd"]
+                cmdline += cmdstr
 
             # Remove all preceding and proceeding whitespace
             cmdline = cmdline.strip()
@@ -590,7 +599,9 @@ class NinjaState:
         # generate this rule even though SCons should know we're
         # dependent on SCons files.
         ninja.build(
-            ninja_file, rule="REGENERATE", implicit=glob("**/SCons*", recursive=True),
+            ninja_file,
+            rule="REGENERATE",
+            implicit=[self.env.File("#SConstruct").get_abspath()] + glob("src/**/SConscript", recursive=True),
         )
 
         ninja.build(
@@ -738,11 +749,41 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
         if cmd.endswith("&&"):
             cmd = cmd[0:-2].strip()
 
+    command_env = getattr(node.attributes, "NINJA_ENV_ENV", "")
+    if not command_env:
+        ENV = get_default_ENV(sub_env)
+
+        # This is taken wholesale from SCons/Action.py
+        #
+        # Ensure that the ENV values are all strings:
+        for key, value in ENV.items():
+            if not is_String(value):
+                if is_List(value):
+                    # If the value is a list, then we assume it is a
+                    # path list, because that's a pretty common list-like
+                    # value to stick in an environment variable:
+                    value = flatten_sequence(value)
+                    value = os.pathsep.join(map(str, value))
+                else:
+                    # If it isn't a string or a list, then we just coerce
+                    # it to a string, which is the proper way to handle
+                    # Dir and File instances and will produce something
+                    # reasonable for just about everything else:
+                    value = str(value)
+
+            if env["PLATFORM"] == "win32":
+                command_env += "set '{}={}' && ".format(key, value)
+            else:
+                command_env += "{}={}; ".format(key, value)
+
+        setattr(node.attributes, "NINJA_ENV_ENV", command_env)
+
+
     return {
         "outputs": get_outputs(node),
         "implicit": implicit,
         "rule": rule,
-        "variables": {"cmd": cmd},
+        "variables": {"cmd": command_env + cmd},
     }
 
 
