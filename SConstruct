@@ -635,6 +635,7 @@ def variable_tools_converter(val):
         "gziptool",
         'idl_tool',
         "jsheader",
+        "mongo_test_execution",
         "mongo_benchmark",
         "mongo_integrationtest",
         "mongo_unittest",

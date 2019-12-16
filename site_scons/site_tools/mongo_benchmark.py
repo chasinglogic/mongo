@@ -1,6 +1,20 @@
-"""Pseudo-builders for building and registering benchmarks.
+# Copyright 2019 MongoDB Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """
-import os
+Pseudo-builders for building and registering benchmarks.
+"""
 from SCons.Script import Action
 
 def exists(env):
@@ -9,7 +23,9 @@ def exists(env):
 _benchmarks = []
 def register_benchmark(env, test):
     _benchmarks.append(test.path)
+    env.GenerateTestExecutionAliases(test)
     env.Alias('$BENCHMARK_ALIAS', test)
+
 
 def benchmark_list_builder_action(env, target, source):
     ofile = open(str(target[0]), 'w')
@@ -48,22 +64,6 @@ def build_benchmark(env, target, source, **kwargs):
 
     result = bmEnv.Program(target, source, **kwargs)
     bmEnv.RegisterBenchmark(result[0])
-    hygienic = bmEnv.GetOption('install-mode') == 'hygienic'
-    if not hygienic:
-        installed_test = bmEnv.Install("#/build/benchmark/", result[0])
-        env.Command(
-            target="#@{}".format(os.path.basename(installed_test[0].path)),
-            source=installed_test,
-            action="${SOURCES[0]}"
-        )
-    else:
-        test_bin_name = os.path.basename(result[0].path)
-        env.Command(
-            target="#@{}".format(test_bin_name),
-            source=["$PREFIX_BINDIR/{}".format(test_bin_name)],
-            action="${SOURCES[0]}"
-        )
-
     return result
 
 
