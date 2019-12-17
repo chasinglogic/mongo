@@ -1436,6 +1436,7 @@ functions:
                 ${test_flags}                           \
                 --log=buildlogger                       \
                 --staggerJobs=on                        \
+                --installDir=${destdir|build/install}   \
                 --buildId=${build_id}                   \
                 --distroId=${distro_id}                 \
                 --executionNumber=${execution}          \
@@ -3719,41 +3720,41 @@ tasks:
         source_dir: "src"
         include:
           - "repo/**"
+          - "./**.msi"
 
     - command: archive.targz_pack
       params:
         target: "artifacts.tgz"
         source_dir: "src"
         include:
-          - "src/mongo/db/modules/enterprise/jstests/**"
-          - "compile_expansions.yml"
-          - "src/mongo/db/modules/subscription/jstests/**"
-          - "src/mongo/db/modules/enterprise/docs/**"
           - "*.exe"
-          - "jstests/**"
-          - "pytests/**"
-          - "./test*"
-          - "./mongobridge*"
-          - "./mongotmock*"
-          - "./wt*"
-          - "buildscripts/**"
           - "*Example"
           - "*Test"
           - "./**.pdb"
-          - "./**.msi"
-          - "./etc/pip/**"
-          - "./etc/scons/**"
-          - "./etc/*san.suppressions"
-          - "./etc/repo_config.yaml"
           - "./build/**.gcno"
-          - "src/mongo/util/options_parser/test_config_files/**"
-          - "src/mongo/client/sdam/json_tests/**"
+          - "./etc/*san.suppressions"
+          - "./etc/pip/**"
+          - "./etc/repo_config.yaml"
+          - "./etc/scons/**"
+          - "./mongobridge*"
+          - "./mongotmock*"
+          - "./test*"
+          - "./wt*"
+          - "artifacts.json"
+          - "buildscripts/**"
+          - "bypass_compile_expansions.yml"
+          - "compile_expansions.yml"
+          - "jstests/**"
           - "library_dependency_graph.json"
+          - "patch_files.txt"
+          - "pytests/**"
+          - "src/mongo/client/sdam/json_tests/**"
+          - "src/mongo/db/modules/enterprise/docs/**"
+          - "src/mongo/db/modules/enterprise/jstests/**"
+          - "src/mongo/db/modules/subscription/jstests/**"
+          - "src/mongo/util/options_parser/test_config_files/**"
           - "src/third_party/JSON-Schema-Test-Suite/tests/draft4/**"
           - "src/third_party/mock_ocsp_responder/**"
-          - "bypass_compile_expansions.yml"
-          - "patch_files.txt"
-          - "artifacts.json"
         exclude_files:
           - "*_test.pdb"
 
