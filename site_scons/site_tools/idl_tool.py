@@ -88,6 +88,7 @@ def generate(env):
     env['IDLC'] = sys.executable + " buildscripts/idl/idlc.py"
     env['IDLCFLAGS'] = ''
     base_dir = env.subst('$BUILD_ROOT/$VARIANT_DIR').replace("#", "")
+    env['IDLCCOMSTR'] = 'Generating $TARGETS'
     env['IDLCCOM'] = '$IDLC --include src --base_dir %s --target_arch $TARGET_ARCH --header ${TARGETS[1]} --output ${TARGETS[0]} $SOURCES ' % (
         base_dir)
     env['IDLCSUFFIX'] = '.idl'
