@@ -418,6 +418,11 @@ class StringSubber(object):
           """Return whether the string s can be passed to self.tokenize"""
           return is_String(s) and not isinstance(s, CmdStringHolder)
 
+     def expanded(self, s):
+          """Return if S needs no further expansion."""
+          return (is_String(s) and
+                  _dollar_exps.match(s) is None)
+
      def tokenize(self, s, lvars):
           try:
                 tokens = [
@@ -506,11 +511,7 @@ class StringSubber(object):
 
                      # If the string is expanded all the way append it and
                      # move on.
-                     if (
-                                is_String(s) and
-                                _dollar_exps.match(s) is None and
-                                _separate_args.match(s) is None
-                     ):
+                     if self.expanded(s):
                           result += s
                           continue
 
@@ -603,199 +604,111 @@ class ListSubber(collections.UserList, StringSubber):
           self.in_strip = None
           self.next_line()
 
-     def expand(self, s, lvars, within_list):
-          """Expand a single "token" as necessary, appending the
-          expansion to the current result.
-
-          This handles expanding different types of things (strings,
-          lists, callables) appropriately.  It calls the wrapper
-          substitute() method to re-expand things as necessary, so that
-          the results of expansions of side-by-side strings still get
-          re-evaluated separately, not smushed together.
-          """
-
-          if is_String(s):
-                try:
-                     s0, s1 = s[:2]
-                except (IndexError, ValueError):
-                     self.append(s)
-                     return
-                if s0 != '$':
-                     self.append(s)
-                     return
-                if s1 == '$':
-                     self.append('$')
-                elif s1 == '(':
-                     self.open_strip('$(')
-                elif s1 == ')':
-                     self.close_strip('$)')
-                else:
-                     key = s[1:]
-                     if key[0] == '{' or key.find('.') >= 0:
-                          if key[0] == '{':
-                                key = key[1:-1]
-                          try:
-                                s = eval(key, self.gvars, lvars)
-                          except KeyboardInterrupt:
-                                raise
-                          except Exception as e:
-                                if e.__class__ in AllowableExceptions:
-                                     return
-                                raise_exception(e, lvars['TARGETS'], s)
-                     else:
-                          if key in lvars:
-                                s = lvars[key]
-                          elif key in self.gvars:
-                                s = self.gvars[key]
-                          elif NameError not in AllowableExceptions:
-                                raise_exception(NameError(), lvars['TARGETS'], s)
-                          else:
-                                return
-
-                     # Before re-expanding the result, handle
-                     # recursive expansion by copying the local
-                     # variable dictionary and overwriting a null
-                     # string for the value of the variable name
-                     # we just expanded.
-                     lv = lvars.copy()
-                     var = key.split('.')[0]
-                     lv[var] = ''
-                     self.substitute(s, lv, 0)
-                     self.this_word()
-          elif is_Sequence(s):
-                for a in s:
-                     self.substitute(a, lvars, 1)
-                     self.next_word()
-          elif callable(s):
-                try:
-                     s = s(target=lvars['TARGETS'],
-                            source=lvars['SOURCES'],
-                            env=self.env,
-                            for_signature=(self.mode != SUBST_CMD))
-                except TypeError:
-                     # This probably indicates that it's a callable
-                     # object that doesn't match our calling arguments
-                     # (like an Action).
-                     if self.mode == SUBST_RAW:
-                          self.append(s)
-                          return
-                     s = self.conv(s)
-                self.substitute(s, lvars, within_list)
-          elif s is None:
-                self.this_word()
-          else:
-                self.append(s)
-
-     def tokenize(self, s, lvars, within_list=False):
-          tokens = [
-                (arg, lvars, within_list)
-                for arg in _separate_args.findall(s)
-                if arg
-          ]
-
-          if not tokens:
-                return [(s, lvars)]
-          return tokens
-
      def substitute(self, original_args, original_lvars, within_list=False):
           """Substitute expansions in an argument or list of arguments.
 
           This serves as a wrapper for splitting up a string into
           separate tokens.
           """
-
           if self.tokenizable(original_args):
-                # Call str in case it's a UserString.
-                stack = collections.deque(self.tokenize(str(original_args), original_lvars, within_list))
+               # Call str in case it's a UserString.
+               stack = collections.deque(self.tokenize(str(original_args), original_lvars, within_list))
           else:
-                stack = collections.deque([(original_args, original_lvars, within_list)])
-
+               stack = collections.deque([(original_args, original_lvars, within_list)])
+               
+          import pdb; pdb.set_trace()
           while stack:
-                s, lvars, within_list = stack.popleft()
-                if is_String(s):
+               s, lvars, within_list = stack.popleft()
+               if not s or s is None:
+                    continue
+
+               elif is_String(s):
                     if s[0] in ' \t\n\r\f\v':
-                        if '\n' in s:
-                            self.next_line()
-                        elif within_list:
-                            self.append(s)
-                            continue
-                        else:
-                            self.next_word()
+                         if '\n' in s:
+                              self.next_line()
+                         elif within_list:
+                              self.append(s)
+                              continue
+                         else:
+                              self.next_word()
 
                     if len(s) == 1:
-                        self.append(s)
-                        continue
+                         self.append(s)
+                         continue
 
                     s0, s1 = s[:2]
                     if s0 != '$':
-                        self.append(s)
-                        continue
-                    
+                         self.append(s)
+                         continue
+
                     if s1 == '$':
-                        self.append('$')
+                         self.append('$')
                     elif s1 == '(':
-                        self.open_strip('$(')
+                         self.open_strip('$(')
                     elif s1 == ')':
-                        self.close_strip('$)')
+                         self.close_strip('$)')
                     else:
-                        key = s[1:]
-                        if key[0] == '{' or key.find('.') >= 0:
-                            if key[0] == '{':
-                                key = key[1:-1]
-                                try:
-                                    s = eval(key, self.gvars, lvars)
-                                except KeyboardInterrupt:
-                                    raise
-                                except Exception as e:
-                                    if e.__class__ in AllowableExceptions:
+                         key = s[1:]
+                         if key[0] == '{' or key.find('.') >= 0:
+                              if key[0] == '{':
+                                   key = key[1:-1]
+                              try:
+                                   s = eval(key, self.gvars, lvars)
+                              except KeyboardInterrupt:
+                                   raise
+                              except Exception as e:
+                                   if e.__class__ in AllowableExceptions:
                                         return
-                                    raise_exception(e, lvars['TARGETS'], s)
-                        else:
-                            if key in lvars:
-                                s = lvars[key]
-                            elif key in self.gvars:
-                                s = self.gvars[key]
-                            elif NameError not in AllowableExceptions:
-                                raise_exception(NameError(), lvars['TARGETS'], s)
-                            else:
-                                return
-                            
-                        # Before re-expanding the result, handle
-                        # recursive expansion by copying the local
-                        # variable dictionary and overwriting a null
-                        # string for the value of the variable name
-                        # we just expanded.
-                        lv = lvars.copy()
-                        var = key.split('.')[0]
-                        lv[var] = ''
-                        if self.tokenizable(s):
-                            stack.extendleft(reversed(self.tokenize(s, lv, within_list)))
-                        else:
-                            stack.appendleft((s, lv, within_list))
-                            self.this_word()
+                                   raise_exception(e, lvars['TARGETS'], s)
+                         else:
+                              if key in lvars:
+                                   s = lvars[key]
+                              elif key in self.gvars:
+                                   s = self.gvars[key]
+                              elif NameError not in AllowableExceptions:
+                                   raise_exception(NameError(), lvars['TARGETS'], s)
+                              else:
+                                   return
 
-                elif is_Sequence(s):
+                         if self.expanded(s):
+                              self.append(s)
+                              continue
+
+                         # Before re-expanding the result, handle
+                         # recursive expansion by copying the local
+                         # variable dictionary and overwriting a null
+                         # string for the value of the variable name
+                         # we just expanded.
+                         lv = lvars.copy()
+                         var = key.split('.')[0]
+                         lv[var] = ''
+                         if self.tokenizable(s):
+                              stack.extendleft(reversed(self.tokenize(s, lv, within_list)))
+                         else:
+                              stack.appendleft((s, lv, within_list))
+                         self.this_word()
+               elif is_Sequence(s):
                     for a in s:
-                        stack.appendleft((a, lvars, True))
+                         stack.appendleft((a, lvars, True))
 
-                elif callable(s):
+               elif callable(s):
                     try:
-                        s = s(target=lvars['TARGETS'],
-                              source=lvars['SOURCES'],
-                              env=self.env,
-                              for_signature=(self.mode != SUBST_CMD))
+                         s = s(target=lvars['TARGETS'],
+                               source=lvars['SOURCES'],
+                               env=self.env,
+                               for_signature=(self.mode != SUBST_CMD))
                     except TypeError:
-                        # This probably indicates that it's a callable
-                        # object that doesn't match our calling arguments
-                        # (like an Action).
-                        if self.mode == SUBST_RAW:
-                            self.append(s)
-                            continue
-                        s = self.conv(s)
-                        stack.appendleft((s, lvars, within_list))
-                elif s is None:
+                         # This probably indicates that it's a callable
+                         # object that doesn't match our calling arguments
+                         # (like an Action).
+                         if self.mode == SUBST_RAW:
+                              self.append(s)
+                              continue
+                         s = self.conv(s)
+                         stack.appendleft((s, lvars, within_list))
+               elif s is None:
                     self.this_word()
-                else:
+               else:
                     self.append(s)
                 
 
