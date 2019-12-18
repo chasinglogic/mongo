@@ -506,8 +506,8 @@ class StringSubber(object):
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
-        # if 'INTEGRATION' in str(args):
-        #     import pdb; pdb.set_trace()
+        if is_String(args) and 'TOOLS' in args:
+            import pdb; pdb.set_trace()
 
         if is_String(args) and not isinstance(args, CmdStringHolder):
             args = str(args)        # In case it's a UserString.
@@ -533,39 +533,58 @@ class StringSubber(object):
         else:
             return self.expand(args, lvars)
 
+    def tokenize(self, s, lvars):
+        try:
+            tokens = [
+                (token, lvars)
+                for token in _dollar_exps.split(s)
+                if token
+            ]
+        except TypeError:
+            print("HIT!", s)
+            # If the internal conversion routine doesn't return
+            # strings (it could be overridden to return Nodes, for
+            # example), then the 1.5.2 re module will throw this
+            # exception.  Back off to a slower, general-purpose
+            # algorithm that works for all data types.
+            tokens = [
+                (arg, lvars)
+                for arg in _separate_args.findall(s)
+            ]
+
+        if not tokens:
+            return [(s, lvars)]
+        return tokens
+
     def substitute(self, original_args, original_lvars):
         """Substitute expansions in an argument or list of arguments.
 
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
-        result = ""
+        # if str(original_args) == '$BUILD_ROOT/$VARIANT_DIR':
+        #     import pdb; pdb.set_trace()
 
         if is_String(original_args) and not isinstance(original_args, CmdStringHolder):
-            original_args = str(original_args)        # In case it's a UserString.
-            # TODO: revisit this to remove the sub_match function
-            stack = [
-                (match.group(1), original_lvars)
-                for match in _dollar_exps.finditer(original_args)
-            ]
+            # str original_args in case it's a UserString.
+            stack = collections.deque(self.tokenize(str(original_args), original_lvars))
         else:
-            stack = [(original_args, original_lvars)]
+            stack = collections.deque([(original_args, original_lvars)])
+
+        result = ""
 
         while stack:
             print()
-            args, lvars = stack.pop()
+            args, lvars = stack.popleft()
             print("ARGS", args)
             print("LVARS", lvars)
+
+            if result == "src/mongo/crypto/openssl":
+                import pdb; pdb.set_trace()
 
             s = args
             print("S", s)
             print("RESULT", result)
-
-            if s == "$BUILD_ROOT/benchmarks.txt":
-                import pdb; pdb.set_trace()
-
-            if result:
-                result += " "
 
             if not s or s is None:
                 continue
@@ -616,6 +635,10 @@ class StringSubber(object):
                     else:
                         continue
 
+                if is_String(s) and s and s[0] != '$':
+                    result += s
+                    continue
+
                 # Before re-expanding the result, handle
                 # recursive expansion by copying the local
                 # variable dictionary and overwriting a null
@@ -631,36 +654,22 @@ class StringSubber(object):
                 lv = lvars.copy()
                 var = key.split('.')[0]
                 lv[var] = ''
-
                 if is_String(s) and not isinstance(s, CmdStringHolder):
-                    try:
-                        stack.extend([
-                            (match.group(1), lv)
-                            for match in _dollar_exps.finditer(s)
-                        ])
-                    except TypeError as e:
-                        print("TYPEERR", e)
-                        # If the internal conversion routine doesn't return
-                        # strings (it could be overridden to return Nodes, for
-                        # example), then the 1.5.2 re module will throw this
-                        # exception.  Back off to a slower, general-purpose
-                        # algorithm that works for all data types.
-                        stack.extend([
-                            (a, lv)
-                            for a in _separate_args.findall(args)
-                        ])
-                        # for a in args:
-                        #     result.append(self.conv(self.expand(a, lvars)))
-                        #     if len(result) == 1:
-                        #         result = result[0]
-                        #     else:
-                        #         result = ''.join(map(str, result))
+                    stack.extend(self.tokenize(s, lv))
                 else:
                     stack.append((s, lv))
 
             elif is_Sequence(s):
-                for l in s:
-                    stack.append((l, lvars))
+                # TODO: find a way to remove this
+                def recursive_subst(l):
+                    return self.conv(self.substitute(l, lvars))
+
+                return self.conv(list(
+                    map(
+                        recursive_subst,
+                        s,
+                    )
+                ))
 
             elif callable(s):
                 try:
@@ -679,9 +688,16 @@ class StringSubber(object):
                     s = self.conv(s)
                     stack.append(s, lvars)
 
-            else:
-                print("Hit this for:", self.conv(s))
+            # TODO: factor these out into a variable "CONVERTIBLE_TYPES"
+            elif isinstance(s, (int, Target_or_Source)):
                 result += self.conv(s)
+
+            else:
+                print("Hit this for", s, type(s))
+                return s
+
+        if result == "src/mongo/crypto/openssl":
+            import pdb; pdb.set_trace()
 
         return result
 
