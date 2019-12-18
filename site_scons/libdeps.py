@@ -385,15 +385,19 @@ def setup_environment(env, emitting_shared=False):
     def expand_libdeps_with_extraction_flags(source, target, env, for_signature):
         result = []
         libs = get_libdeps(source, target, env, for_signature)
+        whole_archive_start = env.subst('$LINK_WHOLE_ARCHIVE_LIB_START')
+        whole_archive_end = env.subst('$LINK_WHOLE_ARCHIVE_LIB_END')
         for lib in libs:
             if 'init-no-global-side-effects' in env.Entry(lib).get_env().get('LIBDEPS_TAGS', []):
                 result.append(str(lib))
             else:
                 result.extend(
-                    env.subst(
-                        '$LINK_WHOLE_ARCHIVE_LIB_START'
-                        '$TARGET'
-                        '$LINK_WHOLE_ARCHIVE_LIB_END', target=lib).split())
+                    [
+                        whole_archive_start,
+                        str(lib),
+                        whole_archive_end,
+                    ])
+
         return result
 
     env['_LIBDEPS_LIBS_WITH_TAGS'] = expand_libdeps_with_extraction_flags
