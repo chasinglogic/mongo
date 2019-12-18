@@ -37,8 +37,8 @@ from SCons.Util import is_String, is_Sequence
 
 # Indexed by the SUBST_* constants below.
 _strconv = [SCons.Util.to_String_for_subst,
-                SCons.Util.to_String_for_subst,
-                SCons.Util.to_String_for_signature]
+            SCons.Util.to_String_for_subst,
+            SCons.Util.to_String_for_signature]
 
 
 
@@ -578,7 +578,7 @@ class StringSubber(object):
           return result
 
 
-class ListSubber(collections.UserList, StringSubber):
+class ListSubber2(collections.UserList, StringSubber):
      """A class to construct the results of a scons_subst_list() call.
 
      Like StringSubber, this class binds a specific construction
@@ -604,6 +604,17 @@ class ListSubber(collections.UserList, StringSubber):
           self.in_strip = None
           self.next_line()
 
+     def tokenize(self, s, lvars, within_list=False):
+          tokens = [
+               (arg, lvars, within_list)
+               for arg in _separate_args.findall(s)
+               if arg
+          ]
+
+          if not tokens:
+               return (s, lvars, within_list)
+          return tokens
+
      def substitute(self, original_args, original_lvars, within_list=False):
           """Substitute expansions in an argument or list of arguments.
 
@@ -616,21 +627,18 @@ class ListSubber(collections.UserList, StringSubber):
           else:
                stack = collections.deque([(original_args, original_lvars, within_list)])
                
-          import pdb; pdb.set_trace()
           while stack:
                s, lvars, within_list = stack.popleft()
-               if not s or s is None:
-                    continue
-
-               elif is_String(s):
+               print("S", s)
+               if is_String(s):
                     if s[0] in ' \t\n\r\f\v':
                          if '\n' in s:
                               self.next_line()
                          elif within_list:
                               self.append(s)
-                              continue
                          else:
                               self.next_word()
+                         continue
 
                     if len(s) == 1:
                          self.append(s)
@@ -638,6 +646,7 @@ class ListSubber(collections.UserList, StringSubber):
 
                     s0, s1 = s[:2]
                     if s0 != '$':
+                         print("THIS HAPPENED")
                          self.append(s)
                          continue
 
@@ -658,7 +667,7 @@ class ListSubber(collections.UserList, StringSubber):
                                    raise
                               except Exception as e:
                                    if e.__class__ in AllowableExceptions:
-                                        return
+                                        continue
                                    raise_exception(e, lvars['TARGETS'], s)
                          else:
                               if key in lvars:
@@ -668,11 +677,7 @@ class ListSubber(collections.UserList, StringSubber):
                               elif NameError not in AllowableExceptions:
                                    raise_exception(NameError(), lvars['TARGETS'], s)
                               else:
-                                   return
-
-                         if self.expanded(s):
-                              self.append(s)
-                              continue
+                                   continue
 
                          # Before re-expanding the result, handle
                          # recursive expansion by copying the local
@@ -685,8 +690,8 @@ class ListSubber(collections.UserList, StringSubber):
                          if self.tokenizable(s):
                               stack.extendleft(reversed(self.tokenize(s, lv, within_list)))
                          else:
+                              print("APPENDING:", s)
                               stack.appendleft((s, lv, within_list))
-                         self.this_word()
                elif is_Sequence(s):
                     for a in s:
                          stack.appendleft((a, lvars, True))
@@ -703,6 +708,7 @@ class ListSubber(collections.UserList, StringSubber):
                          # (like an Action).
                          if self.mode == SUBST_RAW:
                               self.append(s)
+                              self.next_word()
                               continue
                          s = self.conv(s)
                          stack.appendleft((s, lvars, within_list))
@@ -710,7 +716,9 @@ class ListSubber(collections.UserList, StringSubber):
                     self.this_word()
                else:
                     self.append(s)
+                    self.next_word()
                 
+          # print("RESULT", self, "FROM", original_args)
 
      def next_line(self):
           """Arrange for the next word to start a new line.  This
@@ -890,6 +898,231 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
      substitutions within strings, so see that function instead
      if that's what you're looking for.
      """
+     class ListSubber(collections.UserList):
+        """A class to construct the results of a scons_subst_list() call.
+        Like StringSubber, this class binds a specific construction
+        environment, mode, target and source with two methods
+        (substitute() and expand()) that handle the expansion.
+        In addition, however, this class is used to track the state of
+        the result(s) we're gathering so we can do the appropriate thing
+        whenever we have to append another word to the result--start a new
+        line, start a new word, append to the current word, etc.  We do
+        this by setting the "append" attribute to the right method so
+        that our wrapper methods only need ever call ListSubber.append(),
+        and the rest of the object takes care of doing the right thing
+        internally.
+        """
+        def __init__(self, env, mode, conv, gvars):
+            collections.UserList.__init__(self, [])
+            self.env = env
+            self.mode = mode
+            self.conv = conv
+            self.gvars = gvars
+
+            if self.mode == SUBST_RAW:
+                self.add_strip = lambda x: self.append(x)
+            else:
+                self.add_strip = lambda x: None
+            self.in_strip = None
+            self.next_line()
+
+        def expand(self, s, lvars, within_list):
+            """Expand a single "token" as necessary, appending the
+            expansion to the current result.
+            This handles expanding different types of things (strings,
+            lists, callables) appropriately.  It calls the wrapper
+            substitute() method to re-expand things as necessary, so that
+            the results of expansions of side-by-side strings still get
+            re-evaluated separately, not smushed together.
+            """
+
+            if is_String(s):
+                try:
+                    s0, s1 = s[:2]
+                except (IndexError, ValueError):
+                    self.append(s)
+                    return
+                if s0 != '$':
+                    self.append(s)
+                    return
+                if s1 == '$':
+                    self.append('$')
+                elif s1 == '(':
+                    self.open_strip('$(')
+                elif s1 == ')':
+                    self.close_strip('$)')
+                else:
+                    key = s[1:]
+                    if key[0] == '{' or key.find('.') >= 0:
+                        if key[0] == '{':
+                            key = key[1:-1]
+                        try:
+                            s = eval(key, self.gvars, lvars)
+                        except KeyboardInterrupt:
+                            raise
+                        except Exception as e:
+                            if e.__class__ in AllowableExceptions:
+                                return
+                            raise_exception(e, lvars['TARGETS'], s)
+                    else:
+                        if key in lvars:
+                            s = lvars[key]
+                        elif key in self.gvars:
+                            s = self.gvars[key]
+                        elif NameError not in AllowableExceptions:
+                            raise_exception(NameError(), lvars['TARGETS'], s)
+                        else:
+                            return
+
+                    # Before re-expanding the result, handle
+                    # recursive expansion by copying the local
+                    # variable dictionary and overwriting a null
+                    # string for the value of the variable name
+                    # we just expanded.
+                    lv = lvars.copy()
+                    var = key.split('.')[0]
+                    lv[var] = ''
+                    self.substitute(s, lv, 0)
+                    self.this_word()
+            elif is_Sequence(s):
+                for a in s:
+                    self.substitute(a, lvars, 1)
+                    self.next_word()
+            elif callable(s):
+                try:
+                    s = s(target=lvars['TARGETS'],
+                         source=lvars['SOURCES'],
+                         env=self.env,
+                         for_signature=(self.mode != SUBST_CMD))
+                except TypeError:
+                    # This probably indicates that it's a callable
+                    # object that doesn't match our calling arguments
+                    # (like an Action).
+                    if self.mode == SUBST_RAW:
+                        self.append(s)
+                        return
+                    s = self.conv(s)
+                self.substitute(s, lvars, within_list)
+            elif s is None:
+                self.this_word()
+            else:
+                self.append(s)
+
+        def substitute(self, args, lvars, within_list):
+            """Substitute expansions in an argument or list of arguments.
+            This serves as a wrapper for splitting up a string into
+            separate tokens.
+            """
+            if is_String(args) and not isinstance(args, CmdStringHolder):
+                args = str(args)        # In case it's a UserString.
+                args = _separate_args.findall(args)
+                for a in args:
+                    if a[0] in ' \t\n\r\f\v':
+                        if '\n' in a:
+                            self.next_line()
+                        elif within_list:
+                            self.append(a)
+                        else:
+                            self.next_word()
+                    else:
+                        self.expand(a, lvars, within_list)
+            else:
+                self.expand(args, lvars, within_list)
+
+            # print("RESULT", self, "FROM", args)
+
+        def next_line(self):
+            """Arrange for the next word to start a new line.  This
+            is like starting a new word, except that we have to append
+            another line to the result."""
+            collections.UserList.append(self, [])
+            self.next_word()
+
+        def this_word(self):
+            """Arrange for the next word to append to the end of the
+            current last word in the result."""
+            self.append = self.add_to_current_word
+
+        def next_word(self):
+            """Arrange for the next word to start a new word."""
+            self.append = self.add_new_word
+
+        def add_to_current_word(self, x):
+            """Append the string x to the end of the current last word
+            in the result.  If that is not possible, then just add
+            it as a new word.  Make sure the entire concatenated string
+            inherits the object attributes of x (in particular, the
+            escape function) by wrapping it as CmdStringHolder."""
+
+            if not self.in_strip or self.mode != SUBST_SIG:
+                try:
+                    current_word = self[-1][-1]
+                except IndexError:
+                    self.add_new_word(x)
+                else:
+                    # All right, this is a hack and it should probably
+                    # be refactored out of existence in the future.
+                    # The issue is that we want to smoosh words together
+                    # and make one file name that gets escaped if
+                    # we're expanding something like foo$EXTENSION,
+                    # but we don't want to smoosh them together if
+                    # it's something like >$TARGET, because then we'll
+                    # treat the '>' like it's part of the file name.
+                    # So for now, just hard-code looking for the special
+                    # command-line redirection characters...
+                    try:
+                        last_char = str(current_word)[-1]
+                    except IndexError:
+                        last_char = '\0'
+                    if last_char in '<>|':
+                        self.add_new_word(x)
+                    else:
+                        y = current_word + x
+
+                        # We used to treat a word appended to a literal
+                        # as a literal itself, but this caused problems
+                        # with interpreting quotes around space-separated
+                        # targets on command lines.  Removing this makes
+                        # none of the "substantive" end-to-end tests fail,
+                        # so we'll take this out but leave it commented
+                        # for now in case there's a problem not covered
+                        # by the test cases and we need to resurrect this.
+                        #literal1 = self.literal(self[-1][-1])
+                        #literal2 = self.literal(x)
+                        y = self.conv(y)
+                        if is_String(y):
+                            #y = CmdStringHolder(y, literal1 or literal2)
+                            y = CmdStringHolder(y, None)
+                        self[-1][-1] = y
+
+        def add_new_word(self, x):
+            if not self.in_strip or self.mode != SUBST_SIG:
+                literal = self.literal(x)
+                x = self.conv(x)
+                if is_String(x):
+                    x = CmdStringHolder(x, literal)
+                self[-1].append(x)
+            self.append = self.add_to_current_word
+
+        def literal(self, x):
+            try:
+                l = x.is_literal
+            except AttributeError:
+                return None
+            else:
+                return l()
+
+        def open_strip(self, x):
+            """Handle the "open strip" $( token."""
+            self.add_strip(x)
+            self.in_strip = 1
+
+        def close_strip(self, x):
+            """Handle the "close strip" $) token."""
+            self.add_strip(x)
+            self.in_strip = None
+
+
      if conv is None:
           conv = _strconv[mode]
 
@@ -916,7 +1149,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
      # for expansion.
      gvars['__builtins__'] = __builtins__
 
-     ls = ListSubber(env, mode, conv, gvars)
+     ls = ListSubber2(env, mode, conv, gvars)
      ls.substitute(strSubst, lvars, 0)
 
      try:
