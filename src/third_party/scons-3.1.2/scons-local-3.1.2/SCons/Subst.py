@@ -506,9 +506,6 @@ class StringSubber(object):
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
-        if is_String(args) and 'TOOLS' in args:
-            import pdb; pdb.set_trace()
-
         if is_String(args) and not isinstance(args, CmdStringHolder):
             args = str(args)        # In case it's a UserString.
             try:
@@ -541,7 +538,6 @@ class StringSubber(object):
                 if token
             ]
         except TypeError:
-            print("HIT!", s)
             # If the internal conversion routine doesn't return
             # strings (it could be overridden to return Nodes, for
             # example), then the 1.5.2 re module will throw this
@@ -562,9 +558,6 @@ class StringSubber(object):
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
-        # if str(original_args) == '$BUILD_ROOT/$VARIANT_DIR':
-        #     import pdb; pdb.set_trace()
-
         if is_String(original_args) and not isinstance(original_args, CmdStringHolder):
             # str original_args in case it's a UserString.
             stack = collections.deque(self.tokenize(str(original_args), original_lvars))
@@ -572,30 +565,18 @@ class StringSubber(object):
             stack = collections.deque([(original_args, original_lvars)])
 
         result = ""
-
         while stack:
-            print()
             args, lvars = stack.popleft()
-            print("ARGS", args)
-            print("LVARS", lvars)
-
-            if result == "src/mongo/crypto/openssl":
-                import pdb; pdb.set_trace()
-
             s = args
-            print("S", s)
-            print("RESULT", result)
-
             if not s or s is None:
                 continue
 
             elif is_String(s):
-                try:
-                    s0, s1 = s[:2]
-                except (IndexError, ValueError):
+                if len(s) == 1:
                     result += s
                     continue
 
+                s0, s1 = s[:2]
                 if s0 != '$':
                     result += s
                     continue
@@ -635,7 +616,7 @@ class StringSubber(object):
                     else:
                         continue
 
-                if is_String(s) and s and s[0] != '$':
+                if is_String(s) and _dollar_exps.match(s) is None and _separate_args.match(s) is None:
                     result += s
                     continue
 
@@ -655,21 +636,22 @@ class StringSubber(object):
                 var = key.split('.')[0]
                 lv[var] = ''
                 if is_String(s) and not isinstance(s, CmdStringHolder):
-                    stack.extend(self.tokenize(s, lv))
+                    stack.extendleft(reversed(self.tokenize(s, lv)))
                 else:
-                    stack.append((s, lv))
+                    stack.appendleft((s, lv))
 
             elif is_Sequence(s):
                 # TODO: find a way to remove this
                 def recursive_subst(l):
                     return self.conv(self.substitute(l, lvars))
 
-                return self.conv(list(
+                result += self.conv(list(
                     map(
                         recursive_subst,
                         s,
                     )
                 ))
+                continue
 
             elif callable(s):
                 try:
@@ -677,6 +659,8 @@ class StringSubber(object):
                           source=lvars['SOURCES'],
                           env=self.env,
                           for_signature=(self.mode != SUBST_CMD))
+                    stack.appendleft((s, lvars))
+
                 except TypeError:
                     # This probably indicates that it's a callable
                     # object that doesn't match our calling arguments
@@ -686,18 +670,15 @@ class StringSubber(object):
                         continue
 
                     s = self.conv(s)
-                    stack.append(s, lvars)
+                    stack.appendleft((s, lvars))
 
             # TODO: factor these out into a variable "CONVERTIBLE_TYPES"
-            elif isinstance(s, (int, Target_or_Source)):
+            # elif isinstance(s, (int, SCons.Executor.TSObject, Target_or_Source, Targets_or_Sources, SCons.Node.FS.File, SCons.Node.FS.Entry)):
+            elif not isinstance(s, dict):
                 result += self.conv(s)
 
             else:
-                print("Hit this for", s, type(s))
                 return s
-
-        if result == "src/mongo/crypto/openssl":
-            import pdb; pdb.set_trace()
 
         return result
 
