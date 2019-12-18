@@ -1074,6 +1074,7 @@ envDict = dict(BUILD_ROOT=buildDir,
                )
 
 env = Environment(variables=env_vars, **envDict)
+env["CONFIGURELOG"] = "/dev/stdout"
 
 # Only print the spinner if stdout is a tty
 if sys.stdout.isatty():
