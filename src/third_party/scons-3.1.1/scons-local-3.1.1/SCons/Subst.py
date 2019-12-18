@@ -26,7 +26,7 @@ SCons string substitution.
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-__revision__ = "src/engine/SCons/Subst.py bee7caf9defd6e108fc2998a2520ddb36a967691 2019-12-17 02:07:09 bdeegan"
+__revision__ = "src/engine/SCons/Subst.py 72ae09dc35ac2626f8ff711d8c4b30b6138e08e3 2019-08-08 14:50:06 bdeegan"
 
 import collections
 import re
@@ -503,12 +503,10 @@ class StringSubber(object):
 
     def substitute(self, args, lvars):
         """Substitute expansions in an argument or list of arguments.
+
         This serves as a wrapper for splitting up a string into
         separate tokens.
         """
-        # if 'INTEGRATION' in str(args):
-        #     import pdb; pdb.set_trace()
-
         if is_String(args) and not isinstance(args, CmdStringHolder):
             args = str(args)        # In case it's a UserString.
             try:
@@ -532,137 +530,6 @@ class StringSubber(object):
             return result
         else:
             return self.expand(args, lvars)
-
-    def substitute2(self, original_args, original_lvars):
-        """Substitute expansions in an argument or list of arguments.
-
-        This serves as a wrapper for splitting up a string into
-        separate tokens.
-        """
-        result = ""
-
-        if is_String(original_args) and not isinstance(original_args, CmdStringHolder):
-            original_args = str(original_args)        # In case it's a UserString.
-            # TODO: revisit this to remove the sub_match function
-            stack = [
-                (match.group(1), original_lvars)
-                for match in _dollar_exps.finditer(original_args)
-            ]
-        else:
-            stack = [(original_args, original_lvars)]
-
-        while stack:
-            print()
-            args, lvars = stack.pop()
-            print("ARGS", args)
-            print("LVARS", lvars)
-
-            s = args
-            print("S", s)
-            print("RESULT", result)
-
-            if s == "$BUILD_ROOT/benchmarks.txt":
-                import pdb; pdb.set_trace()
-
-            if result:
-                result += " "
-
-            if not s or s is None:
-                continue
-
-            elif is_String(s):
-                try:
-                    s0, s1 = s[:2]
-                except (IndexError, ValueError):
-                    result += s
-                    continue
-
-                if s0 != '$':
-                    result += s
-                    continue
-
-                if s1 == '$':
-                    # In this case keep the double $'s which we'll later
-                    # swap for a single dollar sign as we need to retain
-                    # this information to properly avoid matching "$("" when
-                    # the actual text was "$$(""  (or "$)"" when "$$)"" )
-                    result += '$$'
-                    continue
-
-                if s1 in '()':
-                    result += s
-                    continue
-
-                key = s[1:]
-                if key[0] == '{' or '.' in key:
-                    if key[0] == '{':
-                        key = key[1:-1]
-                        try:
-                            s = eval(key, self.gvars, lvars)
-                        except KeyboardInterrupt:
-                            raise
-                        except Exception as e:
-                            if e.__class__ in AllowableExceptions:
-                                continue
-                            raise_exception(e, lvars['TARGETS'], s)
-
-                else:
-                    if key in lvars:
-                        s = lvars[key]
-                    elif key in self.gvars:
-                        s = self.gvars[key]
-                    elif NameError not in AllowableExceptions:
-                        raise_exception(NameError(key), lvars['TARGETS'], s)
-                    else:
-                        continue
-
-                # Before re-expanding the result, handle
-                # recursive expansion by copying the local
-                # variable dictionary and overwriting a null
-                # string for the value of the variable name
-                # we just expanded.
-                #
-                # This could potentially be optimized by only
-                # copying lvars when s contains more expansions,
-                # but lvars is usually supposed to be pretty
-                # small, and deeply nested variable expansions
-                # are probably more the exception than the norm,
-                # so it should be tolerable for now.
-                lv = lvars.copy()
-                var = key.split('.')[0]
-                lv[var] = ''
-
-                stack.extend([
-                    (match.group(1), lv)
-                    for match in _dollar_exps.finditer(s)
-                ])
-
-            elif is_Sequence(s):
-                for l in s:
-                    stack.append((l, lvars))
-
-            elif callable(s):
-                try:
-                    s = s(target=lvars['TARGETS'],
-                          source=lvars['SOURCES'],
-                          env=self.env,
-                          for_signature=(self.mode != SUBST_CMD))
-                except TypeError:
-                    # This probably indicates that it's a callable
-                    # object that doesn't match our calling arguments
-                    # (like an Action).
-                    if self.mode == SUBST_RAW:
-                        result += s
-                        continue
-
-                    s = self.conv(s)
-                    stack.append(s, lvars)
-
-            else:
-                print("Hit this for:", self.conv(s))
-                result += self.conv(s)
-
-        return result
 
 
 class ListSubber(collections.UserList):
@@ -902,7 +769,7 @@ def scons_subst(strSubst, env, mode=SUBST_RAW, target=None, source=None, gvars={
     handles separating command lines into lists of arguments, so see
     that function if that's what you're looking for.
     """
-    if (isinstance(strSubst, str) and '$' not in strSubst) or isinstance(strSubst, CmdStringHolder):
+    if isinstance(strSubst, str) and strSubst.find('$') < 0:
         return strSubst
 
     if conv is None:
