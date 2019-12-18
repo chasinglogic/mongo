@@ -501,7 +501,7 @@ class StringSubber(object):
         else:
             return s
 
-    def substitute(self, args, lvars):
+    def substitute2(self, args, lvars):
         """Substitute expansions in an argument or list of arguments.
         This serves as a wrapper for splitting up a string into
         separate tokens.
@@ -533,7 +533,7 @@ class StringSubber(object):
         else:
             return self.expand(args, lvars)
 
-    def substitute2(self, original_args, original_lvars):
+    def substitute(self, original_args, original_lvars):
         """Substitute expansions in an argument or list of arguments.
 
         This serves as a wrapper for splitting up a string into
@@ -632,10 +632,31 @@ class StringSubber(object):
                 var = key.split('.')[0]
                 lv[var] = ''
 
-                stack.extend([
-                    (match.group(1), lv)
-                    for match in _dollar_exps.finditer(s)
-                ])
+                if is_String(s) and not isinstance(s, CmdStringHolder):
+                    try:
+                        stack.extend([
+                            (match.group(1), lv)
+                            for match in _dollar_exps.finditer(s)
+                        ])
+                    except TypeError as e:
+                        print("TYPEERR", e)
+                        # If the internal conversion routine doesn't return
+                        # strings (it could be overridden to return Nodes, for
+                        # example), then the 1.5.2 re module will throw this
+                        # exception.  Back off to a slower, general-purpose
+                        # algorithm that works for all data types.
+                        stack.extend([
+                            (a, lv)
+                            for a in _separate_args.findall(args)
+                        ])
+                        # for a in args:
+                        #     result.append(self.conv(self.expand(a, lvars)))
+                        #     if len(result) == 1:
+                        #         result = result[0]
+                        #     else:
+                        #         result = ''.join(map(str, result))
+                else:
+                    stack.append((s, lv))
 
             elif is_Sequence(s):
                 for l in s:
