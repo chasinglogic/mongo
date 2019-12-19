@@ -566,8 +566,16 @@ def finalize_install_dependencies(env):
                 # configurable? It's possible someone would want to do it.
                 env.NoCache(archive)
 
-                archive_alias = generate_alias(env, component, role, target=fmt)
-                env.Alias(archive_alias, archive)
+                compression_alias = generate_alias(env, component, role, target=fmt)
+                env.Alias(compression_alias, archive)
+
+                if (
+                        (env["PLATFORM"] == "win32" and fmt == "zip") or
+                        (env["PLATFORM"] != "win32" and fmt == "tar")
+                ):
+                    archive_alias = generate_alias(env, component, role, target="archive")
+                    env.Alias(archive_alias, archive)
+                
 
 
 def auto_install_emitter(target, source, env):

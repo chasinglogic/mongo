@@ -4383,18 +4383,7 @@ env.Alias('cache-prune', cachePrune)
 
 if get_option('install-mode') == 'hygienic':
     env.FinalizeInstallDependencies()
-    # TODO: Remove once hygienic is driving all builds and we can make
-    # the evergreen.yml make this decision
-    if env.TargetOSIs("windows"):
-        env.Alias("archive-dist", "zip-dist")
-        env.Alias("archive-dist-debug", "zip-dist-debug")
-        env.Alias("archive-mh", "zip-mh")
-        env.Alias("archive-mh-debug", "zip-mh-debug")
-    else:
-        env.Alias("archive-dist", "tar-dist")
-        env.Alias("archive-dist-debug", "tar-dist-debug")
-        env.Alias("archive-mh", "tar-mh")
-        env.Alias("archive-mh-debug", "tar-mh-debug")
+
 
 # We don't want installing files to cause them to flow into the cache,
 # since presumably we can re-install them from the origin if needed.
