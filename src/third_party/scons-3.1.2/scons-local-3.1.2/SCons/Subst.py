@@ -718,7 +718,7 @@ class ListSubber2(collections.UserList, StringSubber):
                     self.append(s)
                     self.next_word()
                 
-          # print("RESULT", self, "FROM", original_args)
+          print("RESULT", self, "FROM", original_args)
 
      def next_line(self):
           """Arrange for the next word to start a new line.  This
@@ -1029,7 +1029,7 @@ def scons_subst_list(strSubst, env, mode=SUBST_RAW, target=None, source=None, gv
             else:
                 self.expand(args, lvars, within_list)
 
-            # print("RESULT", self, "FROM", args)
+            print("RESULT", self, "FROM", args)
 
         def next_line(self):
             """Arrange for the next word to start a new line.  This
