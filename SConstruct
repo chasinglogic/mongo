@@ -636,6 +636,7 @@ def variable_tools_converter(val):
         'idl_tool',
         "jsheader",
         "mongo_test_execution",
+        "mongo_test_list",
         "mongo_benchmark",
         "mongo_integrationtest",
         "mongo_unittest",
