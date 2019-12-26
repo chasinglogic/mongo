@@ -1085,7 +1085,7 @@ functions:
         if [ -n "${burn_in_bypass}" ]; then
           ${activate_virtualenv}
           # Evergreen executable is in $HOME, so add that to the path.
-          PATH=$PATH:$HOME $python buildscripts/burn_in_tags_bypass_compile_and_fetch_binaries.py            \
+          DESTDIR=${destdir} PATH=$PATH:$HOME $python buildscripts/burn_in_tags_bypass_compile_and_fetch_binaries.py            \
             --project ${project}                                               \
             --build-variant ${burn_in_bypass}                                  \
             --revision ${revision}                                             \
@@ -1098,7 +1098,7 @@ functions:
         if [[ "${is_patch}" = "true" && "${task_name}" = "compile" ]]; then
           ${activate_virtualenv}
           # Evergreen executable is in $HOME, so add that to the path.
-          PATH=$PATH:$HOME $python buildscripts/bypass_compile_and_fetch_binaries.py            \
+          DESTDIR=${destdir} PATH=$PATH:$HOME $python buildscripts/bypass_compile_and_fetch_binaries.py            \
             --project ${project}                                               \
             --build-variant ${build_variant}                                   \
             --revision ${revision}                                             \

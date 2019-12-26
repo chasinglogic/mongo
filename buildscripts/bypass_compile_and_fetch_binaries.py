@@ -101,7 +101,11 @@ def executable_name(pathname):
     """Return the executable name."""
     # Ensure that executable files on Windows have a ".exe" extension.
     if _IS_WINDOWS and os.path.splitext(pathname)[1] != ".exe":
-        return "{}.exe".format(pathname)
+        pathname = "{}.exe".format(pathname)
+
+    destdir = os.getenv("DESTDIR")
+    if destdir:
+        return os.path.join(destdir, "bin", pathname)
     return pathname
 
 
