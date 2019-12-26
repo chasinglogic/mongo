@@ -830,7 +830,8 @@ def get_command(env, node, action):  # pylint: disable=too-many-branches
 
     # Don't use sub_env here because we require that NINJA_POOL be set
     # on a per-builder call basis to prevent accidental strange
-    # behavior like env['NINJA_POOL'] = 'console'
+    # behavior like env['NINJA_POOL'] = 'console' and sub_env can be
+    # the global Environment object if node.env is None.
     if node.env and node.env.get("NINJA_POOL", None) is not None:
         ninja_build["pool"] = node.env["NINJA_POOL"]
 
