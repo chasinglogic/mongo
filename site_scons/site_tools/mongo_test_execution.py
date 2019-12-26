@@ -48,11 +48,12 @@ def exists(env):
 
 
 def generate(env):
-     # Wire up dependency for Ninja generator to collect the test
+    # Wire up dependency for Ninja generator to collect the test
     # execution aliases
     test_execution_aliases = env.Alias('test-execution-aliases')
     env.Alias('all', test_execution_aliases)
     env.Alias('install-all-meta', test_execution_aliases)
     env.AddMethod(generate_test_execution_aliases, "GenerateTestExecutionAliases")
-     # TODO: Remove when the new ninja generator is the only supported generator
+
+    # TODO: Remove when the new ninja generator is the only supported generator
     env['_NINJA_NO_TEST_EXECUTION'] = True
