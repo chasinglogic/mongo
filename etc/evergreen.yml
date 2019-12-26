@@ -1422,33 +1422,33 @@ functions:
         # invocation. It doesn't set any environment variables and should therefore come last in
         # this list of expansions.
         set +o errexit
-        PATH="$path_value"                              \
-            AWS_PROFILE=${aws_profile_remote}           \
-            ${gcov_environment}                         \
-            ${lang_environment}                         \
-            ${san_options}                              \
-            ${san_symbolizer}                           \
-            ${snmp_config_path}                         \
-            ${resmoke_wrapper}                          \
-            $python buildscripts/evergreen_run_tests.py \
-                ${resmoke_args}                         \
-                $extra_args                             \
-                ${test_flags}                           \
-                --log=buildlogger                       \
-                --staggerJobs=on                        \
-                --installDir=${destdir|build/install}   \
-                --buildId=${build_id}                   \
-                --distroId=${distro_id}                 \
-                --executionNumber=${execution}          \
-                --projectName=${project}                \
-                --gitRevision=${revision}               \
-                --revisionOrderId=${revision_order_id}  \
-                --taskId=${task_id}                     \
-                --taskName=${task_name}                 \
-                --variantName=${build_variant}          \
-                --versionId=${version_id}               \
-                --archiveFile=archive.json              \
-                --reportFile=report.json                \
+        PATH="$path_value"                                \
+            AWS_PROFILE=${aws_profile_remote}             \
+            ${gcov_environment}                           \
+            ${lang_environment}                           \
+            ${san_options}                                \
+            ${san_symbolizer}                             \
+            ${snmp_config_path}                           \
+            ${resmoke_wrapper}                            \
+            $python buildscripts/evergreen_run_tests.py   \
+                ${resmoke_args}                           \
+                $extra_args                               \
+                ${test_flags}                             \
+                --log=buildlogger                         \
+                --staggerJobs=on                          \
+                --installDir=${destdir|build/install}/bin \
+                --buildId=${build_id}                     \
+                --distroId=${distro_id}                   \
+                --executionNumber=${execution}            \
+                --projectName=${project}                  \
+                --gitRevision=${revision}                 \
+                --revisionOrderId=${revision_order_id}    \
+                --taskId=${task_id}                       \
+                --taskName=${task_name}                   \
+                --variantName=${build_variant}            \
+                --versionId=${version_id}                 \
+                --archiveFile=archive.json                \
+                --reportFile=report.json                  \
                 --perfReportFile=perf.json
         resmoke_exit_code=$?
         set -o errexit
@@ -3727,19 +3727,15 @@ tasks:
         target: "artifacts.tgz"
         source_dir: "src"
         include:
-          - "*.exe"
-          - "*Example"
-          - "*Test"
-          - "./**.pdb"
           - "./build/**.gcno"
+          - "./build/install/**"
+          - "./build/install/**.pdb"
           - "./etc/*san.suppressions"
           - "./etc/pip/**"
           - "./etc/repo_config.yaml"
           - "./etc/scons/**"
           - "./mongobridge*"
           - "./mongotmock*"
-          - "./test*"
-          - "./wt*"
           - "artifacts.json"
           - "buildscripts/**"
           - "bypass_compile_expansions.yml"
