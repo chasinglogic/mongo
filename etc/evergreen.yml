@@ -1731,7 +1731,8 @@ functions:
         fi
         rm -rf ${install_directory|/data/mongo-install-directory}
 
-        extra_args=""
+        # Only allow hygienic builds in Evergreen
+        extra_args="--install-mode=hygienic"
         if [ -n "${num_scons_link_jobs_available|}" ]; then
           echo "Changing SCons to run with --jlink=${num_scons_link_jobs_available|}"
           extra_args="$extra_args --jlink=${num_scons_link_jobs_available|}"
@@ -3649,7 +3650,6 @@ tasks:
           ${mh_target|}
         task_compile_flags: >-
           --detect-odr-violations
-          --install-mode=hygienic
           --separate-debug
           --legacy-tarball
     - command: shell.exec
@@ -3875,7 +3875,6 @@ tasks:
         additional_targets: ""
         task_compile_flags: >-
           --detect-odr-violations
-          --install-mode=hygienic
           --separate-debug
 
 - name: compile_ninja
@@ -4110,7 +4109,6 @@ tasks:
           --dbg=off
           --enable-free-mon=off
           --enable-http-client=off
-          --install-mode=hygienic
           --js-engine=none
           --opt=size
           --separate-debug
@@ -4255,7 +4253,6 @@ tasks:
       vars:
         targets: install-stitch-support install-stitch-support-debug install-stitch-support-dev
         task_compile_flags: >-
-          --install-mode=hygienic
           --dbg=off
           --link-model=dynamic-sdk
           --enable-free-mon=off
@@ -4290,7 +4287,6 @@ tasks:
         targets: install-stitch-support-test
         compiling_for_test: true
         task_compile_flags: >-
-          --install-mode=hygienic
           --dbg=off
           --enable-free-mon=off
           --ssl=off
