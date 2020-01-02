@@ -20,21 +20,6 @@ from SCons.Script import Action
 def exists(env):
     return True
 
-_benchmarks = []
-def register_benchmark(env, test):
-    _benchmarks.append(test.path)
-    env.GenerateTestExecutionAliases(test)
-    env.Alias('$BENCHMARK_ALIAS', test)
-
-
-def benchmark_list_builder_action(env, target, source):
-    ofile = open(str(target[0]), 'w')
-    try:
-        for s in _benchmarks:
-            print('\t' + str(s))
-            ofile.write('%s\n' % s)
-    finally:
-        ofile.close()
 
 def build_benchmark(env, target, source, **kwargs):
 
@@ -63,13 +48,13 @@ def build_benchmark(env, target, source, **kwargs):
     kwargs['AIB_COMPONENTS_EXTRA'] = benchmark_test_components
 
     result = bmEnv.Program(target, source, **kwargs)
-    bmEnv.RegisterBenchmark(result[0])
+    bmEnv.RegisterTest('$BENCHMARK_LIST', result[0])
+    bmEnv.Alias('$BENCHMARK_ALIAS', result)
+
     return result
 
 
 def generate(env):
-    env.Command('$BENCHMARK_LIST', env.Value(_benchmarks),
-                Action(benchmark_list_builder_action, "Generating $TARGET"))
-    env.AddMethod(register_benchmark, 'RegisterBenchmark')
+    env.TestList('$BENCHMARK_LIST', source=[])
     env.AddMethod(build_benchmark, 'Benchmark')
     env.Alias('$BENCHMARK_ALIAS', '$BENCHMARK_LIST')
