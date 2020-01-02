@@ -3374,12 +3374,13 @@ functions:
     params:
       working_dir: "src"
       script: |
-        if [ -f resmoke_error_code ] && [ -f ../dbtest_unstripped.tgz ]; then
+        if [ -f resmoke_error_code ] && [ -f ../dbtest-debugsymbols.tgz ]; then
           echo "Task dbtest failed with error $(cat resmoke_error_code), archiving the unstripped binary"
-          mv ../dbtest_unstripped.tgz ../dbtest.tgz
+          mv ../dbtest-binary.tgz ../dbtest.tgz
+          mv ../dbtest-debugsymbols.tgz ../dbtest-dbg.tgz
         fi
 
-  "archive unstripped dbtest": &archive_unstripped_dbtest
+  "archive dbtest": &archive_dbtest
     command: s3.put
     params:
       aws_key: ${aws_key}
@@ -3392,9 +3393,23 @@ functions:
       display_name: Unstripped dbtest binary - Execution ${execution}
       optional: true
 
+  "archive dbtest debugsymbols": &archive_dbtest_debug
+    command: s3.put
+    params:
+      aws_key: ${aws_key}
+      aws_secret: ${aws_secret}
+      local_file: dbtest-dbg.tgz
+      remote_file: ${project}/${build_variant}/${revision}/dbtest/dbtest-${build_id}-${task_name}-${execution}.tgz
+      bucket: mciuploads
+      permissions: public-read
+      content_type: application/tar
+      display_name: Unstripped dbtest binary - Execution ${execution}
+      optional: true
+
   "save unstripped dbtest":
   - *detect_failed_dbtest
-  - *archive_unstripped_dbtest
+  - *archive_dbtest
+  - *archive_dbtest_debug
 
   ### Process & archive artifacts from hung processes ###
   "run hang analyzer":
@@ -4004,17 +4019,12 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: dbtest
+        targets: >-
+          archive-dbtest
+          archive-dbtest-debug
         task_compile_flags: >-
           --detect-odr-violations
         compiling_for_test: true
-    # Tar unstripped dbtest, to be archived in case of failure
-    - command: archive.targz_pack
-      params:
-        target: "dbtest_unstripped.tgz"
-        source_dir: "src"
-        include:
-          - "./dbtest*"
     - func: "run diskstats"
     - func: "monitor process threads"
     - func: "collect system resource info"

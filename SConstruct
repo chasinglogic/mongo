@@ -3953,6 +3953,18 @@ if get_option('install-mode') == 'hygienic':
     )
 
     env.AddPackageNameAlias(
+        component="dbtest",
+        role="runtime",
+        name="dbtest-binary",
+    )
+
+    env.AddPackageNameAlias(
+        component="dbtest",
+        role="debug",
+        name="dbtest-debugsymbols",
+    )
+
+    env.AddPackageNameAlias(
         component="mh",
         role="runtime",
         # TODO: we should be able to move this to where the mqlrun binary is
