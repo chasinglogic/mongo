@@ -46,8 +46,8 @@ def generate_test_execution_aliases(env, test):
         source_command = env.Command(
             target="#+{}".format(source_name),
             source=installed,
-            action="${SOURCES[0]} -fileNameFilter $SOURCE_BASE_NAME $UNITTEST_FLAGS",
-            SOURCE_BASE_NAME=source_base_name,
+            action="${SOURCES[0]} -fileNameFilter $TEST_SOURCE_FILE_NAME $UNITTEST_FLAGS",
+            TEST_SOURCE_FILE_NAME=source_name,
             NINJA_POOL="console",
         )
 
