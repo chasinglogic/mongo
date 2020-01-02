@@ -16,31 +16,42 @@ import os
 
 
 def generate_test_execution_aliases(env, test):
-    hygienic = env.GetOption('install-mode') == 'hygienic'
+    hygienic = env.GetOption("install-mode") == "hygienic"
     if hygienic and getattr(test.attributes, "AIB_INSTALL_ACTIONS", []):
         installed = getattr(test.attributes, "AIB_INSTALL_ACTIONS")
     else:
         installed = [test]
 
+    target_name = os.path.basename(installed[0].get_path())
     command = env.Command(
-        target="#+{}".format(os.path.basename(installed[0].get_path())),
+        target="#+{}".format(target_name),
         source=installed,
-        action="${SOURCES[0]}",
+        action="${SOURCES[0]} $UNITTEST_FLAGS",
         NINJA_POOL="console",
     )
 
-    env.Alias('test-execution-aliases', command)
+    env.Alias("test-execution-aliases", command)
     for source in test.sources:
-        source_name = os.path.basename(source.get_path())
+        source_base_name = os.path.basename(source.get_path())
         # Strip suffix
-        source_name = source_name[:source_name.rfind(".")]
-        env.Alias(
-            "test-execution-aliases",
-            env.Alias(
-                "+{}".format(source_name),
-                command,
-            )
+        dot_idx = source_base_name.rfind(".")
+        suffix = source_base_name[dot_idx:]
+        if suffix in env["TEST_EXECUTION_SUFFIX_BLACKLIST"]:
+            continue
+
+        source_name = source_base_name[: dot_idx]
+        if target_name == source_name:
+            continue
+
+        source_command = env.Command(
+            target="#+{}".format(source_name),
+            source=installed,
+            action="${SOURCES[0]} -fileNameFilter $SOURCE_BASE_NAME $UNITTEST_FLAGS",
+            SOURCE_BASE_NAME=source_base_name,
+            NINJA_POOL="console",
         )
+
+        env.Alias("test-execution-aliases", source_command)
 
 
 def exists(env):
