@@ -20,33 +20,38 @@ TEST_REGISTRY = defaultdict(list)
 
 
 def register_test(env, file_name, test):
-    if SCons.Util.is_String(file_name) and "$" in file_name:
-        file_name = env.subst(file_name)
-    elif getattr(test.attributes, "AIB_INSTALL_ACTIONS", []):
-        file_name = getattr(test.attributes, "AIB_INSTALL_ACTIONS")[0].path
+    """Register test into the dictionary of tests for file_name"""
+    test_path = test.path
+    if getattr(test.attributes, "AIB_INSTALL_ACTIONS", []):
+        test_path = getattr(test.attributes, "AIB_INSTALL_ACTIONS")[0].path
+    
+    if SCons.Util.is_String(file_name):
+        file_name = env.File(file_name).path
     else:
         file_name = file_name.path
 
-    TEST_REGISTRY[file_name].append(test.path)
+    TEST_REGISTRY[file_name].append(test_path)
     env.GenerateTestExecutionAliases(test)
 
 
 def test_list_builder_action(env, target, source):
+    """Build a test list used by resmoke.py to execute binary tests."""
     if SCons.Util.is_String(target[0]):
         filename = env.subst(target[0])
     else:
-        filename = target[0].abspath
+        filename = target[0].path
 
     source = [
-        env.subst(s) if SCons.Util.is_String(s) else s.abspath
+        env.subst(s) if SCons.Util.is_String(s) else s.path
         for s in source
     ]
 
     with open(filename, "w") as ofile:
         tests = TEST_REGISTRY[filename]
-        tests.extend(source)
+        if source:
+            tests.extend(source)
+
         for s in tests:
-            print("\t" + str(s))
             ofile.write("{}\n".format(str(s)))
 
 
