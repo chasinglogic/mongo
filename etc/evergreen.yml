@@ -3642,6 +3642,8 @@ tasks:
         targets: >-
           archive-dist
           archive-dist-debug
+          archive-dist-test
+          archive-dist-test-debug
           install-core
           install-tools
           distsrc-${ext|tgz}
@@ -3664,9 +3666,8 @@ tasks:
             exit 0
           fi
 
+          # TODO: can we remove this by making SCons just produce this target name?
           mv mongodb-src-*.${ext|tgz} distsrc.${ext|tgz}
-          mv mongodb-*-debugsymbols.${ext|tgz} mongo-debugsymbols.tgz || true
-          mv mongodb-*.${ext|tgz} mongodb-binaries.tgz
 
     # Tar unstripped dbtest, to be archived in case of failure
     - command: archive.targz_pack

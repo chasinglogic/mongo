@@ -3941,6 +3941,18 @@ if get_option('install-mode') == 'hygienic':
     )
 
     env.AddPackageNameAlias(
+        component="dist-test",
+        role="runtime",
+        name="mongodb-binaries",
+    )
+
+    env.AddPackageNameAlias(
+        component="dist-test",
+        role="debug",
+        name="mongo-debugsymbols",
+    )
+
+    env.AddPackageNameAlias(
         component="mh",
         role="runtime",
         # TODO: we should be able to move this to where the mqlrun binary is
