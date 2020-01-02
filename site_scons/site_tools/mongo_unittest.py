@@ -17,6 +17,11 @@ from SCons.Script import Action
 
 
 def register_unit_test(env, test):
+    """
+    Kept around for compatibility. 
+
+    Some SConscripts called RegisterUnitTest directly.
+    """
     env.RegisterTest("$UNITTEST_LIST", test)
 
 
