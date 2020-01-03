@@ -563,19 +563,16 @@ def finalize_install_dependencies(env):
                     AIB_ROLE=role,
                 )
 
-                # TODO: perhaps caching of packages / tarballs should be
-                # configurable? It's possible someone would want to do it.
-                env.NoCache(archive)
+                if not env.get("AIB_CACHE_ARCHIVES", False):
+                    env.NoCache(archive)
 
                 compression_alias = generate_alias(env, component, role, target=fmt)
                 env.Alias(compression_alias, archive)
 
-                if (
-                        (env["PLATFORM"] == "win32" and fmt == "zip") or
-                        (env["PLATFORM"] != "win32" and fmt == "tar")
-                ):
-                    archive_alias = generate_alias(env, component, role, target="archive")
-                    env.Alias(archive_alias, archive)
+            default_fmt = "zip" if env["PLATFORM"] == "win32" else "tar"
+            archive_alias = generate_alias(env, component, role, target="archive")
+            default_compression_alias = generate_alias(env, component, role, target=default_fmt)
+            env.Alias(archive_alias, default_compression_alias)
                 
 
 
