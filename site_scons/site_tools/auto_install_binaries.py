@@ -89,6 +89,7 @@ if __name__ == "__main__":
         archive = zipfile.ZipFile(archive_name, mode='w', compression=zipfile.ZIP_DEFLATED)
         add_file = archive.write
     else:
+        print("WARNING: tar not found in $PATH, install the tar utility to greatly improve archive creation speed.")
         import tarfile
         archive = tarfile.open(archive_name, mode='w:gz')
         add_file = archive.add
