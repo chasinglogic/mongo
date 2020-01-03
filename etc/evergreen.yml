@@ -4019,9 +4019,7 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: >-
-          archive-dbtest
-          archive-dbtest-debug
+        targets: archive-dbtest
         task_compile_flags: >-
           --detect-odr-violations
         compiling_for_test: true

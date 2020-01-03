@@ -3955,7 +3955,7 @@ if get_option('install-mode') == 'hygienic':
     env.AddPackageNameAlias(
         component="dbtest",
         role="runtime",
-        name="dbtest-binary",
+        name="dbtest-binary" if get_option("separate-debug") == "on" else "dbtest_unstripped",
     )
 
     env.AddPackageNameAlias(
