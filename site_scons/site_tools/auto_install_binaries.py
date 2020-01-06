@@ -407,7 +407,7 @@ def archive_builder(source, target, env, for_signature):
 
     # If we are just being invoked for our signature, we can omit the indirect dependencies
     # found by expanding the transitive dependencies, since we really only have a hard dependency
-    # on our direct depenedencies.
+    # on our direct dependencies.
     if for_signature:
         return command_prefix
 
@@ -441,9 +441,6 @@ def auto_install(env, target, source, **kwargs):
         kwargs.get(PRIMARY_ROLE),
     }
 
-    if env[META_ROLE]:
-        roles.add(env[META_ROLE])
-
     if kwargs.get(ROLES) is not None:
         roles = roles.union(set(kwargs[ROLES]))
 
@@ -453,9 +450,8 @@ def auto_install(env, target, source, **kwargs):
 
     components = {
         component,
-        # The 'all' tag is implicitly attached as a component
-        "all",
     }
+
     # Some tools will need to create multiple components so we add
     # this "hidden" argument that accepts a set or list.
     #
@@ -512,13 +508,6 @@ def finalize_install_dependencies(env):
 
     installed = set(env.FindInstalledFiles())
 
-    for component, rolemap in env[ALIAS_MAP].items():
-        for role, info in rolemap.items():
-            info.alias.extend(env.Alias(info.alias_name, info.actions))
-            setattr(info.alias[0].attributes, COMPONENTS, info.components)
-            setattr(info.alias[0].attributes, ROLES, info.roles)
-            env.Depends(info.alias, [d.alias for d in info.dependencies])
-
     common_rolemap = env[ALIAS_MAP].get("common")
     default_rolemap = env[ALIAS_MAP].get("default")
 
@@ -534,6 +523,18 @@ def finalize_install_dependencies(env):
 
     for component, rolemap in env[ALIAS_MAP].items():
         for role, info in rolemap.items():
+            info.alias.extend(env.Alias(info.alias_name, info.actions))
+            setattr(info.alias[0].attributes, COMPONENTS, info.components)
+            setattr(info.alias[0].attributes, ROLES, info.roles)
+            env.Alias(info.alias, [d.alias for d in info.dependencies])
+
+            if component != "all":
+                all_alias = generate_alias(env, "all", role)
+                env.Alias(all_alias, info.alias)
+
+            if env[META_ROLE] is not None and role != env[META_ROLE] and component != "all":
+                all_meta_alias = generate_alias(env, "all", env[META_ROLE])
+                env.Alias(all_meta_alias, all_alias)
 
             if common_rolemap and component != "common" and role in common_rolemap:
                 env.Depends(info.alias, common_rolemap[role].alias)
