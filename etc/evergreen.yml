@@ -2289,6 +2289,25 @@ functions:
           echo "Exiting powercycle with code $exit_code"
           exit $exit_code
 
+  "run packager.py":
+    command: shell.exec
+    params:
+      working_dir: src
+      script: |
+        set -o errexit
+        set -o verbose
+
+        if [ "${is_patch}" = "true" ] && [ "${bypass_compile|false}" = "true" ]; then
+            exit 0
+        fi
+
+        ${activate_virtualenv}
+        if [ "${has_packages|}" = "true" ] ; then
+            cd buildscripts
+            $python ${packager_script} --prefix `pwd`/.. --distros ${packager_distro} --tarball `pwd`/../mongodb-binaries.tgz -s ${version} -m HEAD -a ${packager_arch}
+            cd ..
+        fi
+
   "do snmp setup":
     command: shell.exec
     params:
@@ -3698,50 +3717,17 @@ tasks:
           set -o errexit
           set -o verbose
 
-          if [ "${is_patch}" = "true" ] && [ "${bypass_compile|false}" = "true" ]; then
-            exit 0
-          fi
-          ${activate_virtualenv}
-          if [ "${has_packages|}" = "true" ] ; then
-            cd buildscripts
-            $python ${packager_script} --prefix `pwd`/.. --distros ${packager_distro} --tarball `pwd`/../mongodb-binaries.tgz -s ${version} -m HEAD -a ${packager_arch}
-            cd ..
-          fi
-
-          # Create separate shell archive
-          mkdir -p shell-archive/build
-          cd shell-archive
-          ${decompress|tar xzvf} ../mongodb-binaries.tgz
-          find . -mindepth 3 ! -name "mongo${exe}" -type f -exec rm {} \; # delete bin/* except bin/mongo
-          $python ../buildscripts/make_archive.py -o mongodb-shell.${ext|tgz} $(find mongodb-* -type f)
-          cd ..
-
-          # Create separate cryptd archive if mongocryptd is in the tarball
-          mkdir -p cryptd-archive/build
-          cd cryptd-archive
-          ${decompress|tar xzvf} ../mongodb-binaries.tgz
-          find . -mindepth 3 ! -name "mongocryptd${exe}" -type f -exec rm {} \; # delete bin/* except bin/mongocryptd
           if [ $(find . -name mongocryptd${exe} | wc -l) -eq 1 ] ; then
-            $python ../buildscripts/make_archive.py -o mongodb-cryptd.${ext|tgz} $(find mongodb-* -type f)
-
             # Validate that this build_variant is listed as a known enterprise task for mongocryptd
             PATH=$PATH:$HOME $python ../buildscripts/validate_mongocryptd.py --variant "${build_variant}" ../etc/evergreen.yml
           fi
-          cd ..
-
-    - command: archive.targz_pack
-      params:
-        target: "packages.tgz"
-        source_dir: "src"
-        include:
-          - "repo/**"
-          - "./**.msi"
 
     - command: archive.targz_pack
       params:
         target: "artifacts.tgz"
         source_dir: "src"
         include:
+          - "./**.msi"
           - "./build/**.gcno"
           - "./build/install/**"
           - "./build/install/**.pdb"
@@ -3834,18 +3820,7 @@ tasks:
         bucket: mciuploads
         permissions: public-read
         content_type: application/tar
-        display_name: Artifacts
-    - command: s3.put
-      params:
-        optional: true
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: packages.tgz
-        remote_file: ${project}/${build_variant}/${revision}/artifacts/${build_id}-packages.tgz
-        bucket: mciuploads
-        permissions: public-read
-        content_type: application/tar
-        display_name: Packages
+        display_name: Artifacts 
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -7574,6 +7549,32 @@ tasks:
         aws_secret_remote: ${kitchen_aws_secret}
     - func: "run kitchen"
 
+- name: package
+  depends_on:
+    - name: compile
+  commands:
+    - func: "fetch artifacts"
+    - func: "apply compile expansions"
+    - func: "run packager.py"
+    - command: archive.targz_pack
+      params:
+        target: "packages.tgz"
+        source_dir: "src"
+        include:
+          - "repo/**"
+          - "./**.msi"
+    - command: s3.put
+      params:
+        optional: true
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: packages.tgz
+        remote_file: ${project}/${build_variant}/${revision}/artifacts/${build_id}-packages.tgz
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/tar
+        display_name: Packages
+
 - name: publish_packages
   tags: ["publish"]
   # This should prevent this task from running in patch builds, where we
@@ -7583,6 +7584,7 @@ tasks:
   # Same dependencies as "push" below
   depends_on:
   - name: compile
+  - name: package
   - name: jsCore
   - name: dbtest
   - name: replica_sets_jscore_passthrough
@@ -7613,6 +7615,7 @@ tasks:
   tags: ["publish"]
   patchable: false
   depends_on:
+  - name: package
   - name: jsCore
   - name: dbtest
   - name: replica_sets_jscore_passthrough
