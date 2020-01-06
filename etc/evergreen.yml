@@ -1766,7 +1766,7 @@ functions:
         ${compile_env|} $python ./buildscripts/scons.py                                     \
             ${compile_flags|} ${task_compile_flags|} ${task_compile_flags_extra|}           \
             ${scons_cache_args|} $extra_args                                                \
-            ${targets} ${additional_targets|} MONGO_VERSION=${version} || exit_status=$?
+            ${targets} MONGO_VERSION=${version} || exit_status=$?
         # If compile fails we do not run any tests
         if [[ $exit_status -ne 0 ]]; then
           if [[ "${dump_scons_config_on_failure}" == true ]]; then
