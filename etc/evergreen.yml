@@ -7536,7 +7536,7 @@ tasks:
       resmoke_args: --suites=buildscripts_test
       resmoke_jobs_max: 1
 
-- name: package
+- name: test_packages
   depends_on:
   - name: compile
   commands:
@@ -8563,7 +8563,7 @@ buildvariants:
   - name: watchdog_wiredtiger
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -8616,7 +8616,7 @@ buildvariants:
   - name: sharding_auth_gen
   - name: snmp
   - name: .watchdog
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -8678,7 +8678,7 @@ buildvariants:
   - name: .sharding .txns
   - name: .stitch
   - name: .ssl
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -8989,7 +8989,7 @@ buildvariants:
   - name: slow1_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -9039,7 +9039,7 @@ buildvariants:
   - name: .sharding .txns
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -9093,7 +9093,7 @@ buildvariants:
   - name: slow1_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -9147,7 +9147,7 @@ buildvariants:
   - name: .sharding .txns
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -9782,7 +9782,7 @@ buildvariants:
   - name: .stitch
   - name: .updatefuzzer
   - name: secondary_reads_passthrough_gen
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10196,7 +10196,7 @@ buildvariants:
   - name: sharding_auth_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10254,7 +10254,7 @@ buildvariants:
   - name: sharding_auth_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10400,7 +10400,7 @@ buildvariants:
   - name: .sharding .txns
   - name: .sharding .common !.op_query !.csrs
   - name: .ssl
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10449,7 +10449,7 @@ buildvariants:
   - name: .sharding .common !.op_query !.csrs
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10498,7 +10498,7 @@ buildvariants:
   - name: .sharding .common !.op_query !.csrs
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10779,7 +10779,7 @@ buildvariants:
   - name: snmp
   - name: .stitch
   - name: .watchdog
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -10883,7 +10883,7 @@ buildvariants:
   - name: sharding_auth_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -11146,7 +11146,7 @@ buildvariants:
   - name: sharding_auth_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -11198,7 +11198,7 @@ buildvariants:
   - name: .sharding .common !.op_query !.csrs
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -11244,7 +11244,7 @@ buildvariants:
   - name: sharding_auth_gen
   - name: snmp
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
@@ -11296,7 +11296,7 @@ buildvariants:
   - name: .sharding .common !.op_query !.csrs
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: test_packages
     distros:
     - ubuntu1604-packer
   - name: .publish
