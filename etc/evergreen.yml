@@ -1749,6 +1749,9 @@ functions:
         # Enable performance debugging
         extra_args="$extra_args --debug=time"
 
+        # Build packages in workdir
+        extra_args="$extra_args PKGDIR=${workdir}"
+
         # If we are doing a patch build or we are building a non-push
         # build on the waterfall, then we don't need the --release
         # flag. Otherwise, this is potentially a build that "leaves

@@ -548,14 +548,13 @@ def finalize_install_dependencies(env):
             pkg_name = get_package_name(env, component, role)
 
             for fmt in ("zip", "tar"):
-                # TODO: $PKGDIR support
                 if fmt == "zip":
                     pkg_suffix = "$AIB_ZIP_SUFFIX"
                 else:
                     pkg_suffix = "$AIB_TARBALL_SUFFIX"
 
                 archive = env.__AibArchive(
-                    target="#{}.{}".format(pkg_name, pkg_suffix),
+                    target="$PKGDIR/{}.{}".format(pkg_name, pkg_suffix),
                     source=[make_archive_script] + info.alias,
                     __AIB_ARCHIVE_TYPE=fmt,
                     __AIB_INSTALLED_SET=installed,
@@ -735,6 +734,7 @@ def generate(env):  # pylint: disable=too-many-statements
     env["PREFIX_DOCDIR"] = env.get("PREFIX_DOCDIR", "$PREFIX_SHAREDIR/doc")
     env["PREFIX_INCLUDEDIR"] = env.get("PREFIX_INCLUDEDIR", "$DESTDIR/include")
     env["PREFIX_DEBUGDIR"] = env.get("PREFIX_DEBUGDIR", _aib_debugdir)
+    env["PKGDIR"] = env.get("PKGDIR", "$VARIANT_DIR/pkgs")
     env[SUFFIX_MAP] = {}
     env[PACKAGE_ALIAS_MAP] = {}
     env[ALIAS_MAP] = defaultdict(dict)
