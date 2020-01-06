@@ -3965,6 +3965,18 @@ if get_option('install-mode') == 'hygienic':
     )
 
     env.AddPackageNameAlias(
+        component="shell",
+        role="runtime",
+        name="mongodb-shell",
+    )
+
+    env.AddPackageNameAlias(
+        component="shell",
+        role="debug",
+        name="mongodb-shell-debugsymbols",
+    )
+
+    env.AddPackageNameAlias(
         component="mongocryptd",
         role="runtime",
         name="mongodb-cryptd",

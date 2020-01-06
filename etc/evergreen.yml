@@ -1182,6 +1182,8 @@ functions:
         value: ${project}/${build_variant}/${revision}/binaries/mongo-${build_id}.${ext|tgz}
       - key: mongo_cryptd
         value: ${project}/${build_variant}/${revision}/binaries/mongo-cryptd-${build_id}.${ext|tgz}
+      - key: mongo_cryptd_debugsymbols
+        value: ${project}/${build_variant}/${revision}/binaries/mongo-cryptd-debugsymbols-${build_id}.${ext|tgz}
       - key: mh_archive
         value: ${project}/${build_variant}/${revision}/binaries/mh-${build_id}.${ext|tgz}
       - key: mh_debugsymbols
@@ -1190,6 +1192,8 @@ functions:
         value: ${project}/${build_variant}/${revision}/debugsymbols/debugsymbols-${build_id}.${ext|tgz}
       - key: mongo_shell
         value: ${project}/${build_variant}/${revision}/binaries/mongo-shell-${build_id}.${ext|tgz}
+      - key: mongo_shell_debugsymbols
+        value: ${project}/${build_variant}/${revision}/binaries/mongo-shell-debugsymbols-${build_id}.${ext|tgz}
       - key: skip_tests
         value: skip_test-${build_id}
 
@@ -3678,6 +3682,8 @@ tasks:
           archive-dist-debug
           archive-dist-test
           archive-dist-test-debug
+          archive-shell
+          archive-shell-debug
           install-core
           install-tools
           distsrc-${ext|tgz}
@@ -3783,6 +3789,17 @@ tasks:
         optional: true
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
+        local_file: src/cryptd-archive/mongodb-cryptd.${ext|tgz}
+        remote_file: ${mongo_cryptd_debugsymbols}
+        bucket: mciuploads
+        permissions: public-read
+        content_type: ${content_type|application/gzip}
+        display_name: CryptD Debugsymbols
+    - command: s3.put
+      params:
+        optional: true
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
         local_file: src/mh-binaries.${ext|tgz}
         remote_file: ${mh_archive}
         bucket: mciuploads
@@ -3811,6 +3828,17 @@ tasks:
         permissions: public-read
         content_type: ${content_type|application/gzip}
         display_name: Shell
+    - command: s3.put
+      params:
+        optional: true
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/shell-archive/mongodb-shell-debugsymobls.${ext|tgz}
+        remote_file: ${mongo_shell_debugsymbols}
+        bucket: mciuploads
+        permissions: public-read
+        content_type: ${content_type|application/gzip}
+        display_name: Shell Debugsymbols
     - command: s3.put
       params:
         aws_key: ${aws_key}
