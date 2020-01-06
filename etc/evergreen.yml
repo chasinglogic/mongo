@@ -1749,8 +1749,12 @@ functions:
         # Enable performance debugging
         extra_args="$extra_args --debug=time"
 
-        # Build packages in workdir
-        extra_args="$extra_args PKGDIR=${workdir}"
+        # Build packages where the upload tasks expect them
+        if [ -n ${git_project_directory|} ]; then
+            extra_args="$extra_args PKGDIR=${git_project_directory}"
+        else
+            extra_args="$extra_args PKGDIR=${workdir}/src"
+        fi
 
         # If we are doing a patch build or we are building a non-push
         # build on the waterfall, then we don't need the --release
@@ -3781,7 +3785,7 @@ tasks:
         optional: true
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/cryptd-archive/mongodb-cryptd.${ext|tgz}
+        local_file: src/mongodb-cryptd.${ext|tgz}
         remote_file: ${mongo_cryptd}
         bucket: mciuploads
         permissions: public-read
@@ -3792,7 +3796,7 @@ tasks:
         optional: true
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/cryptd-archive/mongodb-cryptd.${ext|tgz}
+        local_file: src/mongodb-cryptd.${ext|tgz}
         remote_file: ${mongo_cryptd_debugsymbols}
         bucket: mciuploads
         permissions: public-read
@@ -3825,7 +3829,7 @@ tasks:
         optional: true
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/shell-archive/mongodb-shell.${ext|tgz}
+        local_file: src/mongodb-shell.${ext|tgz}
         remote_file: ${mongo_shell}
         bucket: mciuploads
         permissions: public-read
@@ -3836,7 +3840,7 @@ tasks:
         optional: true
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: src/shell-archive/mongodb-shell-debugsymobls.${ext|tgz}
+        local_file: src/mongodb-shell-debugsymobls.${ext|tgz}
         remote_file: ${mongo_shell_debugsymbols}
         bucket: mciuploads
         permissions: public-read
