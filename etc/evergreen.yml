@@ -7581,6 +7581,7 @@ tasks:
     - func: "run kitchen"
 
 - name: package
+  tags: ["publish"]
   depends_on:
     - name: compile
   commands:
@@ -9365,6 +9366,7 @@ buildvariants:
   - name: sharding_auth_audit_gen
   - name: sharding_ese_gen
   - name: snmp
+  - name: package
   - name: push
     distros:
     - rhel70-small
@@ -9525,6 +9527,7 @@ buildvariants:
   - name: .ssl
   - name: .stitch
   - name: .updatefuzzer
+  - name: package
   - name: push
     distros:
     - rhel70-small
@@ -9602,6 +9605,7 @@ buildvariants:
   - name: .sharding .txns
   - name: .ssl
   - name: .stitch
+  - name: package
   - name: push
     distros:
     - rhel70-small
@@ -9659,6 +9663,7 @@ buildvariants:
   - name: replica_sets_auth_gen
   - name: replica_sets_jscore_passthrough
   - name: sasl
+  - name: package
   - name: push
     distros:
     - rhel70-small
