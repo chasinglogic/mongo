@@ -7570,6 +7570,7 @@ tasks:
 - name: test_packages
   depends_on:
   - name: compile
+  - name: package
   commands:
     - func: "fetch artifacts"
     - func: "set up remote credentials"
