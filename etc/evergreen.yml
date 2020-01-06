@@ -272,8 +272,8 @@ variables:
   modules:
   - enterprise
   expansions: &enterprise-windows-nopush-expansions-template
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
     exe: ".exe"
-    msi_target: msi
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
     # We invoke SCons using --jobs = (# of CPUs / 4) to avoid causing out of memory errors due to
@@ -3663,7 +3663,6 @@ tasks:
           install-tools
           distsrc-${ext|tgz}
           ${additional_targets|}
-          ${msi_target|}
           ${mh_target|}
         task_compile_flags: >-
           --detect-odr-violations
@@ -9172,9 +9171,9 @@ buildvariants:
   run_on:
     - windows-64-vs2017-test
   expansions: &enterprise_windows_expansions
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
     burn_in_tests_build_variant: enterprise-windows
     exe: ".exe"
-    msi_target: msi
     mh_target: archive-mh archive-mh-debug
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
@@ -9360,8 +9359,8 @@ buildvariants:
   stepback: true
   batchtime: 10080 # 7 days
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
     exe: ".exe"
-    msi_target: msi
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
     # We invoke SCons using --jobs = (# of CPUs / 4) to avoid causing out of memory errors due to
@@ -9389,8 +9388,8 @@ buildvariants:
   run_on:
   - windows-64-vs2017-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
     exe: ".exe"
-    msi_target: msi
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
     # We invoke SCons using --jobs = (# of CPUs / 4) to avoid causing out of memory errors due to
@@ -9435,6 +9434,7 @@ buildvariants:
   run_on:
   - windows-64-vs2017-test
   expansions:
+    additional_targets: msi
     exe: ".exe"
     push_path: windows
     push_bucket: downloads.mongodb.org
@@ -9442,7 +9442,6 @@ buildvariants:
     push_arch: x86_64
     multiversion_platform: windows_x86_64-2008plus-ssl
     multiversion_platform_42_or_later: windows_x86_64-2012plus
-    msi_target: msi
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
     # We invoke SCons using --jobs = (# of CPUs / 4) to avoid causing out of memory errors due to
