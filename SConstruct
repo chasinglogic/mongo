@@ -878,6 +878,11 @@ env_vars.Add('OBJCOPY',
     help='Sets the path to objcopy',
     default=WhereIs('objcopy'))
 
+
+env_vars.Add('PKGDIR',
+    help='Directory in which to build packages and archives',
+    default='$VARIANT_DIR/pkgs')
+
 env_vars.Add('PREFIX',
     help='Final installation location of files, will be made into a sub dir of $DESTDIR',
     default='')
