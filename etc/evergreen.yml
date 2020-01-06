@@ -8576,6 +8576,7 @@ buildvariants:
   - ubuntu1804-test
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -8690,6 +8691,7 @@ buildvariants:
   run_on:
   - ubuntu1604-arm64-large
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -8736,6 +8738,7 @@ buildvariants:
   run_on:
   - ubuntu1804-arm64-build
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -8811,6 +8814,7 @@ buildvariants:
   run_on:
   - ubuntu1804-power8-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -8896,6 +8900,7 @@ buildvariants:
   batchtime: 10080 # 7 days
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -8950,6 +8955,7 @@ buildvariants:
   run_on:
   - amazon1-2018-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -9051,6 +9057,7 @@ buildvariants:
   run_on:
   - amazon2-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     test_flags: >-
       --excludeWithAnyTags=SERVER-34286
     push_path: linux
@@ -9498,6 +9505,7 @@ buildvariants:
   run_on:
   - windows-64-vs2017-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     exe: ".exe"
     content_type: application/zip
     compile_flags: --dbg=on --opt=off --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
@@ -9598,6 +9606,7 @@ buildvariants:
   run_on:
   - macos-1014
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: osx
     push_bucket: downloads.10gen.com
     push_name: macos
@@ -9690,6 +9699,7 @@ buildvariants:
   run_on:
   - rhel62-small
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -9796,6 +9806,7 @@ buildvariants:
   - rhel62-small
   batchtime: 10080 # 7 days
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     compile_flags: >-
       --ssl
       MONGO_DISTMOD=rhel62
@@ -9863,6 +9874,7 @@ buildvariants:
   run_on:
   - rhel62-small
   expansions: &enterprise-rhel-62-64-bit-majority-read-concern-off-expansions
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # Ban tests that run prepareTransaction or multi-shard transactions (which use
     # prepareTransaction). prepareTransaction is rejected on nodes with
     # enableMajorityReadConcern:"false" (SERVER-37559).
@@ -9976,6 +9988,7 @@ buildvariants:
   - rhel62-small
   batchtime: 10080 # 7 days
   expansions: &enterprise-rhel-62-64-bit-flow-control-off
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     test_flags: >-
       --flowControl=off
       --excludeWithAnyTags=requires_flow_control
@@ -10052,6 +10065,7 @@ buildvariants:
   run_on:
   - rhel62-small
   expansions: &enterprise-rhel-62-64-bit-single-phase-index-builds
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     test_flags: >-
       --mongodSetParameters="{enableTwoPhaseIndexBuild: false}"
     compile_flags: >-
@@ -10088,6 +10102,7 @@ buildvariants:
   batchtime: 10080 # 7 days
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     compile_flags: --dbg=on --gcov --ssl MONGO_DISTMOD=rhel62 -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars
     multiversion_platform: rhel62
     multiversion_edition: enterprise
@@ -10150,6 +10165,7 @@ buildvariants:
   run_on:
   - rhel70-small
   expansions: &enterprise-rhel-70-64-bit-expansions-template
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -10209,6 +10225,7 @@ buildvariants:
   run_on:
   - rhel80-build
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -10526,6 +10543,7 @@ buildvariants:
   - rhel71-power8-test
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need to compensate for SMT8 setting the cpu count very high and lower the amount of parallelism down
     compile_flags: --ssl MONGO_DISTMOD=rhel71 -j$(echo "$(grep -c processor /proc/cpuinfo)/2" | bc) CCFLAGS="-mcpu=power8 -mtune=power8 -mcmodel=medium" --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars
     resmoke_jobs_factor: 0.25
@@ -10583,6 +10601,7 @@ buildvariants:
   batchtime: 10080 # 7 days
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     release_buid: true
     compile_flags: --ssl MONGO_DISTMOD=rhel72 -j3 CCFLAGS="-march=z196 -mtune=zEC12" --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars
     resmoke_jobs_max: 2
@@ -10638,6 +10657,7 @@ buildvariants:
   - rhel67-zseries-test
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     compile_flags: --ssl MONGO_DISTMOD=rhel67 -j3 CCFLAGS="-march=z9-109 -mtune=z10" --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars --use-hardware-crc32=off
     has_packages: true
     packager_script: packager_enterprise.py
@@ -10743,6 +10763,7 @@ buildvariants:
   run_on:
   - ubuntu1604-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -10793,6 +10814,7 @@ buildvariants:
   run_on:
    - ubuntu1604-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     lang_environment: LANG=C
     # We need --allocator=system here solely due to SERVER-27675
     compile_flags: --link-model=dynamic --allocator=system -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_clang.vars --mobile-se=on
@@ -10815,6 +10837,7 @@ buildvariants:
   run_on:
    - ubuntu1604-build
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     lang_environment: LANG=C
     # We need --allocator=system here solely due to SERVER-27675
     compile_flags: --link-model=dynamic --allocator=system -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_clang.vars --mobile-se=on
@@ -10853,6 +10876,7 @@ buildvariants:
   run_on:
   - suse12-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -10897,6 +10921,7 @@ buildvariants:
   batchtime: 10080 # 7 days
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -11026,6 +11051,7 @@ buildvariants:
   run_on:
   - suse15-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -11112,6 +11138,7 @@ buildvariants:
   run_on:
   - debian92-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -11210,6 +11237,7 @@ buildvariants:
   run_on:
   - debian10-test
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     push_path: linux
     push_bucket: downloads.10gen.com
     push_name: linux
@@ -11343,6 +11371,7 @@ buildvariants:
   run_on:
   - rhel62-small
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     test_flags: --storageEngine=inMemory --excludeWithAnyTags=requires_persistence,requires_journaling
     compile_flags: --ssl MONGO_DISTMOD=rhel62 -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars
     multiversion_platform: rhel62
@@ -11404,6 +11433,7 @@ buildvariants:
   - rhel62-large
   batchtime: 1440 # 1 day
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     mh_target: archive-mh archive-mh-debug
     compile_flags: --ssl MONGO_DISTMOD=rhel62 -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars CPPDEFINES=MONGO_CONFIG_LOGV2_DEFAULT
     multiversion_platform: rhel62
@@ -11502,6 +11532,7 @@ buildvariants:
   - rhel62-large
   batchtime: 1440 # 1 day
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     mh_target: archive-mh archive-mh-debug
     compile_flags: --ssl MONGO_DISTMOD=rhel62 -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars CPPDEFINES=MONGO_CONFIG_LOGV2_DEFAULT
     multiversion_platform: rhel62
@@ -11645,6 +11676,7 @@ buildvariants:
   batchtime: 10080 # 7 days
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need to compensate for SMT8 setting the cpu count very high and lower the amount of parallelism down
     compile_flags: --dbg=on --opt=on --ssl MONGO_DISTMOD=rhel71 -j$(echo "$(grep -c processor /proc/cpuinfo)/2" | bc) CCFLAGS="-mcpu=power8 -mtune=power8 -mcmodel=medium" --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars
     resmoke_jobs_factor: 0.25
@@ -11686,6 +11718,7 @@ buildvariants:
   batchtime: 10080 # 7 days
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     compile_flags: --dbg=on --opt=on --ssl MONGO_DISTMOD=rhel72 -j3 CCFLAGS="-march=z196 -mtune=zEC12" --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars
     resmoke_jobs_max: 2
     test_flags: --storageEngine=inMemory --excludeWithAnyTags=requires_persistence,requires_journaling
@@ -11733,6 +11766,7 @@ buildvariants:
   - ubuntu1804-build
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need llvm-symbolizer in the PATH for ASAN for clang-3.7 or later.
     variant_path_suffix: /opt/mongodbtoolchain/v3/bin
     lang_environment: LANG=C
@@ -11797,6 +11831,7 @@ buildvariants:
   - ubuntu1804-build
   stepback: true
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need llvm-symbolizer in the PATH for ASAN for clang-3.7 or later.
     variant_path_suffix: /opt/mongodbtoolchain/v3/bin
     lang_environment: LANG=C
@@ -11823,6 +11858,7 @@ buildvariants:
   - ubuntu1804-build
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need llvm-symbolizer in the PATH for UBSAN.
     variant_path_suffix: /opt/mongodbtoolchain/v3/bin
     lang_environment: LANG=C
@@ -11885,6 +11921,7 @@ buildvariants:
   - ubuntu1804-build
   stepback: true
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need llvm-symbolizer in the PATH for ASAN for clang-3.7 or later.
     variant_path_suffix: /opt/mongodbtoolchain/v3/bin
     lang_environment: LANG=C
@@ -11907,6 +11944,7 @@ buildvariants:
   - ubuntu1804-build
   stepback: false
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     # We need llvm-symbolizer in the PATH for ASAN for clang-3.7 or later.
     variant_path_suffix: /opt/mongodbtoolchain/v3/bin
     lang_environment: LANG=C
@@ -11975,6 +12013,7 @@ buildvariants:
   modules:
   - enterprise
   expansions:
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
     lang_environment: LANG=C
     # We need --allocator=system here solely due to SERVER-27675
     compile_flags: MONGO_DISTMOD=ubuntu1604 -j$(grep -c ^processor /proc/cpuinfo) --variables-files=etc/scons/mongodbtoolchain_v3_gcc.vars --link-model=dynamic --allocator=system

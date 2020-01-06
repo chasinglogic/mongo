@@ -3965,6 +3965,18 @@ if get_option('install-mode') == 'hygienic':
     )
 
     env.AddPackageNameAlias(
+        component="mongocryptd",
+        role="runtime",
+        name="mongodb-cryptd",
+    )
+
+    env.AddPackageNameAlias(
+        component="mongocryptd",
+        role="debug",
+        name="mongodb-cryptd-debugsymbols",
+    )
+
+    env.AddPackageNameAlias(
         component="mh",
         role="runtime",
         # TODO: we should be able to move this to where the mqlrun binary is
