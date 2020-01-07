@@ -527,7 +527,12 @@ functions:
       script: |
         set -o errexit
         ${decompress|tar xzvf} mongo-binaries.tgz
+        # Try to recreate a standard hygienic installation with no
+        # PREFIX so we have a known good location that works on
+        # developer machines and Evergreen
         mv mongodb* install
+        mkdir -p build
+        mv install build/
 
   "check binary version": &check_binary_version
     command: shell.exec
@@ -1435,7 +1440,7 @@ functions:
                 ${test_flags}                             \
                 --log=buildlogger                         \
                 --staggerJobs=on                          \
-                --installDir=install/bin                  \
+                --installDir=build/install/bin            \
                 --buildId=${build_id}                     \
                 --distroId=${distro_id}                   \
                 --executionNumber=${execution}            \
