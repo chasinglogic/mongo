@@ -1440,7 +1440,7 @@ functions:
                 ${test_flags}                             \
                 --log=buildlogger                         \
                 --staggerJobs=on                          \
-                --installDir=${destdir|build/install}/bin \
+                --installDir=mongodb-*/bin                \
                 --buildId=${build_id}                     \
                 --distroId=${distro_id}                   \
                 --executionNumber=${execution}            \
