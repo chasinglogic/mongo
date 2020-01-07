@@ -535,12 +535,7 @@ functions:
       working_dir: src
       script: |
         set -o errexit
-        mongo_binary=$(find mongodb*/bin -name mongo${exe})
-        # There should only be one mongo shell
-        if [ $(echo $mongo_binary | wc -w) -ne 1 ]; then
-          echo "There is more than 1 extracted mongo binary: $mongo_binary"
-          exit 1
-        fi
+        mongo_binary=install/bin/mongo${exe}
         # For compile bypass we need to skip the binary version check since we can tag a commit
         # after the base commit binaries were created. This would lead to a mismatch of the binaries
         # and the version from git describe --abbrev=7 in the compile_expansions.yml.
