@@ -3979,23 +3979,15 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: libfuzzer_tests
+        targets: archive-fuzzertests
         task_compile_flags: >-
           --detect-odr-violations
         compiling_for_test: true
-    - command: shell.exec
-      params:
-        working_dir: "src"
-        script: |
-          set -o errexit
-          set -o verbose
-
-          tar cfvz libfuzzer-tests.tgz --files-from=build/libfuzzer_tests.txt
     - command: s3.put
       params:
         aws_key: ${aws_key}
         aws_secret: ${aws_secret}
-        local_file: "src/libfuzzer-tests.tgz"
+        local_file: "src/fuzzertests-runtime.tgz"
         remote_file: "${project}/libfuzzer-tests/${build_variant}/${revision}/libfuzzer-tests.tgz"
         bucket: mciuploads
         permissions: public-read
