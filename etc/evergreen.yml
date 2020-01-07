@@ -532,7 +532,8 @@ functions:
         # developer machines and Evergreen
         mv mongodb* install
         mkdir -p build
-        mv install build/
+        ls -R build/install
+        cp -R install build/install
 
   "check binary version": &check_binary_version
     command: shell.exec
