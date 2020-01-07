@@ -477,7 +477,7 @@ def auto_install(env, target, source, **kwargs):
         setattr(s.attributes, COMPONENTS, components)
         setattr(s.attributes, ROLES, roles)
 
-        # We must do an eearly subst here so that the _aib_debugdir
+        # We must do an early subst here so that the _aib_debugdir
         # generator has a chance to run while seeing 'source'.
         #
         # TODO: Find a way to not need this early subst.
@@ -685,16 +685,16 @@ def dest_dir_generator(initial_value=None):
 
 
 def _aib_debugdir(source, target, env, for_signature):
-    try:
-        for s in source:
-            # TODO: We shouldn't need to reach into the attributes of the debug tool like this.
-            origin = getattr(s.attributes, "debug_file_for", None)
-            oentry = env.Entry(origin)
-            osuf = oentry.get_suffix()
-            return env[SUFFIX_MAP].get(osuf)[0]
-    except Exception as e:
-        print("GOT THIS EXCEPTION!", e)
-        raise e
+    for s in source:
+        # TODO: We shouldn't need to reach into the attributes of the debug tool like this.
+        origin = getattr(s.attributes, "debug_file_for", None)
+        oentry = env.Entry(origin)
+        osuf = oentry.get_suffix()
+        map_entry = env[SUFFIX_MAP].get(osuf)
+        if map_entry:
+            return map_entry[0]
+
+    return "Unable to find debuginfo for {}".format(str(source))
 
 
 def exists(_env):
