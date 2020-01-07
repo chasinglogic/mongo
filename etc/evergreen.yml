@@ -3963,7 +3963,7 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: unittests
+        targets: install-unittests
         task_compile_flags: >-
           --detect-odr-violations
         compiling_for_test: true
