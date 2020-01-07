@@ -3843,7 +3843,7 @@ if get_option('ninja') == 'true':
 # TODO: Later, this should live somewhere more graceful.
 if get_option('install-mode') == 'hygienic':
 
-    if get_option('separate-debug') == "on":
+    if get_option('separate-debug') == "on" or env.TargetOsIs("windows"):
         env.Tool('separate_debug')
 
     env["AIB_TARBALL_SUFFIX"] = "tgz"
