@@ -119,9 +119,24 @@ def _update_builder(env, builder, bitcode):
     builder.emitter = new_emitter
 
 
+def _aib_debugdir(source, target, env, for_signature):
+    for s in source:
+        # TODO: We shouldn't need to reach into the attributes of the debug tool like this.
+        origin = getattr(s.attributes, "debug_file_for", None)
+        oentry = env.Entry(origin)
+        osuf = oentry.get_suffix()
+        map_entry = env[SUFFIX_MAP].get(osuf)
+        if map_entry:
+            return map_entry[0]
+
+    return "Unable to find debuginfo for {}".format(str(source))
+
+
 def generate(env):
     if not exists(env):
         return
+
+    env["PREFIX_DEBUGDIR"] = _aib_debugdir
 
     # If we are generating bitcode, add the magic linker flags that
     # hide the bitcode symbols, and override the name of the bitcode
