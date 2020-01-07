@@ -685,12 +685,16 @@ def dest_dir_generator(initial_value=None):
 
 
 def _aib_debugdir(source, target, env, for_signature):
-    for s in source:
-        # TODO: We shouldn't need to reach into the attributes of the debug tool like this.
-        origin = getattr(s.attributes, "debug_file_for", None)
-        oentry = env.Entry(origin)
-        osuf = oentry.get_suffix()
-        return env[SUFFIX_MAP].get(osuf)[0]
+    try:
+        for s in source:
+            # TODO: We shouldn't need to reach into the attributes of the debug tool like this.
+            origin = getattr(s.attributes, "debug_file_for", None)
+            oentry = env.Entry(origin)
+            osuf = oentry.get_suffix()
+            return env[SUFFIX_MAP].get(osuf)[0]
+    except Exception as e:
+        print("GOT THIS EXCEPTION!", e)
+        raise e
 
 
 def exists(_env):
