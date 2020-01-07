@@ -12,7 +12,7 @@ class SDAMJsonTestCase(interface.ProcessTestCase):
     """Server Discovery and Monitoring JSON test case."""
 
     REGISTERED_NAME = "sdam_json_test"
-    EXECUTABLE_BUILD_PATH = "build/**/mongo/client/sdam/sdam_json_test"
+    EXECUTABLE_BUILD_PATH = "build/install/bin/sdam_json_test"
     TEST_DIR = os.path.normpath("src/mongo/client/sdam/json_tests")
 
     def __init__(self, logger, json_test_file, program_options=None):

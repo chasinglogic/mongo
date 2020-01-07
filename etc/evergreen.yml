@@ -4007,7 +4007,7 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: "sdam_json_test_runner"
+        targets: "install-sdam-json-test"
         task_compile_flags: >-
           --detect-odr-violations
         compiling_for_test: true
