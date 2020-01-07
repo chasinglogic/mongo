@@ -724,7 +724,6 @@ def generate(env):  # pylint: disable=too-many-statements
     env["PREFIX_SHAREDIR"] = env.get("PREFIX_SHAREDIR", "$DESTDIR/share")
     env["PREFIX_DOCDIR"] = env.get("PREFIX_DOCDIR", "$PREFIX_SHAREDIR/doc")
     env["PREFIX_INCLUDEDIR"] = env.get("PREFIX_INCLUDEDIR", "$DESTDIR/include")
-    env["PREFIX_DEBUGDIR"] = env.get("PREFIX_DEBUGDIR", _aib_debugdir)
     env["PKGDIR"] = env.get("PKGDIR", "$VARIANT_DIR/pkgs")
     env[SUFFIX_MAP] = {}
     env[PACKAGE_ALIAS_MAP] = {}
