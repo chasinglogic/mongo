@@ -125,7 +125,7 @@ def _aib_debugdir(source, target, env, for_signature):
         origin = getattr(s.attributes, "debug_file_for", None)
         oentry = env.Entry(origin)
         osuf = oentry.get_suffix()
-        map_entry = env[SUFFIX_MAP].get(osuf)
+        map_entry = env["AIB_SUFFIX_MAP"].get(osuf)
         if map_entry:
             return map_entry[0]
 
