@@ -527,7 +527,7 @@ functions:
       script: |
         set -o errexit
         ${decompress|tar xzvf} mongo-binaries.tgz
-        cp mongodb*/bin/* .
+        mv mongodb* install
 
   "check binary version": &check_binary_version
     command: shell.exec
@@ -1440,7 +1440,7 @@ functions:
                 ${test_flags}                             \
                 --log=buildlogger                         \
                 --staggerJobs=on                          \
-                --installDir=mongodb-*/bin                \
+                --installDir=install/bin                  \
                 --buildId=${build_id}                     \
                 --distroId=${distro_id}                   \
                 --executionNumber=${execution}            \
