@@ -23,7 +23,11 @@ def register_unit_test(env, test):
     Some SConscripts called RegisterUnitTest directly.
     """
     env.RegisterTest("$UNITTEST_LIST", test)
-    env.Alias("$UNITTEST_ALIAS", test)
+    aib_install_actions = getattr(test.attributes, "AIB_INSTALL_ACTIONS", [])
+    if aib_install_actions:
+        env.Alias("$UNITTEST_ALIAS", aib_install_actions)
+    else:
+        env.Alias("$UNITTEST_ALIAS", test)
 
 
 def exists(env):
