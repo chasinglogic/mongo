@@ -530,10 +530,8 @@ functions:
         # Try to recreate a standard hygienic installation with no
         # PREFIX so we have a known good location that works on
         # developer machines and Evergreen
-        mv mongodb* install
-        mkdir -p build
-        ls -R build/install
-        cp -R install build/install
+        mkdir -p build/install
+        cp -R mongodb*/* build/install/
 
   "check binary version": &check_binary_version
     command: shell.exec
