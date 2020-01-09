@@ -528,10 +528,6 @@ functions:
       script: |
         set -o errexit
         ${decompress|tar xzvf} mongo-binaries.tgz
-        # Try to recreate a standard hygienic installation with no
-        # PREFIX so we have a known good location that works on
-        # developer machines and Evergreen
-        ls -R .
 
   "check binary version": &check_binary_version
     command: shell.exec
@@ -1439,7 +1435,7 @@ functions:
                 ${test_flags}                             \
                 --log=buildlogger                         \
                 --staggerJobs=on                          \
-                --installDir=build/install/bin            \
+                --installDir=dist-test/bin                \
                 --buildId=${build_id}                     \
                 --distroId=${distro_id}                   \
                 --executionNumber=${execution}            \
@@ -3686,8 +3682,6 @@ tasks:
         targets: >-
           archive-dist-test
           archive-dist-test-debug
-          archive-shell
-          archive-shell-debug
           # TODO: are these two install aliases still needed? Looks
           # like the above aliases encompass these.
           install-core
@@ -3698,6 +3692,7 @@ tasks:
         task_compile_flags: >-
           --detect-odr-violations
           --separate-debug
+          PREFIX=dist-test
 
     # Tar unstripped dbtest, to be archived in case of failure
     - command: archive.targz_pack
@@ -3808,28 +3803,6 @@ tasks:
         permissions: public-read
         content_type: ${content_type|application/gzip}
         display_name: MH Debuginfo
-    - command: s3.put
-      params:
-        optional: true
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/mongodb-shell.${ext|tgz}
-        remote_file: ${mongo_shell}
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/gzip}
-        display_name: Shell
-    - command: s3.put
-      params:
-        optional: true
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
-        local_file: src/mongodb-shell-debugsymobls.${ext|tgz}
-        remote_file: ${mongo_shell_debugsymbols}
-        bucket: mciuploads
-        permissions: public-read
-        content_type: ${content_type|application/gzip}
-        display_name: Shell Debugsymbols
     - command: s3.put
       params:
         aws_key: ${aws_key}
@@ -7566,7 +7539,12 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
-        targets: archive-dist archive-dist-debug ${msi_target|}
+        targets: >-
+          archive-dist
+          archive-dist-debug
+          archive-shell
+          archive-shell-debug
+          ${msi_target|}
         task_compile_flags: >-
           --use-new-tools
           --build-mongoreplay="${build_mongoreplay}"
@@ -7592,6 +7570,29 @@ tasks:
         permissions: public-read
         content_type: application/tar
         display_name: Packages
+    - command: s3.put
+      params:
+        optional: true
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/mongodb-shell.${ext|tgz}
+        remote_file: ${mongo_shell}
+        bucket: mciuploads
+        permissions: public-read
+        content_type: ${content_type|application/gzip}
+        display_name: Shell
+    - command: s3.put
+      params:
+        optional: true
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/mongodb-shell-debugsymobls.${ext|tgz}
+        remote_file: ${mongo_shell_debugsymbols}
+        bucket: mciuploads
+        permissions: public-read
+        content_type: ${content_type|application/gzip}
+        display_name: Shell Debugsymbols
+
 
 - name: publish_packages
   tags: ["publish"]
