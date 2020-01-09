@@ -7567,12 +7567,12 @@ tasks:
     - func: "scons compile"
       vars:
         targets: archive-dist archive-dist-debug ${msi_target|}
-      task_compile_flags: >-
-        --use-new-tools
-        --build-mongoreplay="${build_mongoreplay}"
-        --detect-odr-violations
-        --separate-debug
-        --legacy-tarball
+        task_compile_flags: >-
+          --use-new-tools
+          --build-mongoreplay="${build_mongoreplay}"
+          --detect-odr-violations
+          --separate-debug
+          --legacy-tarball
     - func: "run packager.py"
     - command: archive.targz_pack
       params:
@@ -8289,10 +8289,7 @@ task_groups:
 - <<: *compile_task_group_template
   name: compile_packages_TG
   tasks:
-  - name: compile
-    vars:
-      targets: archive-dist archive-dist-debug
-  - name: package
+  - package
 - <<: *compile_task_group_template
   name: compile_core_tools_TG
   tasks:
