@@ -272,7 +272,8 @@ variables:
   modules:
   - enterprise
   expansions: &enterprise-windows-nopush-expansions-template
-    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
+    msi_target: msi
     exe: ".exe"
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
@@ -530,8 +531,7 @@ functions:
         # Try to recreate a standard hygienic installation with no
         # PREFIX so we have a known good location that works on
         # developer machines and Evergreen
-        mkdir -p build/install
-        cp -R mongodb*/* build/install/
+        ls -R .
 
   "check binary version": &check_binary_version
     command: shell.exec
@@ -3684,12 +3684,12 @@ tasks:
     - func: "scons compile"
       vars:
         targets: >-
-          archive-dist
-          archive-dist-debug
           archive-dist-test
           archive-dist-test-debug
           archive-shell
           archive-shell-debug
+          # TODO: are these two install aliases still needed? Looks
+          # like the above aliases encompass these.
           install-core
           install-tools
           distsrc-${ext|tgz}
@@ -3698,7 +3698,6 @@ tasks:
         task_compile_flags: >-
           --detect-odr-violations
           --separate-debug
-          --legacy-tarball
 
     # Tar unstripped dbtest, to be archived in case of failure
     - command: archive.targz_pack
@@ -7553,7 +7552,7 @@ tasks:
   - name: compile
   - name: package
   commands:
-    - func: "fetch artifacts"
+    - func: "fetch packages"
     - func: "set up remote credentials"
       vars:
         private_key_file: ~/.ssh/kitchen.pem
@@ -7564,11 +7563,16 @@ tasks:
 
 - name: package
   tags: ["publish"]
-  depends_on:
-    - name: compile
   commands:
-    - func: "fetch artifacts"
-    - func: "apply compile expansions"
+    - func: "scons compile"
+      vars:
+        targets: archive-dist archive-dist-debug ${msi_target|}
+      task_compile_flags: >-
+        --use-new-tools
+        --build-mongoreplay="${build_mongoreplay}"
+        --detect-odr-violations
+        --separate-debug
+        --legacy-tarball
     - func: "run packager.py"
     - command: archive.targz_pack
       params:
@@ -8282,6 +8286,13 @@ task_groups:
   name: compile_TG
   tasks:
   - compile
+- <<: *compile_task_group_template
+  name: compile_packages_TG
+  tasks:
+  - name: compile
+    vars:
+      targets: archive-dist archive-dist-debug
+  - name: package
 - <<: *compile_task_group_template
   name: compile_core_tools_TG
   tasks:
@@ -9195,7 +9206,8 @@ buildvariants:
   run_on:
     - windows-64-vs2017-test
   expansions: &enterprise_windows_expansions
-    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
+    msi_target: msi
     burn_in_tests_build_variant: enterprise-windows
     exe: ".exe"
     mh_target: archive-mh archive-mh-debug
@@ -9348,7 +9360,7 @@ buildvariants:
   - name: sharding_auth_audit_gen
   - name: sharding_ese_gen
   - name: snmp
-  - name: package
+  - name: compile_packages_TG
   - name: push
     distros:
     - rhel70-small
@@ -9384,7 +9396,8 @@ buildvariants:
   stepback: true
   batchtime: 10080 # 7 days
   expansions:
-    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
+    msi_target: msi
     exe: ".exe"
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
@@ -9413,7 +9426,8 @@ buildvariants:
   run_on:
   - windows-64-vs2017-test
   expansions:
-    additional_targets: archive-mongocryptd archive-mongocryptd-debug msi
+    additional_targets: archive-mongocryptd archive-mongocryptd-debug
+    msi_target: msi
     exe: ".exe"
     content_type: application/zip
     compile_flags: --ssl MONGO_DISTMOD=windows CPPPATH="c:/sasl/include c:/snmp/include" LIBPATH="c:/sasl/lib c:/snmp/lib" -j$(( $(grep -c ^processor /proc/cpuinfo) / 2 )) --win-version-min=win10
@@ -9459,7 +9473,7 @@ buildvariants:
   run_on:
   - windows-64-vs2017-test
   expansions:
-    additional_targets: msi
+    msi_target: msi
     exe: ".exe"
     push_path: windows
     push_bucket: downloads.mongodb.org
@@ -9509,7 +9523,7 @@ buildvariants:
   - name: .ssl
   - name: .stitch
   - name: .updatefuzzer
-  - name: package
+  - name: compile_packages_TG
   - name: push
     distros:
     - rhel70-small
@@ -9587,7 +9601,7 @@ buildvariants:
   - name: .sharding .txns
   - name: .ssl
   - name: .stitch
-  - name: package
+  - name: compile_packages_TG
   - name: push
     distros:
     - rhel70-small
@@ -9645,7 +9659,7 @@ buildvariants:
   - name: replica_sets_auth_gen
   - name: replica_sets_jscore_passthrough
   - name: sasl
-  - name: package
+  - name: compile_packages_TG
   - name: push
     distros:
     - rhel70-small
