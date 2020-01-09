@@ -4274,17 +4274,19 @@ if get_option("ninja") == "false":
         r"$PYTHON buildscripts\make_vcxproj.py " + msvc_version + "mongodb")
     vcxproj = env.Alias("vcxproj", vcxprojFile)
 
-distSrc = env.DistSrc("mongodb-src-${MONGO_VERSION}.tar")
+# TODO: maybe make these work like the other archive- hygienic aliases
+# even though they aren't piped through AIB?
+distSrc = env.DistSrc("distsrc.tar")
 env.NoCache(distSrc)
 env.Alias("distsrc-tar", distSrc)
 
 distSrcGzip = env.GZip(
-    target="mongodb-src-${MONGO_VERSION}.tgz",
+    target="distsrc.tgz",
     source=[distSrc])
 env.NoCache(distSrcGzip)
 env.Alias("distsrc-tgz", distSrcGzip)
 
-distSrcZip = env.DistSrc("mongodb-src-${MONGO_VERSION}.zip")
+distSrcZip = env.DistSrc("distsrc.zip")
 env.NoCache(distSrcZip)
 env.Alias("distsrc-zip", distSrcZip)
 

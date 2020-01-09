@@ -3699,20 +3699,6 @@ tasks:
           --detect-odr-violations
           --separate-debug
           --legacy-tarball
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: src
-        script: |
-          set -o errexit
-          set -o verbose
-
-          if [ "${is_patch}" = "true" ] && [ "${bypass_compile|false}" = "true" ]; then
-            exit 0
-          fi
-
-          # TODO: can we remove this by making SCons just produce this target name?
-          mv mongodb-src-*.${ext|tgz} distsrc.${ext|tgz}
 
     # Tar unstripped dbtest, to be archived in case of failure
     - command: archive.targz_pack
