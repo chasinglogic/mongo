@@ -3679,11 +3679,11 @@ tasks:
   commands:
     - func: "scons compile"
       vars:
+        # TODO: are these two install aliases still needed? Looks
+        # like the above aliases encompass these.
         targets: >-
           archive-dist-test
           archive-dist-test-debug
-          # TODO: are these two install aliases still needed? Looks
-          # like the above aliases encompass these.
           install-core
           install-tools
           distsrc-${ext|tgz}
