@@ -4289,7 +4289,7 @@ tasks:
     - func: "apply compile expansions"
     - func: "scons compile"
       vars:
-        targets: benchmarks
+        targets: install-benchmarks
         compiling_for_test: true
     - command: archive.targz_pack
       params:
@@ -5677,7 +5677,7 @@ tasks:
   - func: "apply compile expansions"
   - func: "scons compile"
     vars:
-      targets: integration_tests
+      targets: install-integration-tests
       compiling_for_test: true
       bypass_compile: false
       task_compile_flags: >-
@@ -5698,7 +5698,7 @@ tasks:
   - func: "apply compile expansions"
   - func: "scons compile"
     vars:
-      targets: integration_tests
+      targets: install-integration-tests
       compiling_for_test: true
       bypass_compile: false
       task_compile_flags: >-
@@ -5719,7 +5719,7 @@ tasks:
   - func: "apply compile expansions"
   - func: "scons compile"
     vars:
-      targets: integration_tests
+      targets: install-integration-tests
       compiling_for_test: true
       bypass_compile: false
       task_compile_flags: >-
@@ -5740,7 +5740,7 @@ tasks:
   - func: "apply compile expansions"
   - func: "scons compile"
     vars:
-      targets: integration_tests
+      targets: install-integration-tests
       compiling_for_test: true
       bypass_compile: false
       task_compile_flags: >-
