@@ -40,8 +40,11 @@ def build_cpp_unit_test(env, target, source, **kwargs):
 
     kwargs["LIBDEPS"] = libdeps
     unit_test_components = {"tests", "unittests"}
-    if "AIB_COMPONENT" in kwargs and not kwargs["AIB_COMPONENT"].endswith("-test"):
-        kwargs["AIB_COMPONENT"] += "-test"
+    primary_component = kwargs.get("AIB_COMPONENT", env.get("AIB_COMPONENT", ""))
+    if primary_component and not primary_component.endswith("-test"):
+        kwargs["AIB_COMPONENT"] = primary_component + "-test"
+    elif primary_component:
+        kwargs["AIB_COMPONENT"] = primary_component
 
     if "AIB_COMPONENTS_EXTRA" in kwargs:
         kwargs["AIB_COMPONENTS_EXTRA"] = set(kwargs["AIB_COMPONENTS_EXTRA"]).union(
