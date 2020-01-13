@@ -40,9 +40,9 @@ if (_isWindows()) {
     args.push("sh");
     args.push("-c");
 
-    // Use the mongo shell from the current dir, same as resmoke.py does.
-    // Doesn't handle resmoke's --mongo= option.
-    cmdline = "./" + cmdline;
+    // Use the mongo shell from the $PATH, Resmoke sets $PATH to
+    // include all the mongo binaries first.
+    cmdline = cmdline;
 
     // Set umask to 0 prior to running the shell.
     cmdline = "umask 0 ; " + cmdline;
