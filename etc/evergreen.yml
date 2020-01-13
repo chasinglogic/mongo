@@ -1297,7 +1297,7 @@ functions:
 
         $python buildscripts/setup_multiversion_mongodb.py   \
           --installDir /data/install                         \
-          --linkDir /data/multiversion                       \
+          --linkDir dist-test/bin                            \
           --edition $edition                                 \
           --platform $platform                               \
           --architecture $architecture                       \
@@ -1322,7 +1322,7 @@ functions:
 
         $python buildscripts/setup_multiversion_mongodb.py   \
           --installDir /data/install                         \
-          --linkDir /data/multiversion                       \
+          --linkDir dist-test/bin                            \
           --edition $edition                                 \
           --platform $platform                               \
           --architecture $architecture                       \
