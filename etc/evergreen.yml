@@ -2307,6 +2307,7 @@ functions:
 
         ${activate_virtualenv}
         if [ "${has_packages|}" = "true" ] ; then
+            mv mongodb-*.tgz mongodb-binaries.tgz
             cd buildscripts
             $python ${packager_script} --prefix `pwd`/.. --distros ${packager_distro} --tarball `pwd`/../mongodb-binaries.tgz -s ${version} -m HEAD -a ${packager_arch}
             cd ..
