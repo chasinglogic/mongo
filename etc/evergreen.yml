@@ -7541,8 +7541,6 @@ tasks:
           archive-shell-debug
           ${msi_target|}
         task_compile_flags: >-
-          --use-new-tools
-          --build-mongoreplay="${build_mongoreplay}"
           --detect-odr-violations
           --separate-debug
           --legacy-tarball
