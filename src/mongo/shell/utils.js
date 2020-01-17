@@ -264,7 +264,8 @@ var _jsTestOptions = {enableTestCommands: true};  // Test commands should be ena
 jsTestOptions = function() {
     if (TestData) {
         return Object.merge(_jsTestOptions, {
-            enableTestCommands: TestData.enableTestCommands,
+            // Test commands should be enabled by default if no enableTestCommands were present in TestData
+            enableTestCommands: TestData.hasOwnProperty('enableTestCommands') ? TestData.enableTestCommands : true,
             serviceExecutor: TestData.serviceExecutor,
             setParameters: TestData.setParameters,
             setParametersMongos: TestData.setParametersMongos,
