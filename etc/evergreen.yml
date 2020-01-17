@@ -1435,7 +1435,7 @@ functions:
                 ${test_flags}                             \
                 --log=buildlogger                         \
                 --staggerJobs=on                          \
-                --installDir=dist-test/bin                \
+                --installDir=${install_dir|dist-test/bin} \
                 --buildId=${build_id}                     \
                 --distroId=${distro_id}                   \
                 --executionNumber=${execution}            \
@@ -3984,6 +3984,7 @@ tasks:
     - func: "run tests"
       vars:
         resmoke_args: --suites=dbtest --storageEngine=wiredTiger
+        install_dir: build/install/bin
 
 ## embedded_sdk_build_and_test_* - build the embedded-dev and embedded-test targets only ##
 
