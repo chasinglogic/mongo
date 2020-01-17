@@ -612,17 +612,18 @@ def _update_config_vars(values):  # pylint: disable=too-many-statements,too-many
     _config.INSTALL_DIR = config.pop("install_dir")
     if _config.INSTALL_DIR is not None:
         # Normalize the path so that on Windows dist-test/bin
-        # translates to .\dist-test\bin
-        install_dir = os.path.normpath(_config.INSTALL_DIR)
+        # translates to .\dist-test\bin then absolutify it since the
+        # Windows PATH variable requires absolute paths.
+        _config.INSTALL_DIR = os.path.abspath(_expand_user(os.path.normpath(_config.INSTALL_DIR)))
 
         # Inject INSTALL_DIR into the $PATH so RunProgram in the shell
         # helpers can find the installed binaries.
-        os.environ['PATH'] = "{}:{}".format(_expand_user(install_dir), os.environ['PATH'])
+        os.environ["PATH"] = "{}:{}".format(_config.INSTALL_DIR, os.environ["PATH"])
 
         for binary in ["mongo", "mongod", "mongos", "dbtest"]:
             keyname = binary + "_executable"
             if config.get(keyname, None) is None:
-                config[keyname] = os.path.join(install_dir, binary)
+                config[keyname] = os.path.join(_config.INSTALL_DIR, binary)
 
     _config.DBTEST_EXECUTABLE = _expand_user(config.pop("dbtest_executable"))
     _config.MONGO_EXECUTABLE = _expand_user(config.pop("mongo_executable"))
