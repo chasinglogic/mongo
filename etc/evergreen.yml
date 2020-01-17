@@ -7533,7 +7533,6 @@ tasks:
 
 - name: package
   commands:
-    - func: "build new tools"
     - func: "scons compile"
       vars:
         targets: >-
