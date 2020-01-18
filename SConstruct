@@ -3936,13 +3936,13 @@ if get_option('install-mode') == 'hygienic':
     env.AddPackageNameAlias(
         component="dist",
         role="runtime",
-        name="${SERVER_DIST_BASENAME}",
+        name="mongodb-dist",
     )
 
     env.AddPackageNameAlias(
         component="dist",
         role="debug",
-        name="${SERVER_DIST_BASENAME}-debugsymbols",
+        name="mongodb-dist-debugsymbols",
     )
 
     env.AddPackageNameAlias(

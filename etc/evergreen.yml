@@ -2307,11 +2307,8 @@ functions:
 
         ${activate_virtualenv}
         if [ "${has_packages|}" = "true" ] ; then
-            # TODO: debug mv problems
-            ls
-            mv mongodb-*.tgz mongodb-binaries.tgz
             cd buildscripts
-            $python ${packager_script} --prefix `pwd`/.. --distros ${packager_distro} --tarball `pwd`/../mongodb-binaries.tgz -s ${version} -m HEAD -a ${packager_arch}
+            $python ${packager_script} --prefix `pwd`/.. --distros ${packager_distro} --tarball `pwd`/../mongodb-dist.tgz -s ${version} -m HEAD -a ${packager_arch}
             cd ..
         fi
 
@@ -7554,6 +7551,17 @@ tasks:
         include:
           - "repo/**"
           - "./**.msi"
+    - command: s3.put
+      params:
+        optional: true
+        aws_key: ${aws_key}
+        aws_secret: ${aws_secret}
+        local_file: src/mongodb-dist.${ext|tgz}
+        remote_file: ${project}/${build_variant}/${revision}/dist/mongo-${build_id}.${ext|tgz}
+        bucket: mciuploads
+        permissions: public-read
+        content_type: application/tar
+        display_name: Dist Tarball
     - command: s3.put
       params:
         optional: true
