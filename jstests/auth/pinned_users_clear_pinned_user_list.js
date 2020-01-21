@@ -2,7 +2,7 @@
 'use strict';
 
 TestData.enableTestCommands = true;
-    
+
 // Start a mongod with the user cache size set to zero, so we know that users who have logged out
 // always get fetched cleanly from disk.
 const mongod = MongoRunner.runMongod({auth: "", setParameter: "authorizationManagerCacheSize=0"});

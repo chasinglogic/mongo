@@ -12,7 +12,7 @@
 // writeConcernMajorityJournalDefault = false. So we need to disable the exemption in this test
 // in order to test the behavior.
 TestData.enableTestCommands = false;
-    
+
 // The following two options by default do not support enableTestCommands=false, change them
 // accordingly so this test can run.
 TestData.roleGraphInvalidationIsFatal = false;
