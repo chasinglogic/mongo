@@ -595,7 +595,6 @@ functions:
       script: |
         set -o errexit
         ${decompress} mh.tgz
-        cp mongodb*/bin/mqlrun .
 
   "archive new corpus": &archive_new_corpus
     command: archive.targz_pack
