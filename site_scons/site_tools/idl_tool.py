@@ -37,8 +37,12 @@ def idlc_emitter(target, source, env):
         )
 
     base_file_name, _ = SCons.Util.splitext(str(target[0]))
-    target_source = base_file_name + "_gen.cpp"
-    target_header = base_file_name + "_gen.h"
+    target_source = env.File(base_file_name + "_gen.cpp")
+    target_header = env.File(base_file_name + "_gen.h")
+
+    if env.get("GENERATING_NINJA", False):
+        setattr(target_source.attributes, "NINJA_EXTRA_VARS", {"msvc_deps_prefix": "import file:"})
+        setattr(target_header.attributes, "NINJA_EXTRA_VARS", {"msvc_deps_prefix": "import file:"})
 
     env.Alias("generated-sources", [target_source, target_header])
 
@@ -49,6 +53,9 @@ IDLCAction = SCons.Action.Action("$IDLCCOM", "$IDLCCOMSTR")
 
 
 def idl_scanner(node, env, path):
+    if env.get("GENERATING_NINJA", False):
+        return IDL_GLOBAL_DEPS
+
     nodes_deps_list = getattr(node.attributes, "IDL_NODE_DEPS", None)
     if nodes_deps_list is not None:
         return nodes_deps_list
