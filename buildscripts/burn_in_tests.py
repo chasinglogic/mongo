@@ -75,7 +75,7 @@ BURN_IN_TESTS_TASK = "burn_in_tests"
 MULTIVERSION_CONFIG_KEY = gen_multiversion.MULTIVERSION_CONFIG_KEY
 MULTIVERSION_TAG = gen_multiversion.PASSTHROUGH_TAG
 BURN_IN_MULTIVERSION_TASK = gen_multiversion.BURN_IN_TASK
-TASK_PATH_SUFFIX = "dist-test/bin"
+TASK_PATH_SUFFIX = "/data/multiversion"
 
 
 class RepeatConfig(object):
