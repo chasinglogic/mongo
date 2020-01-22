@@ -1226,6 +1226,11 @@ def generate(env):
     # symlinks which we're not producing.
     SCons.Node.FS.LocalFS.lstat = ninja_noop
 
+    # This is a slow method that isn't memoized. We make it a noop
+    # since during our generation we will never use the results of
+    # this or change the results.
+    SCons.Node.FS.is_up_to_date = ninja_noop
+
     # We overwrite stat and WhereIs with eternally memoized
     # implementations. See the docstring of ninja_stat and
     # ninja_whereis for detailed explanations.
@@ -1261,6 +1266,13 @@ def generate(env):
     # doesn't represent as a non-FunctionAction during the print_func
     # call.
     env["PRINT_CMD_LINE_FUNC"] = ninja_print
+
+    # This reduces unnecessary subst_list calls to add the compiler to
+    # the implicit dependencies of targets. Since we encode full paths
+    # in our generated commands we do not need these slow subst calls
+    # as executing the command will fail if the file is not found
+    # where we expect it.
+    env["IMPLICIT_COMMAND_DEPENDENCIES"] = False
 
     # Set build to no_exec, our sublcass of FunctionAction will force
     # an execution for ninja_builder so this simply effects all other
