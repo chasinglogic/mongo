@@ -1034,8 +1034,9 @@ function appendSetParameterArgs(argArray) {
     // programName includes the version, e.g., mongod-3.2.
     // baseProgramName is the program name without any version information, e.g., mongod.
     let programName = argArray[0];
-    if (programName.indexOf("/") !== -1) {
-        let pathElements = programName.split("/");
+    const separator = _isWindows() ? '\\' : '/';
+    if (programName.indexOf(separator) !== -1) {
+        let pathElements = programName.split(separator);
         programName = pathElements[pathElements.length - 1];
     }
 
