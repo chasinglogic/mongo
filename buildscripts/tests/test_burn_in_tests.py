@@ -318,7 +318,7 @@ class TestParseAvgTestRuntime(unittest.TestCase):
 class TestCalculateTimeout(unittest.TestCase):
     def test__calculate_timeout(self):
         avg_test_runtime = 455.1
-        expected_result = ceil(avg_test_runtime * under_test.AVG_TEST_TIME_MULTIPLIER)
+        expected_result = ceil((60 * 5) + avg_test_runtime * under_test.AVG_TEST_TIME_MULTIPLIER)
         self.assertEqual(expected_result, under_test._calculate_timeout(avg_test_runtime))
 
     def test__calculate_timeout_avg_is_less_than_min(self):
@@ -334,7 +334,7 @@ class TestCalculateExecTimeout(unittest.TestCase):
 
         exec_timeout = under_test._calculate_exec_timeout(repeat_config, avg_test_runtime)
 
-        self.assertEqual(1531, exec_timeout)
+        self.assertEqual(1531 + (60 * 5), exec_timeout)
 
     def test_average_timeout_greater_than_execution_time(self):
         repeat_config = under_test.RepeatConfig(repeat_tests_secs=600, repeat_tests_min=2)
