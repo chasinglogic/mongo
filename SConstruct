@@ -3895,13 +3895,6 @@ if get_option('install-mode') == 'hygienic':
             ]
         ),
 
-        "$LIBSUFFIX": env.SuffixMap(
-            directory="$PREFIX_LIBDIR",
-            default_roles=[
-                "dev",
-            ]
-        ),
-
         "$SHLIBSUFFIX": env.SuffixMap(
             directory="$PREFIX_BINDIR" \
             if mongo_platform.get_running_os_name() == "windows" \
