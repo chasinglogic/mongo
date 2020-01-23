@@ -495,7 +495,8 @@ def _calculate_exec_timeout(repeat_config: RepeatConfig, avg_test_runtime: float
     # meant we put a few more binaries in the tarball and
     # burn_in_tests are sensitive to the extra download time. Work to
     # actually fix this problem is happening on SERVER-45644
-    return ceil((60 * 5) + repeat_tests_secs + (test_execution_time_over_limit * AVG_TEST_TIME_MULTIPLIER))
+    return ceil((60 * 5) + repeat_tests_secs +
+                (test_execution_time_over_limit * AVG_TEST_TIME_MULTIPLIER))
 
 
 def _generate_timeouts(repeat_config: RepeatConfig, test: str,
