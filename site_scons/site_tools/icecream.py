@@ -206,6 +206,7 @@ def generate(env):
     # the realpath in the generator above until after we have made the
     # tarball.
     env["ENV"]["ICECC_VERSION"] = _BoundSubstitution(env, icecc_version_string)
+    env.AppendUnique(NINJA_ENV_VARS=["ICECC_VERSION"])
 
     # If ccache is in play we actually want the icecc binary in the
     # CCACHE_PREFIX environment variable, not on the command line, per
@@ -218,6 +219,7 @@ def generate(env):
     # to do the right thing.
     if ccache_enabled:
         env["ENV"]["CCACHE_PREFIX"] = _BoundSubstitution(env, "$ICECC")
+        env.AppendUnique(NINJA_ENV_VARS=["CCACHE_PREFIX"])
     else:
         icecc_string = "$( $ICECC $)"
         env["CCCOM"] = " ".join([icecc_string, env["CCCOM"]])

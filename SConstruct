@@ -860,13 +860,13 @@ env_vars.Add('NINJA_SUFFIX',
 files. Useful for when compiling multiple build ninja files for
 different configurations, for instance:
 
-    scons --sanitize=asan --ninja NINJA_SUFFIX=asan new.build.ninja
-    scons --sanitize=tsan --ninja NINJA_SUFFIX=tsan new.build.ninja
+    scons --sanitize=asan --ninja NINJA_SUFFIX=asan build.ninja
+    scons --sanitize=tsan --ninja NINJA_SUFFIX=tsan build.ninja
 
 Will generate the files (respectively):
 
-    new.build.ninja.asan
-    new.build.ninja.tsan
+    build.ninja.asan
+    build.ninja.tsan
 """)
 
 env_vars.Add('__NINJA_NO',
@@ -3771,7 +3771,7 @@ if get_option('ninja') == 'true':
 
     if get_option("install-mode") == "hygienic":
         ninja_build = env.Ninja(
-            target="new.build.ninja",
+            target="build.ninja",
             source=[
                 env.Alias("install-all-meta"),
                 env.Alias("test-execution-aliases"),
@@ -3779,7 +3779,7 @@ if get_option('ninja') == 'true':
         )
     else:
         ninja_build = env.Ninja(
-            target="new.build.ninja",
+            target="build.ninja",
             source=[
                 env.Alias("all"),
                 env.Alias("test-execution-aliases"),
