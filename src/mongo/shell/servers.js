@@ -810,6 +810,16 @@ MongoRunner.runMongod = function(opts) {
         }
 
         var mongodProgram = MongoRunner.mongodPath;
+
+        // multiversion tests should always pick up the binaries from
+        // the $PATH provided by Resmoke. Without this multiversion
+        // binaries will be looked for in --installDir given to
+        // Resmoke which is not where multiversion binaries are
+        // usually found.
+        if (opts.hasOwnProperty('binVersion')) {
+            mongodProgram = "mongod";
+        }
+
         opts = MongoRunner.arrOptions(mongodProgram, opts);
     }
 
