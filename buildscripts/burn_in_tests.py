@@ -491,7 +491,11 @@ def _calculate_exec_timeout(repeat_config: RepeatConfig, avg_test_runtime: float
 
     test_execution_time_over_limit = avg_test_runtime - (repeat_tests_secs % avg_test_runtime)
     test_execution_time_over_limit = max(MIN_AVG_TEST_OVERFLOW_SEC, test_execution_time_over_limit)
-    return ceil(repeat_tests_secs + (test_execution_time_over_limit * AVG_TEST_TIME_MULTIPLIER))
+    # TODO: Remove this hard coded adding of 5 minutes. Hygienic has
+    # meant we put a few more binaries in the tarball and
+    # burn_in_tests are sensitive to the extra download time. Work to
+    # actually fix this problem is happening on SERVER-45644
+    return ceil((60 * 5) + repeat_tests_secs + (test_execution_time_over_limit * AVG_TEST_TIME_MULTIPLIER))
 
 
 def _generate_timeouts(repeat_config: RepeatConfig, test: str,
