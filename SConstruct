@@ -3748,6 +3748,16 @@ env["NINJA_SYNTAX"] = "#site_scons/third_party/ninja_syntax.py"
 env.Tool('ccache')
 env.Tool('icecream')
 
+resmoke_config = env.Substfile(
+    target="#resmoke.ini",
+    source="buildscripts/resmoke.ini.in",
+    SUBST_DICT={
+        "@install_dir@": env.subst("$PREFIX_BINDIR") if get_option("install-mode") == "hygienic" else env.Dir("#").abspath,
+    }
+)
+env.AlwaysBuild(resmoke_config)
+env.Depends(env.Dir("$BUILD_DIR"), resmoke_config)
+
 if get_option('ninja') == 'true':
     ninja_builder = Tool("ninja")
     ninja_builder.generate(env)
@@ -3770,6 +3780,7 @@ if get_option('ninja') == 'true':
             source=[
                 env.Alias("install-all-meta"),
                 env.Alias("test-execution-aliases"),
+                resmoke_config,
             ],
         )
     else:
@@ -3778,6 +3789,7 @@ if get_option('ninja') == 'true':
             source=[
                 env.Alias("all"),
                 env.Alias("test-execution-aliases"),
+                resmoke_config,
             ],
         )
 
@@ -4312,6 +4324,7 @@ if has_option("cache"):
         addNoCacheEmitter(env['BUILDERS']['StaticLibrary'])
         addNoCacheEmitter(env['BUILDERS']['SharedLibrary'])
         addNoCacheEmitter(env['BUILDERS']['LoadableModule'])
+
 
 env.SConscript(
     dirs=[
