@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Bundle>
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+    <Chain>
+      <MsiPackage
+        SourceFile="[sources]\packages\shared\MongoDBTools.msi"
+        DownloadUrl="$(var.ToolsDownloadURL)" >
+      <![CDATA[&Tools = 3]]>
+    </MsiPackage>
+    </Chain>
+  </Bundle>
   <Fragment>
     <?if $(var.Edition) = Enterprise ?>
       <WixVariable Id="MiscToolsDesc" Value="Miscellaneous MongoDB tools (mongodecrypt, mongoldap)" />
@@ -68,6 +78,11 @@
           <?if $(var.Edition) = Enterprise ?>
             <ComponentGroupRef Id="cg_EnterpriseBase" />
           <?endif ?>
+        </Feature>
+        <Feature Id="Tools"
+          Title="MongoDB Database Tools"
+          Description=""
+          Level="1">
         </Feature>
         <Feature Id="MiscellaneousTools"
                 Title ="Miscellaneous Tools"

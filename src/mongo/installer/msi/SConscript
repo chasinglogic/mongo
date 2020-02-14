@@ -117,6 +117,7 @@ env.Command(objects,
             ' -dMongoDBMajorVersion=' + major_version +
             ' -dMongoDBVersion=' + full_version +
             ' -dLicenseSource=distsrc'
+            ' -dToolsDownloadURL=https://s3.amazonaws.com/mciuploads/sqlproxy/tmp/mongodb-cli-tools-example.msi'
             r' -dEnterpriseBase=' + enterprisebase + '\\'
             ' -dBinarySource=' + buildDir + r'\mongo'
             ' -dEnterpriseToolBinarySource=' + enterpriseToolBuildDir +
@@ -143,6 +144,7 @@ env.Command(objects,
             ' -arch ' + msi_platform +
             ' -ext "$WIXUIEXT"'
             ' -ext "$WIXUTILEXT"'
+            ' -ext WixBalExtension'
             ' $SOURCES')
 
 #light: link .objs into an msi
