@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Include="Installer_64.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include=".\Tools\Tools.wixproj">
+      <Name>FirstInstaller</Name>
+      <Project>{d739173a-ab17-4033-8f96-37320315c075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
+

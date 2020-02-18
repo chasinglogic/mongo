@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Bundle 
+    UpgradeCode="1666C85A-E85C-4485-9191-A1D815B7555E" 
+    Version="1.0.0"> 
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" /> 
+    <Chain> 
+      <MsiPackage 
+        DisplayInternalUI="yes" 
+        EnableFeatureSelection="yes" 
+        Name="MongoDB Tools" 
+        Vital="no" 
+        Description="MongoDB Tools" 
+        SourceFile="[sources]\packages\shared\MongoDBTools.msi" 
+        DownloadUrl="$(var.ToolsDownloadURL)" > 
+      </MsiPackage> 
+    </Chain> 
+  </Bundle> 
+</Wix>
